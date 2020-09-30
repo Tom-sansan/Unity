@@ -86,6 +86,18 @@ public class myscript : MonoBehaviour
         #endregion List2-7
 
         #region List2-8
+        Method2_8();
+        #endregion
+    }
+
+    private void Initialize2_8()
+    {
+        stdSize = new Vector3(1f, 1f, 1f);
+        smlSize = new Vector3(0.5f, 0.5f, 0.5f);
+    }
+
+    private void Method2_8()
+    {
         if (isSmallSize)
         {
             if (counter2_8 <= 0)
@@ -122,12 +134,5 @@ public class myscript : MonoBehaviour
                 }
             }
         }
-        #endregion
-    }
-
-    private void Initialize2_8()
-    {
-        stdSize = new Vector3(1f, 1f, 1f);
-        smlSize = new Vector3(0.5f, 0.5f, 0.5f);
     }
 }
