@@ -12,11 +12,21 @@ public class myscript : MonoBehaviour
     // List2-4
     float dx = 0.01f;
     float dy = -0.01f;
+    // List2-8
+    // default size of cube
+    Vector3 stdSize;
+    // small size of cube
+    Vector3 smlSize;
+    RaycastHit hit;
+    // counter called by update during small size
+    int counter2_8 = 0;
+    // flag if cube is small size or not
+    bool isSmallSize = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        Initialize2_8();
     }
 
     // Update is called once per frame
@@ -55,10 +65,69 @@ public class myscript : MonoBehaviour
         #endregion List2-4
 
         #region List2-5
-        if (Input.GetKey(KeyCode.UpArrow)) transform.Translate(transform.forward * 0.1f);
-        if (Input.GetKey(KeyCode.DownArrow)) transform.Translate(transform.forward * -0.1f);
-        if (Input.GetKey(KeyCode.RightArrow)) transform.Translate(transform.right * 0.1f);
-        if (Input.GetKey(KeyCode.LeftArrow)) transform.Translate(transform.right * -0.1f);
+        //if (Input.GetKey(KeyCode.UpArrow)) transform.Translate(transform.forward * 0.1f);
+        //if (Input.GetKey(KeyCode.DownArrow)) transform.Translate(transform.forward * -0.1f);
+        //if (Input.GetKey(KeyCode.RightArrow)) transform.Translate(transform.right * 0.1f);
+        //if (Input.GetKey(KeyCode.LeftArrow)) transform.Translate(transform.right * -0.1f);
         #endregion List2-5
+
+        #region List2-6
+        //if (Input.GetMouseButton(0)) transform.Rotate(new Vector3(0.1f, 0.2f, 0.3f));
+        #endregion List2-6
+
+        #region List2-7
+        //if (Input.GetMouseButtonDown(0))
+        //{
+        //    Vector3 pos = Input.mousePosition;
+        //    pos.z = 3.0f;
+        //    Vector3 newPos = Camera.main.ScreenToWorldPoint(pos);
+        //    transform.position = newPos;
+        //}
+        #endregion List2-7
+
+        #region List2-8
+        if (isSmallSize)
+        {
+            if (counter2_8 <= 0)
+            {
+                // Return to standard size for cube
+                hit.transform.localScale = stdSize;
+                isSmallSize = false;
+            }
+            else counter2_8--;
+        }
+        if (Input.GetMouseButtonDown(0))
+        {
+            // Get mouse position
+            Vector3 pos = Input.mousePosition;
+            // Set z-depth to 3.0
+            pos.z = 3.0f;
+            // Prepare ray instance from clicked point
+            Ray ray = Camera.main.ScreenPointToRay(pos);
+            // Process when cube is standard size
+            if (!isSmallSize)
+            {
+                // Make cube size small if cube is clicked
+                if (Physics.Raycast(ray, out hit, 100))
+                {
+                    hit.transform.localScale = smlSize;
+                    counter2_8 = 100;
+                    isSmallSize = true;
+                }
+                // Set the position of cube to clicked position
+                else
+                {
+                    Vector3 newPos = Camera.main.ScreenToWorldPoint(pos);
+                    transform.position = newPos;
+                }
+            }
+        }
+        #endregion
+    }
+
+    private void Initialize2_8()
+    {
+        stdSize = new Vector3(1f, 1f, 1f);
+        smlSize = new Vector3(0.5f, 0.5f, 0.5f);
     }
 }
