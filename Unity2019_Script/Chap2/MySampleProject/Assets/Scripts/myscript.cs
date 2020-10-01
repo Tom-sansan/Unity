@@ -23,10 +23,14 @@ public class myscript : MonoBehaviour
     // flag if cube is small size or not
     bool isSmallSize = false;
 
+    // List2-13
+    Light light;
+
     // Start is called before the first frame update
     void Start()
     {
-        Initialize2_8();
+        // Initialize2_8();
+        Initialize2_13();
     }
 
     // Update is called once per frame
@@ -85,9 +89,10 @@ public class myscript : MonoBehaviour
         //}
         #endregion List2-7
 
-        #region List2-8
-        Method2_8();
-        #endregion
+        // Method2_8();
+        // Method2_11();
+        // Method2_12();
+        Method2_13();
     }
 
     private void Initialize2_8()
@@ -133,6 +138,73 @@ public class myscript : MonoBehaviour
                     transform.position = newPos;
                 }
             }
+        }
+    }
+
+    /// <summary>
+    /// Enable/Disable for Renderer
+    /// </summary>
+    private void Method2_11()
+    {
+        transform.Rotate(1f, 1f, 0.1f);
+        if (Input.GetKeyDown(KeyCode.Space)) GetComponent<Renderer>().enabled = false;
+        if (Input.GetKeyUp(KeyCode.Space)) GetComponent<Renderer>().enabled = true;
+    }
+
+    /// <summary>
+    /// Color of Renderer
+    /// </summary>
+    private void Method2_12()
+    {
+        transform.Rotate(0.5f, 0.3f, 0.07f);
+        Renderer renderer = GetComponent<Renderer>();
+        Color c = renderer.material.color;
+        // Change color from blue to red when right arrow
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            c.r += 0.001f;
+            if (c.r > 1.0f) c.r = 1.0f;
+            c.b -= 0.001f;
+            if (c.b < 0.0f) c.b = 0.0f;
+            renderer.material.color = c;
+        }
+        // Change color from red to blue when left arrow
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            c.r -= 0.001f;
+            if (c.r < 0.0f) c.r = 0.0f;
+            c.b += 0.001f;
+            if (c.b > 1.0f) c.b = 1.0f;
+            renderer.material.color = c;
+        }
+    }
+
+    private void Initialize2_13()
+    {
+        light = GameObject.Find("Directional Light").GetComponent<Light>();
+        // light = GetComponent<Light>();
+    }
+
+    /// <summary>
+    /// Color of Light
+    /// </summary>
+    private void Method2_13()
+    {
+        transform.Rotate(1f, 1f, 0.1f);
+        Color c = light.color;
+        // Change color to red when pushing right arrow
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            c.r += 0.01f;
+            if (c.r > 1.0f) c.r = 1.0f;
+            light.color = c;
+        }
+        // Change color from red when left arrow
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            c.r -= 0.01f;
+            if (c.r < 0.0f) c.r = 0.0f;
+            light.color = c;
         }
     }
 }
