@@ -7,11 +7,14 @@ public class myscript : MonoBehaviour
     // List2-1
     int counter = 0;
     float plus = 0.1f;
+
     // List2-2
     float zvalue = 0f;
+
     // List2-4
     float dx = 0.01f;
     float dy = -0.01f;
+
     // List2-8
     // default size of cube
     Vector3 stdSize;
@@ -26,11 +29,25 @@ public class myscript : MonoBehaviour
     // List2-13
     Light light;
 
+    // List2-14
+    Texture texture2_14;
+    Renderer renderer2_14;
+    Color color2_14;
+    string QS_GRASS_1_1 = "QS-GRASS-1.1";
+
+    // List2-15
+    Renderer renderer2_15;
+    Texture texture2_15;
+    Color Color2_15;
+    float size2_15 = 1.0f;
+
     // Start is called before the first frame update
     void Start()
     {
         // Initialize2_8();
-        Initialize2_13();
+        // Initialize2_13();
+        // Initialize2_14();
+        Initialize2_15();
     }
 
     // Update is called once per frame
@@ -92,7 +109,9 @@ public class myscript : MonoBehaviour
         // Method2_8();
         // Method2_11();
         // Method2_12();
-        Method2_13();
+        // Method2_13();
+        // Method2_14();
+        Method2_15();
     }
 
     private void Initialize2_8()
@@ -205,6 +224,59 @@ public class myscript : MonoBehaviour
             c.r -= 0.01f;
             if (c.r < 0.0f) c.r = 0.0f;
             light.color = c;
+        }
+    }
+
+    private void Initialize2_14()
+    {
+        texture2_14 = (Texture)Resources.Load(QS_GRASS_1_1);
+        renderer2_14 = GetComponent<Renderer>();
+        color2_14 = renderer2_14.material.color;
+    }
+
+    /// <summary>
+    /// Change texture of cube
+    /// </summary>
+    private void Method2_14()
+    {
+        transform.Rotate(1f, 1f, 0.1f);
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            renderer2_14.material.mainTexture = texture2_14;
+            renderer2_14.material.color = Color.white;
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            renderer2_14.material.mainTexture = null;
+            renderer2_14.material.color = color2_14;
+        }
+    }
+
+    private void Initialize2_15()
+    {
+        renderer2_15 = GetComponent<Renderer>();
+        texture2_15 = (Texture)Resources.Load(QS_GRASS_1_1);
+        Color2_15 = renderer2_15.material.color;
+        renderer2_15.material.mainTexture = texture2_15;
+        renderer2_15.material.color = Color.white;
+    }
+
+    /// <summary>
+    /// Change texture size in real time
+    /// </summary>
+    private void Method2_15()
+    {
+        transform.Rotate(1f, 1f, 0.1f);
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            size2_15 += 0.01f;
+            renderer2_15.material.mainTextureScale = new Vector2(size2_15, size2_15);
+        }
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            size2_15 -= 0.01f;
+            if (size2_15 < 0) size2_15 = 0f;
+            renderer2_15.material.SetTextureScale("_MainTex", new Vector2(size2_15, size2_15));
         }
     }
 }
