@@ -5,6 +5,8 @@ Library
 Temp
 Logs
 .vs
+.DS_Store
+Assembly-CSharp.csproj
 /Unity5/Sample
 /Unity5/Test
 /Unity5/Unity5noKyoukasyo
