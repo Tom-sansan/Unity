@@ -9,11 +9,13 @@ public class MyScript : MonoBehaviour
     string localPosition_z = "localPosition.z";
     string anim1 = "anim1";
     string anim2 = "anim2";
+    bool flg3_5;
+
     // Start is called before the first frame update
     void Start()
     {
         // Initialize3_1_2();
-        Initialize3_3();
+        // Initialize3_3_4();
     }
 
     // Update is called once per frame
@@ -21,7 +23,10 @@ public class MyScript : MonoBehaviour
     {
         // Method3_1();
         // Method3_2();
-        Method3_3();
+        // Method3_3();
+        // Method3_4();
+        // Method3_5();
+        Method3_12();
     }
 
     /// <summary>
@@ -35,13 +40,13 @@ public class MyScript : MonoBehaviour
         curve.AddKey(key);
         clip.SetCurve(string.Empty, typeof(Transform), localPosition_z, curve);
         clip.wrapMode = WrapMode.Loop;
-        Animation animation = GetComponent<Animation>();
+        Animation animation = CreateAnimationComponent();
         animation.AddClip(clip, clip1);
         animation.Play(clip1);
     }
     private void Method3_1()
     {
-        transform.Rotate(1f, 1f, 1f);
+        SetTransformRotate();
     }
 
     /// <summary>
@@ -49,7 +54,7 @@ public class MyScript : MonoBehaviour
     /// </summary>
     private void Method3_2()
     {
-        transform.Rotate(1f, 1f, 1f);
+        SetTransformRotate();
         Animation animation = GetComponent<Animation>();
         if (Input.GetKeyDown(KeyCode.Space)) animation.Stop();
         if (Input.GetKeyUp(KeyCode.Space)) animation.Play(clip1);
@@ -58,9 +63,10 @@ public class MyScript : MonoBehaviour
     /// <summary>
     /// Initialize for change of animation clip
     /// </summary>
-    private void Initialize3_3()
+    private void Initialize3_3_4()
     {
-        Animation animation = GetComponent<Animation>();
+        
+        Animation animation = CreateAnimationComponent();
 
         // Animation clip for the first
         AnimationClip clipA = new AnimationClip { legacy = true };
@@ -93,7 +99,7 @@ public class MyScript : MonoBehaviour
     /// </summary>
     private void Method3_3()
     {
-        transform.Rotate(1f, 1f, 1f);
+        SetTransformRotate();
         Animation animation = GetComponent<Animation>();
 
         if (Input.GetKeyDown(KeyCode.Space))
@@ -101,5 +107,68 @@ public class MyScript : MonoBehaviour
             if (animation.IsPlaying(anim1)) animation.PlayQueued(anim2, QueueMode.PlayNow);
             else animation.PlayQueued(anim1, QueueMode.PlayNow);
         }
+    }
+
+    /// <summary>
+    /// Change of animation clip using CrossFade
+    /// </summary>
+    private void Method3_4()
+    {
+        SetTransformRotate();
+        Animation animation = GetComponent<Animation>();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (animation.IsPlaying(anim1)) animation.CrossFade(anim2, 5.0f);
+            else animation.CrossFade(anim1, 5.0f);
+        }
+    }
+
+    /// <summary>
+    /// Control animation clip using animator
+    /// </summary>
+    private void Method3_5()
+    {
+        SetTransformRotate();
+        Animator animator = GetComponent<Animator>();
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            if (flg3_5) animator.CrossFade(anim2, 5.0f);
+            else animator.CrossFade(anim1, 5.0f);
+            flg3_5 = !flg3_5;
+        }
+    }
+
+    private void Method3_12()
+    {
+        SetTransformRotate();
+        Animator animator = GetComponent<Animator>();
+        int flag = animator.GetInteger("flag");
+        if (Input.GetKeyDown(KeyCode.UpArrow))
+        {
+            if (flag > 2) flag = 2;
+            else flag++;
+        }
+        if (Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            if (flag < -2) flag = -2;
+            else flag--;
+        }
+        animator.SetInteger("flag", flag);
+    }
+
+    /// <summary>
+    /// Create and return an animation component
+    /// </summary>
+    private Animation CreateAnimationComponent()
+    {
+        return gameObject.AddComponent<Animation>();
+    }
+
+    /// <summary>
+    /// Set Transform.Rotate(1f, 1f, 1f)
+    /// </summary>
+    private void SetTransformRotate()
+    {
+        transform.Rotate(1f, 1f, 1f);
     }
 }

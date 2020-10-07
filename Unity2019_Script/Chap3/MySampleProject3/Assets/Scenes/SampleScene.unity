@@ -371,8 +371,10 @@ GameObject:
   - component: {fileID: 1393427665}
   - component: {fileID: 1393427664}
   - component: {fileID: 1393427663}
-  - component: {fileID: 1393427662}
   - component: {fileID: 1393427667}
+  - component: {fileID: 1393427662}
+  - component: {fileID: 1393427669}
+  - component: {fileID: 1393427668}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -380,21 +382,25 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!111 &1393427662
-Animation:
+--- !u!95 &1393427662
+Animator:
+  serializedVersion: 3
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1393427661}
   m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 0}
-  m_Animations: []
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_CullingType: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!65 &1393427663
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -483,3 +489,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a15ca869d0a84a34ba5e73aa24cd67a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!320 &1393427668
+PlayableDirector:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1393427661}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_PlayableAsset: {fileID: 11400000, guid: 7a98e2ff9ae860243b85cff1ac723ee8, type: 2}
+  m_InitialState: 1
+  m_WrapMode: 1
+  m_DirectorUpdateMode: 1
+  m_InitialTime: 0
+  m_SceneBindings:
+  - key: {fileID: -5455749927305475225, guid: 7a98e2ff9ae860243b85cff1ac723ee8, type: 2}
+    value: {fileID: 1393427662}
+  m_ExposedReferences:
+    m_References: []
+--- !u!111 &1393427669
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1393427661}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Animation: {fileID: 0}
+  m_Animations: []
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_CullingType: 0
