@@ -5278,6 +5278,7 @@ GameObject:
   - component: {fileID: 1115963598}
   - component: {fileID: 1115963597}
   - component: {fileID: 1115963596}
+  - component: {fileID: 1115963600}
   m_Layer: 0
   m_Name: Cylinder
   m_TagString: Player
@@ -5362,6 +5363,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!122 &1115963600
+Halo:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1115963595}
+  m_Enabled: 0
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294967295
+  m_Size: 2
 --- !u!1 &1393427661
 GameObject:
   m_ObjectHideFlags: 0

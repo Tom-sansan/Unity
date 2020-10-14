@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEditor.Experimental.AssetImporters;
 using UnityEngine;
 using UnityEngine.Assertions.Must;
 using UnityEngine.Rendering;
@@ -11,18 +12,22 @@ public class MyScript : MonoBehaviour
 {
     string cubeStr = "Cube";
     string playerStr = "Player";
+    string cylinderStr = "Cylinder";
+    string sphereStr = "sphere";
     string gameObjectStr = "GameObject";
     int counter = 0;
     GameObject obj = null;
     GameObject[] cubes = new GameObject[4];
     GameObject[] gos = new GameObject[4];
+    float fog = 0;
 
     // Start is called before the first frame update
     void Start()
     {
         // Start4_5();
         // Start4_6();
-        Start4_8();
+        Start4_8_11();
+        // Start4_10();
     }
 
     // Update is called once per frame
@@ -31,7 +36,9 @@ public class MyScript : MonoBehaviour
         // Update4_1();
         // Update4_3();
         // Update4_4_5_6_7();
-        Update4_8();
+        // Update4_8_11();
+        // Update4_10();
+        Update4_8_11(true);
     }
 
     /// <summary>
@@ -65,7 +72,9 @@ public class MyScript : MonoBehaviour
     {
         // OnTriggerEnter4_6(collider);
         // OnTriggerEnter4_7(collider);
-        OnTriggerEnter4_8(collider);
+        // OnTriggerEnter4_8(collider);
+        // OnTriggerEnter4_10(collider);
+        OnTriggerEnter4_11(collider);
     }
 
     /// <summary>
@@ -76,6 +85,7 @@ public class MyScript : MonoBehaviour
     {
         // OnTriggerExit4_6(collider);
         // OnTriggerExit4_7(collider);
+        OnTriggerExit4_9_10_11(collider);
     }
 
     /// <summary>
@@ -86,7 +96,7 @@ public class MyScript : MonoBehaviour
         GameObject cube = GameObject.Find(cubeStr);
         Rigidbody rigidbody = GetComponent<Rigidbody>();
         SetTransformRotate(cube, 1f, -1f, -1f);
-        MoveByKeys(rigidbody);
+        MoveByKeysPatternA(rigidbody);
     }
 
     private void OnCollisionEnter4_1(Collision collision)
@@ -122,7 +132,7 @@ public class MyScript : MonoBehaviour
         }
         catch (NullReferenceException e) { }
 
-        MoveByKeys(rigidbody);
+        MoveByKeysPatternA(rigidbody);
     }
 
     private void OnCollisionEnter4_3(Collision collision)
@@ -188,7 +198,7 @@ public class MyScript : MonoBehaviour
         }
         catch (NullReferenceException e) { }
 
-        MoveByKeys(obj.rigidbody);
+        MoveByKeysPatternA(obj.rigidbody);
     }
 
     /// <summary>
@@ -286,33 +296,27 @@ public class MyScript : MonoBehaviour
     }
 
     /// <summary>
-    /// Start method for ParticleSystem
+    /// Start method for ParticleSystem(8) and GameObject Creation(11)
     /// </summary>
-    private void Start4_8()
+    private void Start4_8_11()
     {
-        for (int i = 0; i < 4; i++)
-        {
-            cubes[i] = GameObject.Find(cubeStr + i);
-            gos[i] = GameObject.Find(gameObjectStr + i);
-        }
+        GetCubesAndGameObjects();
     }
 
     /// <summary>
-    /// Update method for ParticleSystem
+    /// Update method for ParticleSystem(8) and creation of GameObject(11)
     /// </summary>
-    private void Update4_8()
+    /// <param name="isList11"></param>
+    private void Update4_8_11(bool isList11 = false)
     {
         Rigidbody rigidbody = GetComponent<Rigidbody>();
         foreach (var obj in cubes)
         {
             SetTransformRotate(obj, 1f, 1f, 1f);
         }
-        
-        Vector3 v = transform.position;
-        v.y += 2;
-        v.z -= 7;
-        Camera.main.transform.position = v;
-        MoveByKeysForParticlelSystem(rigidbody);
+        SetCameraPosition(2f, 7f);
+        MoveByKeysPatternB(rigidbody);
+        if (isList11) AddForceAll();
     }
 
     /// <summary>
@@ -336,6 +340,108 @@ public class MyScript : MonoBehaviour
     }
 
     /// <summary>
+    /// Event of trigger exit for Halo
+    /// </summary>
+    /// <param name="collider"></param>
+    private void OnTriggerExit4_9_10_11(Collider collider)
+    {
+        if (collider.name.Equals(cylinderStr))
+        {
+            Behaviour b = (Behaviour)collider.gameObject.GetComponent("Halo");
+            b.enabled = true;
+        }
+    }
+
+    /// <summary>
+    /// Start method for Fog settings
+    /// </summary>
+    private void Start4_10()
+    {
+        RenderSettings.fogMode = FogMode.Exponential;
+        RenderSettings.fog = true;
+        RenderSettings.fogColor = Color.gray;
+        RenderSettings.fogDensity = 0f;
+        GetCubesAndGameObjects();
+    }
+
+    /// <summary>
+    /// Update method for Fog
+    /// </summary>
+    private void Update4_10()
+    {
+        Rigidbody rigidbody = GetComponent<Rigidbody>();
+        // Set fogDensity gradually according to fog value
+        if (RenderSettings.fogDensity < fog) RenderSettings.fogDensity += 0.0001f;
+        foreach (var obj in cubes)
+        {
+            SetTransformRotate(obj, 1f, 1f, 1f);
+        }
+        SetCameraPosition(2f, 7f);
+        MoveByKeysPatternB(rigidbody);
+    }
+
+    /// <summary>
+    /// Event of trigger enter for Fog
+    /// </summary>
+    /// <param name="collider"></param>
+    void OnTriggerEnter4_10(Collider collider)
+    {
+        if (collider.gameObject.name.StartsWith(cubeStr))
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (cubes[i] == collider.gameObject)
+                {
+                    ParticleSystem ps = gos[i].GetComponent<ParticleSystem>();
+                    ps.Play();
+                    cubes[i].SetActive(false);
+                    fog += 0.05f;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Event of trigger enter to create a new GameObject as Sphere
+    /// </summary>
+    /// <param name="collider"></param>
+    private void OnTriggerEnter4_11(Collider collider)
+    {
+        if (collider.gameObject.name.StartsWith(cubeStr))
+        {
+            for (int i = 0; i < 4; i++)
+            {
+                if (cubes[i] == collider.gameObject)
+                {
+                    ParticleSystem ps = gos[i].GetComponent<ParticleSystem>();
+                    ps.Play();
+                    cubes[i].SetActive(false);
+                    Vector3 p = cubes[i].transform.position;
+                    GameObject obj = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+                    obj.AddComponent<Rigidbody>();
+                    obj.transform.position = p;
+                    obj.GetComponent<Renderer>().material.color = Color.cyan;
+                    obj.tag = sphereStr;
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// A new sphere approaches the main sphere.
+    /// </summary>
+    private void AddForceAll()
+    {
+        GameObject[] objs = GameObject.FindGameObjectsWithTag(sphereStr);
+        foreach (var obj in objs)
+        {
+            // Vector from a new sphere to main sphere 
+            Vector3 dir = transform.position - obj.transform.position;
+            obj.GetComponent<Rigidbody>().AddForce(dir);
+        }
+    }
+
+    /// <summary>
     /// Tuple of Initialization for GameObject and Rigidbody
     /// </summary>
     /// <param name="gameObjStr"></param>
@@ -349,7 +455,7 @@ public class MyScript : MonoBehaviour
     /// Move by keys on keyboard
     /// </summary>
     /// <param name="rigidbody"></param>
-    private void MoveByKeys(Rigidbody rigidbody)
+    private void MoveByKeysPatternA(Rigidbody rigidbody)
     {
         if (Input.GetKey(KeyCode.LeftArrow)) SetRigidbodyAddForm(rigidbody, -1f, 0, 1f);
         if (Input.GetKey(KeyCode.RightArrow)) SetRigidbodyAddForm(rigidbody, 1f, 0, -1f);
@@ -358,10 +464,10 @@ public class MyScript : MonoBehaviour
     }
 
     /// <summary>
-    /// Move by keys on keyboard for ParticleSystem
+    /// Move by keys on keyboard for Pattern B
     /// </summary>
     /// <param name="rigidbody"></param>
-    private void MoveByKeysForParticlelSystem(Rigidbody rigidbody)
+    private void MoveByKeysPatternB(Rigidbody rigidbody)
     {
         if (Input.GetKey(KeyCode.LeftArrow)) SetRigidbodyAddForm(rigidbody, -1f, 0, 0f);
         if (Input.GetKey(KeyCode.RightArrow)) SetRigidbodyAddForm(rigidbody, 1f, 0, 0f);
@@ -404,5 +510,30 @@ public class MyScript : MonoBehaviour
     private void ChangeMaterialColor(GameObject gameObject, float r, float g, float b, float a)
     {
         gameObject.GetComponent<Renderer>().material.color = new Color(r, g, b, a);
+    }
+
+    /// <summary>
+    /// Get GameObjects of CubeX and GameObjectY
+    /// </summary>
+    private void GetCubesAndGameObjects()
+    {
+        for (int i = 0; i < 4; i++)
+        {
+            cubes[i] = GameObject.Find(cubeStr + i);
+            gos[i] = GameObject.Find(gameObjectStr + i);
+        }
+    }
+
+    /// <summary>
+    /// Set camera position
+    /// </summary>
+    /// <param name="y"></param>
+    /// <param name="z"></param>
+    private void SetCameraPosition(float y, float z)
+    {
+        Vector3 v = transform.position;
+        v.y += y;
+        v.z -= z;
+        Camera.main.transform.position = v;
     }
 }
