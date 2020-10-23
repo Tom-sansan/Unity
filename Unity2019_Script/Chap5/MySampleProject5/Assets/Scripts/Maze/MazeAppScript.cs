@@ -11,16 +11,19 @@ public class MazeAppScript : MonoBehaviour
     public Slider sizeSlider;
     public Slider levelSlider;
 
+    public int gameTime = 300;                  // Play time
+    public int power = 100;                     // Initial value for Power
+    public int mazeSize = 100;                  // Maze size
+    public float mazeLevel = 1;                 // Maze level
     private System.Random rnd;
-    private bool endFlg = false;    // End flag
-    private int playTime = 300;     // Current play time
-    private int endTime = 300;      // End time
-    private int hiScore = 0;        // High score
-    private bool toolFlg = false;   // Flag for displaying tool
-    public int gameTime = 300;      // Play time
-    public int power = 100;         // Initial value for Power
-    public int mazeSize = 100;      // Maze size
-    public float mazeLevel = 1;     // Maze level
+    private bool endFlg = false;                // End flag
+    private int playTime = 300;                 // Current play time
+    private int endTime = 300;                  // End time
+    private int hiScore = 0;                    // High score
+    private bool toolFlg = false;               // Flag for displaying tool
+    private string mazeSizeStr = "mazeSize";
+    private string mazeLevelStr = "mazeLevel";
+    private string hiScoreStr = "hiScore";
 
     /// <summary>
     /// Initialize Maze
@@ -55,9 +58,9 @@ public class MazeAppScript : MonoBehaviour
     /// </summary>
     private void LoadPref()
     {
-        mazeSize = PlayerPrefs.GetInt("mazeSize");
-        mazeLevel = PlayerPrefs.GetFloat("mazeLevel");
-        hiScore = PlayerPrefs.GetInt("hiScore");
+        mazeSize = PlayerPrefs.GetInt(mazeSizeStr);
+        mazeLevel = PlayerPrefs.GetFloat(mazeLevelStr);
+        hiScore = PlayerPrefs.GetInt(hiScoreStr);
         if (mazeSize < 4) mazeSize = 4;
         if (mazeLevel < 1) mazeLevel = 1;
         sizeSlider.value = mazeSize;
@@ -69,8 +72,8 @@ public class MazeAppScript : MonoBehaviour
     /// </summary>
     private void SavePref()
     {
-        PlayerPrefs.SetInt("mazeSize", mazeSize);
-        PlayerPrefs.SetFloat("mazeLevel", mazeLevel);
+        PlayerPrefs.SetInt(mazeSizeStr, mazeSize);
+        PlayerPrefs.SetFloat(mazeLevelStr, mazeLevel);
     }
 
     /// <summary>
@@ -266,7 +269,7 @@ public class MazeAppScript : MonoBehaviour
         int score = (int)(power * mazeLevel + playTime * mazeSize);
         messageText.color = Color.blue;
         messageText.text = "GAMEOVER";
-        PlayerPrefs.SetInt("hiScore", 1);  // delete
+        PlayerPrefs.SetInt(hiScoreStr, 1);  // delete
     }
 
     /// <summary>
@@ -282,7 +285,7 @@ public class MazeAppScript : MonoBehaviour
         {
             hiScore = score;
             msg = "Hi-Score!";
-            PlayerPrefs.SetInt("hiScore", hiScore);
+            PlayerPrefs.SetInt(hiScoreStr, hiScore);
             messageText.color = Color.red;
         }
         msg += " [" + score + "]";
@@ -291,10 +294,7 @@ public class MazeAppScript : MonoBehaviour
     /// <summary>
     /// Set value of SizeSlider
     /// </summary>
-    public void SetSizeSlider()
-    {
-        mazeSize = (int)sizeSlider.value;
-    }
+    public void SetSizeSlider() => mazeSize = (int)sizeSlider.value;
 
     /// <summary>
     /// Set value of LevelSlider
