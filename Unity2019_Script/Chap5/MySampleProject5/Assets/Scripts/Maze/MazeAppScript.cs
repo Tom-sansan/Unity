@@ -2,7 +2,6 @@
 using UnityEngine.Rendering;
 using UnityEngine.UI;
 
-
 public class MazeAppScript : MonoBehaviour
 {
     // GUI parts
@@ -160,7 +159,7 @@ public class MazeAppScript : MonoBehaviour
             }
         }
 
-        // Locate unitychan
+        // Locate unitychan at the center in Maze
         int cp = mazeW / 2;
         fdata[cp, cp] = false;
         GameObject.Find("unitychan").transform.position = new Vector3(cp, 0, cp);
