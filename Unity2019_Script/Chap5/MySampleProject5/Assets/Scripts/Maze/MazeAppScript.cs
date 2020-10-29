@@ -132,7 +132,7 @@ public class MazeAppScript : MonoBehaviour
             }
         }
 
-
+        // Array for going forward vertically(x-direction) or horizontally(y-direction)
         int[,] arw = new int[,]
         {
             { 0, -1 }, { 0, 1 }, { -1, 0 }, { 1, 0 }
