@@ -108,6 +108,10 @@ public class PlayerController : MonoBehaviour
     /// Lap switch to detect reverse run
     /// </summary>
     private bool lapSwitch = false;
+    /// <summary>
+    /// Flag for the starting lap or not
+    /// </summary>
+    private bool isStartLap = true;
     #endregion
 
     void Start()
@@ -141,17 +145,26 @@ public class PlayerController : MonoBehaviour
         // Normal gate pass
         if (lapSwitch)
         {
+            lapSwitch = false;
+            if (isStartLap)
+            {
+                isStartLap = false;
+                return;
+            }
             LapCount++;
             Debug.Log("Lap " + LapCount);
-            lapSwitch = false;
-            if (LapCount > GoalLap) OnGoal();
+            if (LapCount >= GoalLap) OnGoal();
             else LapEvent?.Invoke();
         }
         // Reverse run gate pass
         else
         {
             LapCount--;
-            if (LapCount < 0) LapCount = 0;
+            if (LapCount < 0)
+            {
+                LapCount = 0;
+                isStartLap = true;
+            }
             Debug.Log("Reverse run Lap " + LapCount);
             LapEvent?.Invoke();
         }
@@ -180,7 +193,7 @@ public class PlayerController : MonoBehaviour
     {
         this.transform.position = startPosition;
         this.transform.rotation = startRotation;
-
+        isStartLap = true;
         var rotOffset = this.transform.rotation * tpCameraOffset;
         var anchor = this.transform.position + rotOffset;
         tpCamera.gameObject.transform.position = anchor;

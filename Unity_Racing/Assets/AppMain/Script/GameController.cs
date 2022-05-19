@@ -73,6 +73,11 @@ public class GameController : MonoBehaviour
     [SerializeField]
     GameObject backToLaneButton = null;
     /// <summary>
+    /// Exit button
+    /// </summary>
+    [SerializeField]
+    GameObject exitButton = null;
+    /// <summary>
     /// Current state
     /// </summary>
     public PlayState CurrentState = PlayState.None;
@@ -100,9 +105,10 @@ public class GameController : MonoBehaviour
         CreateEvent();
         retryUI.SetActive(false);
         backToLaneButton.SetActive(false);
+        exitButton.SetActive(false);
         waterColliderCall.TriggerEnterEvent.AddListener(OnWaterEnter);
         timerText.text = SetTimerText(timerZero);
-        lapText.text = setLapText(1, player.GoalLap);
+        lapText.text = setLapText(0, player.GoalLap);
     }
 
     void Update()
@@ -146,17 +152,29 @@ public class GameController : MonoBehaviour
     public void OnRetryButtonClicked()
     {
         retryUI.SetActive(false);
+        exitButton.SetActive(false);
         timerText.text = SetTimerText(timerZero);
-        lapText.text = setLapText(1, player.GoalLap);
+        lapText.text = setLapText(0, player.GoalLap);
         goalList.Clear();
         player.OnRetry();
         CountDownStart();
+    }
+    /// <summary>
+    /// Call back for Exit button click
+    /// </summary>
+    public void OnExitButtonClicked()
+    {
+        Application.Quit();
+        // UnityEditor.EditorApplication.isPlaying = false;
     }
     /// <summary>
     /// Call back for relocation button click
     /// </summary>
     public void OnRelocationButtonClicked() =>
         Relocation(player.gameObject.transform);
+    /// <summary>
+    /// Create event for the game
+    /// </summary>
     private void CreateEvent()
     {
         player.LapEvent.AddListener(OnLap);
@@ -182,10 +200,11 @@ public class GameController : MonoBehaviour
         if (player != null)
         {
             // Get Player's ranking
-            var playerNumber = goalList.Count + 1;
             CurrentState = PlayState.Finish;
-            countdownText.text = "Goal!! The " + playerNumber + " Place!!";
-            countdownText.fontSize = 150;
+            var playerNumber = goalList.Count + 1;
+            var rank = playerNumber == 1 ? "1st" : playerNumber == 2 ? "2nd" : "3rd";
+            countdownText.text = "Goal!! The " + rank + " Place!!";
+            countdownText.fontSize = 130;
             countdownText.gameObject.SetActive(true);
             retryUI.SetActive(true);
             backToLaneButton.SetActive(false);
@@ -222,6 +241,7 @@ public class GameController : MonoBehaviour
         yield return new WaitForSeconds(2f);
         countdownText.gameObject.SetActive(false);
         backToLaneButton.SetActive(true);
+        exitButton.SetActive(true);
     }
     /// <summary>
     /// Set current state
