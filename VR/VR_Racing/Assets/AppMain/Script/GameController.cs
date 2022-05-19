@@ -112,8 +112,9 @@ public class GameController : MonoBehaviour
         GetAntiMotionSicknessComponent();
         retryUI.SetActive(false);
         backToLaneText.SetActive(false);
+		waterColliderCall.TriggerEnterEvent.AddListener(OnWaterEnter);
         timerText.text = SetTimerText(timerZero);
-        lapText.text = setLapText(1, player.GoalLap);
+        lapText.text = setLapText(0, player.GoalLap);
     }
 
     void Update()
@@ -172,11 +173,14 @@ public class GameController : MonoBehaviour
         retryUI.SetActive(false);
         backToLaneText.SetActive(false);
         timerText.text = SetTimerText(timerZero);
-        lapText.text = setLapText(1, player.GoalLap);
+        lapText.text = setLapText(0, player.GoalLap);
         goalList.Clear();
         player.OnRetry();
         CountDownStart();
     }
+    /// <summary>
+    /// Create event for the game
+    /// </summary>
     private void CreateEvent()
     {
         player.LapEvent.AddListener(OnLap);
@@ -202,9 +206,10 @@ public class GameController : MonoBehaviour
         if (player != null)
         {
             // Get Player's ranking
-            var playerNumber = goalList.Count + 1;
             CurrentState = PlayState.Finish;
-            countdownText.text = "Goal!! The " + playerNumber + " Place!!";
+            var playerNumber = goalList.Count + 1;
+            var rank = playerNumber == 1 ? "1st" : playerNumber == 2 ? "2nd" : "3rd";
+            countdownText.text = "Goal!! The " + rank + " Place!!";
             countdownText.gameObject.SetActive(true);
             retryUI.SetActive(true);
             backToLaneText.SetActive(false);
@@ -297,22 +302,6 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void SetAntiMotionSickness()
     {
-        if (player.IsAButtonPushed)
-        {
-            isRoadVRMode = !isRoadVRMode;
-            raceTrackBoxVR02.SetActive(isRoadVRMode);
-            raceTrackBox02.SetActive(!isRoadVRMode);
-
-            isTerrainVRMode = !isTerrainVRMode;
-            lakeTerrain.SetActive(isTerrainVRMode);
-
-            isCameraVRMode = !isCameraVRMode;
-            Vector3 cameraPosition;
-            if (isCameraVRMode) cameraPosition = new Vector3(0, 3f, -7f);
-            else cameraPosition = new Vector3(0, 1.4f, 0.6f);
-            OVRCameraRig.transform.position = cameraPosition;
-
-        }
         if (player.IsBButtonPushed)
         {
             isRoadVRMode = !isRoadVRMode;

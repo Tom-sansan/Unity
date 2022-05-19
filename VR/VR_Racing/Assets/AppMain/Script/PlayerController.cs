@@ -34,16 +34,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     float rotationSqrLimit = 0.5f;
     /// <summary>
-    /// Car tracking speed of camera
-    /// </summary>
-    [SerializeField, Range(1f, 10f)]
-    float cameraTrackingSpeed = 4f;
-    /// <summary>
-    /// Height Offset of camera
-    /// </summary>
-    [SerializeField, Range(0, 5f)]
-    float cameraLookHeightOffset = 4f;
-    /// <summary>
     /// Locatinf of camera
     /// </summary>
     [SerializeField]
@@ -58,11 +48,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     [SerializeField]
     Transform mapCamera = null;
-    /// <summary>
-    /// Root for Phone UI
-    /// </summary>
-    [SerializeField]
-    GameObject phoneUi = null;
     /// <summary>
     /// Text for debug
     /// </summary>
@@ -153,14 +138,15 @@ public class PlayerController : MonoBehaviour
     /// Lap switch to detect reverse run
     /// </summary>
     private bool lapSwitch = false;
+    /// <summary>
+    /// Flag for the starting lap or not
+    /// </summary>
+    private bool isStartLap = true;
     #endregion
 
     void Start()
     {
         if (rigid == null) rigid = GetComponent<Rigidbody>();
-        // TODO:
-        // rigid.centerOfMass = new Vector3(0, -0.2f, 0);
-        // EnablePhoneUI();
     }
     private void Update()
     {
@@ -171,7 +157,6 @@ public class PlayerController : MonoBehaviour
     {
         MoveUpdate();
         RotationUpdate();
-        // TrackingCameraUpdate();
         MoveMapMarker();
         MoveMapCamera();
     }
@@ -191,17 +176,26 @@ public class PlayerController : MonoBehaviour
         // Normal gate pass
         if (lapSwitch)
         {
+            lapSwitch = false;
+            if (isStartLap)
+            {
+                isStartLap = false;
+                return;
+            }
             LapCount++;
             Debug.Log("Lap " + LapCount);
-            lapSwitch = false;
-            if (LapCount > GoalLap) OnGoal();
+            if (LapCount >= GoalLap) OnGoal();
             else LapEvent?.Invoke();
         }
         // Reverse run gate pass
         else
         {
             LapCount--;
-            if (LapCount < 0) LapCount = 0;
+            if (LapCount < 0)
+            {
+                LapCount = 0;
+                isStartLap = true;
+            }
             Debug.Log("Reverse run Lap " + LapCount);
             LapEvent?.Invoke();
         }
@@ -230,7 +224,7 @@ public class PlayerController : MonoBehaviour
     {
         this.transform.position = startPosition;
         this.transform.rotation = startRotation;
-
+        isStartLap = true;
         var rotOffset = this.transform.rotation * tpCameraOffset;
         var anchor = this.transform.position + rotOffset;
     }
@@ -296,13 +290,11 @@ public class PlayerController : MonoBehaviour
         // Forward speed limit
         if (sqrVel > speedSqrLimit) return;
         // Move forward
-        //if (Input.GetKey(KeyCode.UpArrow)) rigid.AddForce(transform.forward * movePower, ForceMode.Force);
         rigid.AddForce(transform.forward * movePower * triggerL, ForceMode.Force);
         rigid.AddForce(transform.forward * movePower * triggerR, ForceMode.Force);
         // Backforward speed limit
         if (sqrVel > (speedSqrLimit * 0.2f)) return;
         // Move backward
-        // if (Input.GetKey(KeyCode.DownArrow)) rigid.AddForce(-transform.forward * movePower, ForceMode.Force);
         rigid.AddForce(-transform.forward * movePower * handL, ForceMode.Force);
         rigid.AddForce(-transform.forward * movePower * handR, ForceMode.Force);
     }
@@ -316,29 +308,11 @@ public class PlayerController : MonoBehaviour
         // Rotation speed limit
         if (sqrAng > rotationSqrLimit) return;
         // Move forward
-        //if (Input.GetKey(KeyCode.LeftArrow)) rigid.AddTorque(-transform.up * rotationPower, ForceMode.Force);
         rigid.AddTorque(transform.up * rotationPower * stickL.x, ForceMode.Force);
         rigid.AddTorque(transform.up * rotationPower * stickR.x, ForceMode.Force);
         // Move backward
         if (Input.GetKey(KeyCode.RightArrow)) rigid.AddTorque(transform.up * rotationPower, ForceMode.Force);
     }
-    /// <summary>
-    /// Car tracking of Camera
-    /// </summary>
-    //private void TrackingCameraUpdate()
-    //{
-    //    // Rotate offset value by current angle
-    //    var rotOffset = this.transform.rotation * tpCameraOffset;
-    //    // The camera position is calculated by adding the calculated offset value to the current position value
-    //    var anchor = this.transform.position + rotOffset;
-    //    // Gradual change of camera position from current position
-    //    tpCamera.gameObject.transform.position = Vector3.Lerp(tpCamera.gameObject.transform.position, anchor, Time.fixedDeltaTime * cameraTrackingSpeed);
-
-    //    // Point the camera in the direction of the car
-    //    var look = this.transform.position;
-    //    look.y += cameraLookHeightOffset;
-    //    tpCamera.gameObject.transform.LookAt(look);
-    //}
     /// <summary>
     /// Place markers for maps on top of the car
     /// </summary>
@@ -367,11 +341,6 @@ public class PlayerController : MonoBehaviour
     /// <returns></returns>
     private bool IsCurrentStateNotPlay() =>
         CurrentState != GameController.PlayState.Play;
-    /// <summary>
-    /// Enable Phone UI
-    /// </summary>
-    private void EnablePhoneUI() =>
-        phoneUi.SetActive(Application.platform == RuntimePlatform.Android || Application.platform == RuntimePlatform.IPhonePlayer);
     /// <summary>
     /// Get OVRInputs
     /// </summary>
