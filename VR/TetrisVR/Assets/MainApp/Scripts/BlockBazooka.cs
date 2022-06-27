@@ -39,8 +39,10 @@ public class BlockBazooka : MonoBehaviour
 
     void Update()
     {
+        // Fire block when A or X button is pushed
         if (OVRInput.GetDown(OVRInput.Button.One, controller))
-            Fire(transform.position, transform.forward, blockObj);
+            // Fire(transform.position, transform.forward, blockObj);
+            Fire(transform.position, transform.forward, CreateBlock(Random.Range(0, 7)));
     }
     /// <summary>
     /// Define block type
@@ -93,11 +95,13 @@ public class BlockBazooka : MonoBehaviour
     private void Fire(Vector3 startPos, Vector3 direction, GameObject target)
     {
         // Create block copy
-        GameObject go = Instantiate(target);
+        // GameObject go = Instantiate(target);
         // Set launch position of block
-        go.transform.position = startPos;
+        // go.transform.position = startPos;
+        target.transform.position = startPos;
         // Fire block from controller
-        go.GetComponent<Rigidbody>().AddForce(direction * 10f, ForceMode.Impulse);
+        // go.GetComponent<Rigidbody>().AddForce(direction * 10f, ForceMode.Impulse);
+        target.GetComponent<Rigidbody>().AddForce(direction * 10f, ForceMode.Impulse);
     }
     /// <summary>
     /// Create Block
@@ -108,6 +112,7 @@ public class BlockBazooka : MonoBehaviour
     {
         var size = blockTypes[typeNum].shape.GetLength(0);
         var blockUnits = new GameObject("BlockUnits");
+        blockUnits.tag = "blockUnits";
         // Add Rigidbody for physical operation
         blockUnits.AddComponent<Rigidbody>();
         for (int i = 0; i < size; i++)
