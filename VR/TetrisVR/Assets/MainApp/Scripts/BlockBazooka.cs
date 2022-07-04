@@ -29,20 +29,36 @@ public class BlockBazooka : MonoBehaviour
     /// Controller for left/right
     /// </summary>
     private OVRInput.Controller controller;
+    /// <summary>
+    /// BlockUnit for launch
+    /// </summary>
+    private GameObject shotObj;
 
     void Start()
     {
         // Get left or right controller
         controller = GetComponent<OVRControllerHelper>().m_controller;
         CreateBlockType();
+        InitiallizeBlockUnit();
     }
 
     void Update()
     {
-        // Fire block when A or X button is pushed
-        if (OVRInput.GetDown(OVRInput.Button.One, controller))
-            // Fire(transform.position, transform.forward, blockObj);
-            Fire(transform.position, transform.forward, CreateBlock(Random.Range(0, 7)));
+        switch (GameStatus.status)
+        {
+            case "Shot":
+                // Fire block when A or X button is pushed
+                if (OVRInput.GetDown(OVRInput.Button.One, controller))
+                    // Fire(transform.position, transform.forward, blockObj);
+                    Fire(transform.position, transform.forward, CreateBlock(Random.Range(0, 7)));
+                break;
+            case "Wait":
+                break;
+            case "Fall":
+                break;
+            case "Delete":
+                break;
+        }
     }
     /// <summary>
     /// Define block type
@@ -102,6 +118,8 @@ public class BlockBazooka : MonoBehaviour
         // Fire block from controller
         // go.GetComponent<Rigidbody>().AddForce(direction * 10f, ForceMode.Impulse);
         target.GetComponent<Rigidbody>().AddForce(direction * 10f, ForceMode.Impulse);
+        // Change the status with Wait
+        GameStatus.status = "Wait";
     }
     /// <summary>
     /// Create Block
@@ -130,5 +148,14 @@ public class BlockBazooka : MonoBehaviour
             }
         }
         return blockUnits;
+    }
+    /// <summary>
+    /// Create BlockUnits in advance
+    /// </summary>
+    private void InitiallizeBlockUnit()
+    {
+        shotObj = CreateBlock(Random.Range(0, 7));
+        shotObj.transform.parent = transform;
+        shotObj.transform.localPosition = Vector3.zero;
     }
 }

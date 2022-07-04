@@ -1,14 +1,19 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Field : MonoBehaviour
 {
     [SerializeField]
     private GameObject scoreViewObj;
-
-    List<GameObject> blockList;
+    [SerializeField]
+    private List<GameObject> blockList;
     // When a block is placed then true, otherwise false
     private bool[,] blocks = new bool[10,20];
+    // The number of frame of wait status
+    private int waitCnt = 0;
+    // The number of frame of the maximum wait
+    private const int MAXWAIT = 60;
 
     void Start()
     {
@@ -18,7 +23,24 @@ public class Field : MonoBehaviour
 
     void Update()
     {
-        
+        switch (GameStatus.status)
+        {
+            case "Shot":
+                waitCnt = MAXWAIT;
+                break;
+            case "Wait":
+                waitCnt--;
+                // If the block is not hit for 1 second, return to the Shot state.
+                if (waitCnt <= 0) GameStatus.status = "Shot";
+                break;
+            case "Fall":
+                Debug.Log("Fall Status");
+                if (!FallBlocks()) GameStatus.status = "Delete";
+                break;
+            case "Delete":
+                CheckLines();
+                break;
+        }
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -33,6 +55,8 @@ public class Field : MonoBehaviour
         //sv.GetComponent<ScoreView>().textMeshPro.text = $"({p.x}, {p.y}, {p.z})";
 
         if (collision.gameObject.tag != "blockUnits") return;
+
+        GameStatus.status = "Fall";
         var b = collision.gameObject.transform.position;
         var u = 0.1f;
         var g = new Vector3
@@ -148,8 +172,8 @@ public class Field : MonoBehaviour
             var by = (int)(g.y * 10);
             blocks[x + bx, y + by] = true;
             // Set coordinates for judgment
-            target.transform.GetChild(i).GetComponent<Block>().x = x + bx;
-            target.transform.GetChild(i).GetComponent<Block>().y = y + by;
+            //target.transform.GetChild(i).GetComponent<Block>().x = x + bx;
+            //target.transform.GetChild(i).GetComponent<Block>().y = y + by;
             // Set name for reference
             target.transform.GetChild(i).name = $"name:{x + bx}, {y + by}";
             // Set to GameObject for falling
@@ -167,5 +191,114 @@ public class Field : MonoBehaviour
                     blockList[i] = blockList[j];
                     blockList[j] = tmp;
                 }
+    }
+
+    private bool FallBlocks()
+    {
+        var retblocks = blocks.Clone() as bool[,];
+        SortBlockList();
+
+        // Check if a block is able to be fallen.
+        var isFall = true;
+        // Check if there is a block below
+        foreach (var go in blockList)
+        {
+            int x = go.GetComponent<Block>().x;
+            int y = go.GetComponent<Block>().y;
+            if (y - 1 < 0 || retblocks[x, y - 1])
+            {
+                isFall = false;
+                break;
+            }
+            retblocks[x, y] = false;
+        }
+        if (isFall)
+        {
+            // Place a block
+            foreach (var go in blockList)
+            {
+                int x = go.GetComponent<Block>().x;
+                int y = go.GetComponent<Block>().y;
+                go.transform.position += Vector3.down * 0.1f;
+
+                blocks[x, y] = false;
+                blocks[x, y - 1] = true;
+
+                go.GetComponent<Block>().y = -1;
+                go.name = $"name:{x}, {y - 1}";
+            }
+        }
+        return isFall;
+    }
+    /// <summary>
+    /// Check for disappearing lines.
+    /// </summary>
+    private void CheckLines()
+    {
+        for (int i = 0; i < 20; i++)
+        {
+            var isDelete = true;
+            for (int j = 0; j < 10; j++)
+            {
+                // Use "20-i-1" instead of "i" to examine from the top
+                if (!blocks[j, 20 - i - 1])
+                {
+                    isDelete = false;
+                    break;
+                }
+            }
+            // Delete if the column can be deleted
+            if (isDelete)
+            {
+                // Delete a single column block
+                DeleteBlocks(20 - i - 1);
+                // Lower the block by the amount that disappears
+                DropBlocks(20 - i - 1);
+            }
+        }
+    }
+    /// <summary>
+    /// Process to delete a single column block
+    /// </summary>
+    /// <param name="h"></param>
+    private void DeleteBlocks(int h)
+    {
+        // Delete GameObjects in a single column block
+        var list = GameObject.FindGameObjectsWithTag("block");
+        foreach (var go in list)
+        {
+            if (go.GetComponent<Block>().y == h)
+            {
+                blocks[go.GetComponent<Block>().x, h] = false;
+                Destroy(go);
+            }
+        }
+    }
+    /// <summary>
+    /// Process to drop blocks higher than the erased row
+    /// </summary>
+    /// <param name="h"></param>
+    private void DropBlocks(int h)
+    {
+        // Register blocks to be dropped
+        var list = new List<GameObject>(GameObject.FindGameObjectsWithTag("block"));
+        list.OrderBy((x) => x.GetComponent<Block>().y);
+
+        foreach (var go in list)
+        {
+            if (go.GetComponent<Block>().y > h)
+            {
+                // Update blocks
+                int x = go.GetComponent<Block>().x;
+                int y = go.GetComponent<Block>().y;
+                blocks[x, y] = false;
+                blocks[x, y - 1] = true;
+                // Shift y-coordinate
+                go.GetComponent<Block>().y -= 1;
+                // Shift the coordinates of GameObject
+                go.transform.position += Vector3.down * 0.1f;
+
+            }
+        }
     }
 }
