@@ -95,8 +95,10 @@ public class Field : MonoBehaviour
         // Return Error if out of range
         if (bx < 0 || by < 0 || bx >= 10 || by >= 20 || CheckExistBlock(collision.gameObject, bx, by))
         {
+            GameStatus.status = "Shot";
             for (int i = 0; i < collision.gameObject.transform.childCount; i++)
                 Destroy(collision.gameObject.transform.GetChild(i).transform.GetComponent<BoxCollider>());
+            collision.gameObject.transform.GetComponent<Rigidbody>().AddForce(Vector3.back * 10f, ForceMode.Impulse);
         }
         else
         {

@@ -26,6 +26,11 @@ public class BlockBazooka : MonoBehaviour
     [SerializeField]
     private BlockType[] blockTypes;
     /// <summary>
+    /// Pointer object
+    /// </summary>
+    [SerializeField]
+    private GameObject pointObj;
+    /// <summary>
     /// Controller for left/right
     /// </summary>
     private OVRInput.Controller controller;
@@ -47,6 +52,8 @@ public class BlockBazooka : MonoBehaviour
         switch (GameStatus.status)
         {
             case "Shot":
+                // Make pointer visible
+                ViewPointer();
                 // Fire block when A or X button is pushed
                 if (OVRInput.GetDown(OVRInput.Button.One, controller))
                     // Fire(transform.position, transform.forward, blockObj);
@@ -112,6 +119,13 @@ public class BlockBazooka : MonoBehaviour
     {
         // Create block copy
         // GameObject go = Instantiate(target);
+
+        var rb = target.GetComponent<Rigidbody>();
+        target.transform.parent = null;
+        // Allow block collision detection
+        for (int i = 0; i < target.transform.childCount; i++)
+            target.transform.GetChild(i).GetComponent<BoxCollider>().enabled = true;
+
         // Set launch position of block
         // go.transform.position = startPos;
         target.transform.position = startPos;
@@ -157,5 +171,19 @@ public class BlockBazooka : MonoBehaviour
         shotObj = CreateBlock(Random.Range(0, 7));
         shotObj.transform.parent = transform;
         shotObj.transform.localPosition = Vector3.zero;
+    }
+    /// <summary>
+    /// Make pointer visible
+    /// </summary>
+    private void ViewPointer()
+    {
+        var hits = Physics.RaycastAll(transform.position, transform.forward, 10f);
+        if (hits.Length == 0) pointObj.SetActive(false);
+        else
+        {
+            pointObj.SetActive(true);
+            foreach (var hit in hits)
+                if (hit.collider.name == "Field") pointObj.transform.position = hit.point;
+        }
     }
 }
