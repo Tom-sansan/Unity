@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using TMPro;
 using UnityEngine;
 
 public class Field : MonoBehaviour
@@ -8,12 +9,21 @@ public class Field : MonoBehaviour
     private GameObject scoreViewObj;
     [SerializeField]
     private List<GameObject> blockList;
+    /// <summary>
+    /// TextMesh for score
+    /// </summary>
+    [SerializeField]
+    private TextMeshPro scoreTextMeshPro;
+    // Points to add when erasing a row of blocks
+    private const int DELETE_POINT = 120;
     // When a block is placed then true, otherwise false
     private bool[,] blocks = new bool[10,20];
     // The number of frame of wait status
     private int waitCnt = 0;
     // The number of frame of the maximum wait
     private const int MAXWAIT = 60;
+    // Score value
+    private int score;
 
     void Start()
     {
@@ -256,6 +266,10 @@ public class Field : MonoBehaviour
                 DeleteBlocks(20 - i - 1);
                 // Lower the block by the amount that disappears
                 DropBlocks(20 - i - 1);
+
+                // Add score
+                score += DELETE_POINT;
+                scoreTextMeshPro.text = "" + score;
             }
         }
     }
