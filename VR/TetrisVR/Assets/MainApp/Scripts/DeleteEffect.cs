@@ -1,5 +1,8 @@
 using UnityEngine;
 
+/// <summary>
+/// Delete itself at the timing when animator's animation becomes FinalScene.
+/// </summary>
 public class DeleteEffect : MonoBehaviour
 {
     private Animator animator;
