@@ -14,6 +14,11 @@ public class Field : MonoBehaviour
     /// </summary>
     [SerializeField]
     private TextMeshPro scoreTextMeshPro;
+    /// <summary>
+    /// Delete effect
+    /// </summary>
+    [SerializeField]
+    private GameObject deleteEffect;
     // Points to add when erasing a row of blocks
     private const int DELETE_POINT = 120;
     // When a block is placed then true, otherwise false
@@ -285,6 +290,10 @@ public class Field : MonoBehaviour
         {
             if (go.GetComponent<Block>().y == h)
             {
+                // Generate DeleteEffect
+                var deleteEffectClone = Instantiate(deleteEffect);
+                deleteEffectClone.transform.position = go.transform.position + Vector3.back * 0.1f;
+                deleteEffectClone.transform.localScale = Vector3.one * 0.1f;
                 blocks[go.GetComponent<Block>().x, h] = false;
                 Destroy(go);
             }
