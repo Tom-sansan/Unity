@@ -57,7 +57,7 @@ public class CPUController : MonoBehaviour
     /// </summary>
     private bool lapSwitch = false;
     /// <summary>
-    /// Velocity
+    /// Velocity(Speed)
     /// </summary>
     private float velocity = 0;
 
@@ -85,16 +85,15 @@ public class CPUController : MonoBehaviour
     /// Call for start
     /// </summary>
     /// <param name="goal">Number of laps required to reach goal</param>
-    public void OnStart(int goal)
-    {
+    public void OnStart(int goal) =>
         goalLap = goal;
-    }
+
     /// <summary>
     /// Goal processing
     /// </summary>
     public void OnGoal()
     {
-        if (CurrentState != GameController.PlayState.Play) return;
+        if (GameController.IsCurrentStateNotPlay()) return;
         LapCount = 0;
         Debug.Log("CPU Goal!");
         CurrentState = GameController.PlayState.Finish;
@@ -106,6 +105,8 @@ public class CPUController : MonoBehaviour
     /// </summary>
     public void OnFrontGateCall()
     {
+        // Prevent CPU to add up the number of laps when CPU goes around again after the finish line.
+        if (GameController.IsCurrentStateNotPlay()) return;
         // Standard gate passage
         if (lapSwitch)
         {
@@ -130,7 +131,8 @@ public class CPUController : MonoBehaviour
     /// </summary>
     public void OnBackGateCall()
     {
-        if (CurrentState != GameController.PlayState.Play) return;
+        // Prevent CPU to add up the number of laps when CPU goes around again after the finish line.
+        if (GameController.IsCurrentStateNotPlay()) return;
         if (!lapSwitch) lapSwitch = true;
     }
     /// <summary>
@@ -138,7 +140,7 @@ public class CPUController : MonoBehaviour
     /// </summary>
     private void FixedCarPosition()
     {
-        carTransform.localPosition = Vector3.Lerp(carTransform.localPosition, Vector3.zero, Time.deltaTime);
+        carTransform.localPosition = Vector3.Lerp(carTransform.localPosition, Vector3.zero, Time.deltaTime * 1f);
         carTransform.localRotation = Quaternion.Lerp(carTransform.localRotation, Quaternion.identity, Time.deltaTime * 1f);
     }
 }
