@@ -106,7 +106,6 @@ public class GameController : MonoBehaviour
         retryUI.SetActive(false);
         backToLaneButton.SetActive(false);
         exitButton.SetActive(false);
-        waterColliderCall.TriggerEnterEvent.AddListener(OnWaterEnter);
         timerText.text = SetTimerText(timerZero);
         lapText.text = setLapText(0, player.GoalLap);
     }
@@ -186,6 +185,7 @@ public class GameController : MonoBehaviour
         player.LapEvent.AddListener(OnLap);
         player.GoalEvent.AddListener(OnGoal);
         foreach (var cpu in cpuList) cpu.GoalEvent.AddListener(OnGoal);
+        waterColliderCall.TriggerEnterEvent.AddListener(OnWaterEnter);
     }
     /// <summary>
     /// Processing when the number of laps changes
@@ -290,7 +290,7 @@ public class GameController : MonoBehaviour
         }
         player.transform.position = nearPoint.transform.position;
         player.transform.rotation = nearPoint.transform.rotation;
-        player.StopAllCoroutines();
+        player.StopAllVelocity();
     }
     /// <summary>
     /// Set time
