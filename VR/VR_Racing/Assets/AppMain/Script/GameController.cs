@@ -83,7 +83,7 @@ public class GameController : MonoBehaviour
     /// <summary>
     /// Current state
     /// </summary>
-    public PlayState CurrentState = PlayState.None;
+    public static PlayState CurrentState = PlayState.None;
     /// <summary>
     /// Goal list
     /// </summary>
@@ -178,6 +178,12 @@ public class GameController : MonoBehaviour
         player.OnRetry();
         CountDownStart();
     }
+    /// <summary>
+    /// True if the current state is not play
+    /// </summary>
+    /// <returns></returns>
+    public static bool IsCurrentStateNotPlay() =>
+        CurrentState != PlayState.Play;
     /// <summary>
     /// Create event for the game
     /// </summary>

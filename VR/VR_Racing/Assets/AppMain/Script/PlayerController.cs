@@ -233,7 +233,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void OnPhoneFrontButtonPushing()
     {
-        if (CurrentState != GameController.PlayState.Play) return;
+        if (GameController.IsCurrentStateNotPlay()) return;
         var sqrVel = rigid.velocity.sqrMagnitude;
         // Forward speed limit
         if (sqrVel > speedSqrLimit) return;
@@ -244,7 +244,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void OnPhoneBackButtonPushing()
     {
-        if (CurrentState != GameController.PlayState.Play) return;
+        if (GameController.IsCurrentStateNotPlay()) return;
         var sqrVel = rigid.velocity.sqrMagnitude;
         // Backforward speed limit
         if (sqrVel > (speedSqrLimit * 0.2f)) return;
@@ -255,7 +255,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void OnPhoneLeftButtonPushing()
     {
-        if (CurrentState != GameController.PlayState.Play) return;
+        if (GameController.IsCurrentStateNotPlay()) return;
         var sqrAng = rigid.angularVelocity.sqrMagnitude;
         // Rotation speed limit
         if (sqrAng > rotationSqrLimit) return;
@@ -266,7 +266,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     public void OnPhoneRightButtonPushing()
     {
-        if (CurrentState != GameController.PlayState.Play) return;
+        if (GameController.IsCurrentStateNotPlay()) return;
         var sqrAng = rigid.angularVelocity.sqrMagnitude;
         // Rotation speed limit
         if (sqrAng > rotationSqrLimit) return;
@@ -285,7 +285,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void MoveUpdate()
     {
-        if (IsCurrentStateNotPlay()) return;
+        if (GameController.IsCurrentStateNotPlay()) return;
         float sqrVel = rigid.velocity.sqrMagnitude;
         // Forward speed limit
         if (sqrVel > speedSqrLimit) return;
@@ -303,7 +303,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void RotationUpdate()
     {
-        if (IsCurrentStateNotPlay()) return;
+        if (GameController.IsCurrentStateNotPlay()) return;
         float sqrAng = rigid.angularVelocity.sqrMagnitude;
         // Rotation speed limit
         if (sqrAng > rotationSqrLimit) return;
@@ -335,12 +335,6 @@ public class PlayerController : MonoBehaviour
         // Make map camera look at player's forward
         mapCamera.forward = this.transform.forward;
     }
-    /// <summary>
-    /// Check if the current stats is not play
-    /// </summary>
-    /// <returns></returns>
-    private bool IsCurrentStateNotPlay() =>
-        CurrentState != GameController.PlayState.Play;
     /// <summary>
     /// Get OVRInputs
     /// </summary>
