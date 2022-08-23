@@ -123,11 +123,12 @@ public class PlayerController : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        MoveUpdate();
-        RotationUpdate();
         TrackingCameraUpdate();
         MoveMapMarker();
         MoveMapCamera();
+        if (GameController.IsCurrentStateNotPlay()) return;
+        MoveUpdate();
+        RotationUpdate();
     }
     /// <summary>
     /// Call at the start of the countdown
@@ -255,7 +256,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void MoveUpdate()
     {
-        if (GameController.IsCurrentStateNotPlay()) return;
         float sqrVel = rigid.velocity.sqrMagnitude;
         // Forward speed limit
         if (sqrVel > speedSqrLimit) return;
@@ -271,7 +271,6 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private void RotationUpdate()
     {
-        if (GameController.IsCurrentStateNotPlay()) return;
         float sqrAng = rigid.angularVelocity.sqrMagnitude;
         // Rotation speed limit
         if (sqrAng > rotationSqrLimit) return;

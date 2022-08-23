@@ -106,13 +106,12 @@ public class GameController : MonoBehaviour
         retryUI.SetActive(false);
         backToLaneButton.SetActive(false);
         exitButton.SetActive(false);
-        timerText.text = SetTimerText(timerZero);
-        lapText.text = setLapText(0, player.GoalLap);
+        SetTimerText(timerZero);
+        SetLapText(0, player.GoalLap);
     }
 
     void Update()
     {
-        timerText.text = SetTimerText(timerZero);
         switch (CurrentState)
         {
             case PlayState.Ready:
@@ -137,11 +136,11 @@ public class GameController : MonoBehaviour
                 break;
             case PlayState.Play:
                 timer += Time.deltaTime;
-                timerText.text = SetTimerText(timer.ToString(timerZero));
+                SetTimerText(timer.ToString(timerZero));
                 break;
             default:
                 timer = 0;
-                timerText.text = SetTimerText(timerZero);
+                SetTimerText(timerZero);
                 break;
         }
     }
@@ -152,8 +151,8 @@ public class GameController : MonoBehaviour
     {
         retryUI.SetActive(false);
         exitButton.SetActive(false);
-        timerText.text = SetTimerText(timerZero);
-        lapText.text = setLapText(0, player.GoalLap);
+        SetTimerText(timerZero);
+        SetLapText(0, player.GoalLap);
         goalList.Clear();
         player.OnRetry();
         CountDownStart();
@@ -194,7 +193,7 @@ public class GameController : MonoBehaviour
     {
         var current = player.LapCount;
         var goalLap = player.GoalLap;
-        lapText.text = setLapText(current, goalLap);
+        SetLapText(current, goalLap);
     }
     /// <summary>
     /// Goal Processing
@@ -223,6 +222,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void CountDownStart()
     {
+        SetTimerText(timerZero);
         currentCountDown = (float)countStartTime;
         SetPlayState(PlayState.Ready);
         countdownText.fontSize = 200;
@@ -297,14 +297,14 @@ public class GameController : MonoBehaviour
     /// </summary>
     /// <param name="time">time</param>
     /// <returns>Timer text</returns>
-    private string SetTimerText(string time) =>
-        $"Time : {time} s";
+    private void SetTimerText(string time) =>
+        timerText.text = $"Time : {time} s";
     /// <summary>
     /// Set lap
     /// </summary>
     /// <param name="currentLap">Current lap</param>
     /// <param name="totalLap">Total lap</param>
     /// <returns></returns>
-    private string setLapText(int currentLap, int totalLap) =>
-        $"Lap : {currentLap}/{totalLap}";
+    private void SetLapText(int currentLap, int totalLap) =>
+        lapText.text = $"Lap : {currentLap}/{totalLap}";
 }
