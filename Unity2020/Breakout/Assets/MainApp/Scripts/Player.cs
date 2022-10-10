@@ -17,13 +17,17 @@ public class Player : MonoBehaviour
     [Range(0, 100)]
     public float Speed = 1f;
 
-    private Rigidbody rigidbody;
-    void Start()
+    private Rigidbody rigidBody;
+
+    private Vector3 startPosition;
+
+    private void Start()
     {
-        rigidbody = GetComponent<Rigidbody>();
+        startPosition = transform.position;
+        rigidBody = GetComponent<Rigidbody>();
     }
 
-    void Update()
+    private void Update()
     {
         var horizontal = Input.GetAxis("Horizontal");
         var vec = Vector3.right * horizontal * Speed * Time.deltaTime;
@@ -34,19 +38,26 @@ public class Player : MonoBehaviour
                 transform.position += vec;
                 break;
             case Type.RigidBody_Force:
-                rigidbody.AddForce(vec, ForceMode.Force);
+                rigidBody.AddForce(vec, ForceMode.Force);
                 break;
             case Type.RigidBody_Impulse:
-                rigidbody.AddForce(vec, ForceMode.Impulse);
+                rigidBody.AddForce(vec, ForceMode.Impulse);
                 break;
             case Type.RigidBody_Accel:
-                rigidbody.AddForce(vec, ForceMode.Acceleration);
+                rigidBody.AddForce(vec, ForceMode.Acceleration);
                 break;
             case Type.RigidBody_VelocityChange:
-                rigidbody.AddForce(vec, ForceMode.VelocityChange);
+                rigidBody.AddForce(vec, ForceMode.VelocityChange);
                 break;
             default:
                 break;
         }
+    }
+
+    public void Stop()
+    {
+        enabled = false;
+        transform.position = startPosition;
+        rigidBody.velocity = Vector3.zero;
     }
 }

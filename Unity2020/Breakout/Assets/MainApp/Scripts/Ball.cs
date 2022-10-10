@@ -12,16 +12,31 @@ public class Ball : MonoBehaviour
 
     private Rigidbody rigidBody;
 
+    private Vector3 startPosition;
+
     private void Start()
     {
+        startPosition = transform.position;
         rigidBody = GetComponent<Rigidbody>();
-        rigidBody.AddForce(Direction.normalized * Speed * Time.deltaTime, ForceMode.Impulse);
     }
 
     private void Update()
     {
         if (Mathf.Abs(rigidBody.velocity.y) <= 1)
-            rigidBody.velocity += Vector3.up * 5f * (rigidBody.velocity.y >= 0 ? 1 : -1) * Time.deltaTime;
+            rigidBody.velocity += Vector3.up * 5f * (rigidBody.velocity.y >= 0 ? 1 : -1);
+    }
+
+    public void Restart()
+    {
+        enabled = true;
+        rigidBody.AddForce(Direction.normalized * Speed * Time.deltaTime, ForceMode.VelocityChange);
+    }
+
+    public void Stop()
+    {
+        enabled = false;
+        transform.position = startPosition;
+        rigidBody.velocity = Vector3.zero;
     }
 
     private void OnCollisionEnter(Collision collision) =>

@@ -231,7 +231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &75520817
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &88662337
 GameObject:
   m_ObjectHideFlags: 0
@@ -449,7 +449,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &109789216
 GameObject:
   m_ObjectHideFlags: 0
@@ -558,7 +558,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &119182170
 GameObject:
   m_ObjectHideFlags: 0
@@ -667,7 +667,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &125981203
 GameObject:
   m_ObjectHideFlags: 0
@@ -871,7 +871,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &179137957
 GameObject:
   m_ObjectHideFlags: 0
@@ -980,7 +980,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &236091437
 GameObject:
   m_ObjectHideFlags: 0
@@ -1089,7 +1089,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &251409229
 GameObject:
   m_ObjectHideFlags: 0
@@ -1198,7 +1198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &255620125
 GameObject:
   m_ObjectHideFlags: 0
@@ -1307,7 +1307,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &342372109
 GameObject:
   m_ObjectHideFlags: 0
@@ -1416,7 +1416,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &356883734
 GameObject:
   m_ObjectHideFlags: 0
@@ -1431,6 +1431,7 @@ GameObject:
   - component: {fileID: 356883735}
   - component: {fileID: 356883740}
   - component: {fileID: 356883739}
+  - component: {fileID: 356883741}
   m_Layer: 0
   m_Name: Ball
   m_TagString: Untagged
@@ -1512,7 +1513,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &356883739
 MonoBehaviour:
@@ -1526,7 +1527,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b71bb4cfd36fec44ea1009a3df559ab1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Speed: 504
+  Speed: 1000
   Direction: {x: 0, y: 1}
 --- !u!54 &356883740
 Rigidbody:
@@ -1544,6 +1545,34 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 120
   m_CollisionDetection: 0
+--- !u!114 &356883741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 356883734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2fac2c1fd57315e47a454c87fa4b6a26, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnEnter:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 626727294}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: ChangeLife
+        m_Mode: 3
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: -1
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  ObjName: BottomWall
 --- !u!1 &427596482
 GameObject:
   m_ObjectHideFlags: 0
@@ -1652,7 +1681,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &429261161
 GameObject:
   m_ObjectHideFlags: 0
@@ -1761,7 +1790,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &432251113
 GameObject:
   m_ObjectHideFlags: 0
@@ -1870,7 +1899,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &492777416
 GameObject:
   m_ObjectHideFlags: 0
@@ -1979,7 +2008,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &509957428
 GameObject:
   m_ObjectHideFlags: 0
@@ -2075,7 +2104,7 @@ Transform:
   m_LocalScale: {x: 3, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &509957433
 MonoBehaviour:
@@ -2107,6 +2136,101 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 124
   m_CollisionDetection: 0
+--- !u!1 &521470091
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 521470092}
+  - component: {fileID: 521470094}
+  - component: {fileID: 521470093}
+  m_Layer: 0
+  m_Name: GameStart
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &521470092
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521470091}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -8, y: -1, z: 20}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 963194228}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!102 &521470093
+TextMesh:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521470091}
+  m_Text: Press Key to Start Game
+  m_OffsetZ: 0
+  m_CharacterSize: 1
+  m_LineSpacing: 1
+  m_Anchor: 0
+  m_Alignment: 0
+  m_TabSize: 4
+  m_FontSize: 15
+  m_FontStyle: 0
+  m_RichText: 1
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Color:
+    serializedVersion: 2
+    rgba: 4279275773
+--- !u!23 &521470094
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 521470091}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10100, guid: 0000000000000000e000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &607185382
 GameObject:
   m_ObjectHideFlags: 0
@@ -2140,7 +2264,7 @@ Transform:
   - {fileID: 1546392240}
   - {fileID: 645678536}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &626727293
 GameObject:
@@ -2171,6 +2295,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7544be914e878af43a12f104d5c21e57, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Ball: {fileID: 356883739}
+  Player: {fileID: 509957433}
+  GameStart: {fileID: 521470093}
+  LifeText: {fileID: 1407853347}
+  GameOverText: {fileID: 1360604604}
+  GameClearText: {fileID: 1673063804}
+  BlockRoot: {fileID: 1012685195}
+  Life: 3
 --- !u!4 &626727295
 Transform:
   m_ObjectHideFlags: 0
@@ -2183,7 +2315,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &633654070
 GameObject:
@@ -2293,7 +2425,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &645678535
 GameObject:
   m_ObjectHideFlags: 0
@@ -2497,7 +2629,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
@@ -2699,7 +2831,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &884489303
 GameObject:
   m_ObjectHideFlags: 0
@@ -2903,7 +3035,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -2983,7 +3115,11 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 1, z: -20}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 521470092}
+  - {fileID: 1407853346}
+  - {fileID: 1360604603}
+  - {fileID: 1673063806}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -3095,7 +3231,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1003734847
 GameObject:
   m_ObjectHideFlags: 0
@@ -3204,7 +3340,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1012685194
 GameObject:
   m_ObjectHideFlags: 0
@@ -3278,7 +3414,7 @@ Transform:
   - {fileID: 175539032}
   - {fileID: 1188135057}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1188135056
 GameObject:
@@ -3388,7 +3524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1213388129
 GameObject:
   m_ObjectHideFlags: 0
@@ -3497,7 +3633,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1250108510
 GameObject:
   m_ObjectHideFlags: 0
@@ -3606,7 +3742,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1330165161
 GameObject:
   m_ObjectHideFlags: 0
@@ -3715,7 +3851,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1360166650
 GameObject:
   m_ObjectHideFlags: 0
@@ -3824,7 +3960,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
+--- !u!1 &1360604602
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1360604603}
+  - component: {fileID: 1360604605}
+  - component: {fileID: 1360604604}
+  m_Layer: 0
+  m_Name: GameOverText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1360604603
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360604602}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 30}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 963194228}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!102 &1360604604
+TextMesh:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360604602}
+  m_Text: Game Over
+  m_OffsetZ: 0
+  m_CharacterSize: 1
+  m_LineSpacing: 1
+  m_Anchor: 4
+  m_Alignment: 1
+  m_TabSize: 4
+  m_FontSize: 50
+  m_FontStyle: 0
+  m_RichText: 1
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Color:
+    serializedVersion: 2
+    rgba: 4278190335
+--- !u!23 &1360604605
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1360604602}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10100, guid: 0000000000000000e000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1367245366
 GameObject:
   m_ObjectHideFlags: 0
@@ -3933,7 +4164,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1382356352
 GameObject:
   m_ObjectHideFlags: 0
@@ -4042,7 +4273,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
+--- !u!1 &1407853345
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1407853346}
+  - component: {fileID: 1407853348}
+  - component: {fileID: 1407853347}
+  m_Layer: 0
+  m_Name: LifeText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1407853346
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407853345}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -13, y: 8.5, z: 20}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 963194228}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!102 &1407853347
+TextMesh:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407853345}
+  m_Text: "Life\uFF1A"
+  m_OffsetZ: 0
+  m_CharacterSize: 1
+  m_LineSpacing: 1
+  m_Anchor: 0
+  m_Alignment: 0
+  m_TabSize: 4
+  m_FontSize: 0
+  m_FontStyle: 0
+  m_RichText: 1
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Color:
+    serializedVersion: 2
+    rgba: 4294967295
+--- !u!23 &1407853348
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1407853345}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10100, guid: 0000000000000000e000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
 --- !u!1 &1420857514
 GameObject:
   m_ObjectHideFlags: 0
@@ -4151,7 +4477,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1445692227
 GameObject:
   m_ObjectHideFlags: 0
@@ -4260,7 +4586,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1460249486
 GameObject:
   m_ObjectHideFlags: 0
@@ -4369,7 +4695,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1546392239
 GameObject:
   m_ObjectHideFlags: 0
@@ -4383,7 +4709,7 @@ GameObject:
   - component: {fileID: 1546392242}
   - component: {fileID: 1546392241}
   m_Layer: 0
-  m_Name: Wall4
+  m_Name: BottomWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -4573,7 +4899,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1647223379
 GameObject:
   m_ObjectHideFlags: 0
@@ -4682,7 +5008,102 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
+--- !u!1 &1673063803
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1673063806}
+  - component: {fileID: 1673063805}
+  - component: {fileID: 1673063804}
+  m_Layer: 0
+  m_Name: GameClearText
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!102 &1673063804
+TextMesh:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1673063803}
+  m_Text: Clear!!
+  m_OffsetZ: 0
+  m_CharacterSize: 1
+  m_LineSpacing: 1
+  m_Anchor: 4
+  m_Alignment: 1
+  m_TabSize: 4
+  m_FontSize: 50
+  m_FontStyle: 0
+  m_RichText: 1
+  m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Color:
+    serializedVersion: 2
+    rgba: 4278221568
+--- !u!23 &1673063805
+MeshRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1673063803}
+  m_Enabled: 1
+  m_CastShadows: 1
+  m_ReceiveShadows: 1
+  m_DynamicOccludee: 1
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 2
+  m_RayTraceProcedural: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 10100, guid: 0000000000000000e000000000000000, type: 0}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 3
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_AdditionalVertexStreams: {fileID: 0}
+--- !u!4 &1673063806
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1673063803}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 30}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 963194228}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1710781766
 GameObject:
   m_ObjectHideFlags: 0
@@ -4791,7 +5212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1711853095
 GameObject:
   m_ObjectHideFlags: 0
@@ -4900,7 +5321,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1803015957
 GameObject:
   m_ObjectHideFlags: 0
@@ -5009,7 +5430,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1893013188
 GameObject:
   m_ObjectHideFlags: 0
@@ -5118,7 +5539,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1899344030
 GameObject:
   m_ObjectHideFlags: 0
@@ -5227,7 +5648,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1905088854
 GameObject:
   m_ObjectHideFlags: 0
@@ -5336,7 +5757,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1919684845
 GameObject:
   m_ObjectHideFlags: 0
@@ -5540,7 +5961,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &1958741229
 GameObject:
   m_ObjectHideFlags: 0
@@ -5649,7 +6070,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &2050123138
 GameObject:
   m_ObjectHideFlags: 0
@@ -5758,7 +6179,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &2088016885
 GameObject:
   m_ObjectHideFlags: 0
@@ -5867,7 +6288,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &2097720656
 GameObject:
   m_ObjectHideFlags: 0
@@ -5976,7 +6397,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
 --- !u!1 &2116736313
 GameObject:
   m_ObjectHideFlags: 0
@@ -6085,4 +6506,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baca0a42dfb96ce499d57d7a8e729261, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  name: Ball
+  objName: Ball
