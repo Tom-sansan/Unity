@@ -1,15 +1,46 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
+    #region Class
+    /// <summary>
+    /// Status Class
+    /// </summary>
+    [Serializable]
+    public class Status
+    {
+        /// <summary>
+        /// HP
+        /// </summary>
+        public int Hp = 10;
+        /// <summary>
+        /// Attack power
+        /// </summary>
+        public int Power = 1;
+    }
+    #endregion
+
     #region Variables
+    /// <summary>
+    /// HP bar slider
+    /// </summary>
+    [SerializeField]
+    private Slider hpBar = null;
     /// <summary>
     /// Ojects for judging attacks
     /// </summary>
     [SerializeField]
     private GameObject attackHit = null;
+    /// <summary>
+    /// Collider call for Attack hit
+    /// </summary>
+    [SerializeField]
+    private ColliderCallReceiver attackHitCall = null;
     /// <summary>
     /// Collider call for grounding determination
     /// </summary>
@@ -21,6 +52,16 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private GameObject touchMarker = null;
     /// <summary>
+    /// My collider
+    /// </summary>
+    [SerializeField]
+    private Collider myCollider = null;
+    /// <summary>
+    /// Particle prefab of the time when player is attacked.
+    /// </summary>
+    [SerializeField]
+    private GameObject hitParticlePrefab = null;
+    /// <summary>
     /// Jump power
     /// </summary>
     [SerializeField]
@@ -31,6 +72,19 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private PlayerCameraController cameraController = null;
     /// <summary>
+    /// Basic status
+    /// </summary>
+    [SerializeField]
+    private Status DefaultStatus = new Status();
+    /// <summary>
+    /// Current status
+    /// </summary>
+    public Status CurrentStatus = new Status();
+    /// <summary>
+    /// Game over event
+    /// </summary>
+    public UnityEvent GameOverEvent = new UnityEvent();
+    /// <summary>
     /// Animator
     /// </summary>
     private Animator animator = null;
@@ -38,6 +92,18 @@ public class PlayerController : MonoBehaviour
     /// Rigidbody
     /// </summary>
     private Rigidbody rigid = null;
+    /// <summary>
+    /// List to store particle object
+    /// </summary>
+    private List<GameObject> particleObjectList = new List<GameObject>();
+    /// <summary>
+    /// Start position
+    /// </summary>
+    private Vector3 startPosition = new Vector3();
+    /// <summary>
+    /// Start rotation
+    /// </summary>
+    private Quaternion startRotation = new Quaternion();
     /// <summary>
     /// Left half touch start position
     /// </summary>
@@ -84,6 +150,17 @@ public class PlayerController : MonoBehaviour
         // Event Registration for FootSphere
         footColliderCall.TriggerStayEvent.AddListener(OnFootTriggerStay);
         footColliderCall.TriggerExitEvent.AddListener(OnFootTriggerExit);
+        // Collider event registration for attack judgment
+        attackHitCall.TriggerEnterEvent.AddListener(OnAttackHitTriggerEnter);
+        // Initialize current status
+        CurrentStatus.Hp = DefaultStatus.Hp;
+        CurrentStatus.Power = DefaultStatus.Power;
+        // Store starting position rotation
+        startPosition = this.transform.position;
+        startRotation = this.transform.rotation;
+        // Initialize slider
+        hpBar.maxValue = DefaultStatus.Hp;
+        hpBar.value = CurrentStatus.Hp;
     }
 
     private void Update()
@@ -224,6 +301,51 @@ public class PlayerController : MonoBehaviour
         if (isGround) rigid.AddForce(Vector3.up * jumpPower, ForceMode.Impulse);
     }
     /// <summary>
+    /// Process that an enemy attack hits player
+    /// </summary>
+    /// <param name="damage"></param>
+    public void OnEnemyAttackHit(int damage, Vector3 attackPosition)
+    {
+        // Damage setting
+        CurrentStatus.Hp -= damage;
+        // Sider setting
+        hpBar.value = CurrentStatus.Hp;
+        var pos = myCollider.ClosestPoint(attackPosition);
+        var obj = Instantiate(hitParticlePrefab, pos, Quaternion.identity);
+        var par = obj.GetComponent<ParticleSystem>();
+
+        StartCoroutine(WaitDestroy(par));
+        particleObjectList.Add(obj);
+        if (CurrentStatus.Hp <= 0) OnDie();
+        else Debug.Log("Attacked by " + damage + " damage! Remaining HP is " + CurrentStatus.Hp);
+    }
+    /// <summary>
+    /// Retry
+    /// </summary>
+    public void Retry()
+    {
+        // Initialize the current status
+        CurrentStatus.Hp = DefaultStatus.Hp;
+        CurrentStatus.Power = DefaultStatus.Power;
+        hpBar.value = CurrentStatus.Hp;
+        // Returns the rotational position to the initial position
+        this.transform.position = startPosition;
+        this.transform.rotation = startRotation;
+        // For the time when being beaten during player attack
+        isAttack = false;
+    }
+    /// <summary>
+    /// Destroy particle when it ends
+    /// </summary>
+    /// <param name="particle"></param>
+    /// <returns></returns>
+    private IEnumerator WaitDestroy(ParticleSystem particle)
+    {
+        yield return new WaitUntil(() => particle.isPlaying == false);
+        if (particleObjectList.Contains(particle.gameObject)) particleObjectList.Remove(particle.gameObject);
+        Destroy(particle.gameObject);
+    }
+    /// <summary>
     /// Attack Animation Hit Event Call
     /// </summary>
     private void Anim_AttackHit()
@@ -278,6 +400,33 @@ public class PlayerController : MonoBehaviour
             isGround = false;
             animator.SetBool(strIsGround, false);
         }
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="collider"></param>
+    private void OnAttackHitTriggerEnter(Collider collider)
+    {
+        if (collider.gameObject.tag == "Enemy")
+        {
+            var enemy = collider.gameObject.GetComponent<EnemyBase>();
+            enemy?.OnAttackHit(CurrentStatus.Power, this.transform.position);
+            attackHit.SetActive(false);
+        }
+    }
+    /// <summary>
+    /// Process of death
+    /// </summary>
+    private void OnDie()
+    {
+        StopAllCoroutines();
+        if (particleObjectList.Count > 0)
+        {
+            foreach (var obj in particleObjectList) Destroy(obj);
+            particleObjectList.Clear();
+        }
+        GameOverEvent?.Invoke();
+        Debug.Log("You died...");
     }
     /// <summary>
     /// Check if platform is a smartphone device or not.
