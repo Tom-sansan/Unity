@@ -20,11 +20,16 @@ public class GameController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private List<EnemyBase> enemies = new List<EnemyBase>();
+    /// <summary>
+    /// Target list for enemy movement
+    /// </summary>
+    [SerializeField]
+    private List<Transform> enemyTargets = new List<Transform>();
     #endregion
 
     void Start()
     {
-        player.GameOverEvent.AddListener(OnGameOver);
+        AddEventListeners();
         gameOver.SetActive(false);
     }
 
@@ -55,5 +60,34 @@ public class GameController : MonoBehaviour
         player.gameObject.SetActive(false);
         // Disable enemy attack flags
         foreach (var enemy in enemies) enemy.IsBattle = false;
+    }
+    /// <summary>
+    /// Add event listeners
+    /// </summary>
+    private void AddEventListeners()
+    {
+        player.GameOverEvent.AddListener(OnGameOver);
+        foreach (var enemy in enemies) enemy.ArrivalEvent.AddListener(EnemyMove);
+    }
+    /// <summary>
+    /// Get target randomly from list
+    /// </summary>
+    /// <returns></returns>
+    private Transform GetEnemyMoveTarget()
+    {
+        if (enemyTargets == null || enemyTargets.Count == 0) return null;
+        else if (enemyTargets.Count == 1) return enemyTargets[0];
+
+        var num = Random.Range(0, enemyTargets.Count);
+        return enemyTargets[num];
+    }
+    /// <summary>
+    /// Set the next destination to enemy
+    /// </summary>
+    /// <param name="enemy"></param>
+    private void EnemyMove(EnemyBase enemy)
+    {
+        var target = GetEnemyMoveTarget();
+        if (target != null) enemy.SetNextTarget(target);
     }
 }

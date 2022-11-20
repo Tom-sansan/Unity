@@ -52,7 +52,7 @@ public class EnemyBase : MonoBehaviour
     /// Collider call for attack judgment
     /// </summary>
     [SerializeField]
-    private ColliderCallReceiver attackHitColliderCall = null;
+    protected ColliderCallReceiver attackHitColliderCall = null;
     /// <summary>
     /// Collider of enemy
     /// </summary>
@@ -101,6 +101,10 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     private Transform currentTarget = null;
     /// <summary>
+    /// The current attack target
+    /// </summary>
+    protected Transform currentAttackTarget = null;
+    /// <summary>
     /// Attack status flag
     /// </summary>
     // private bool isBattle = false;
@@ -109,10 +113,10 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     private float attackTimer = 0f;
 
-    private string strPlayer = "Player";
+    protected string strPlayer = "Player";
     #endregion
 
-    void Start()
+    protected virtual void Start()
     {
         // Get and keep animator
         animator = GetComponent<Animator>();
@@ -130,21 +134,11 @@ public class EnemyBase : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    protected virtual void Update()
     {
         // When ready to attack
-        if (IsBattle)
-        {
-            attackTimer += Time.deltaTime;
-            if (attackTimer >= attackInterval)
-            {
-                animator.SetTrigger("isAttack");
-                attackTimer = 0;
-            }
-        }
-        else attackTimer = 0;
-
-        OnMoveEvent();
+        if (IsBattle) OnAttackEvent();
+        else OnMoveEvent();
     }
     /// <summary>
     /// Attack hit call
@@ -202,13 +196,28 @@ public class EnemyBase : MonoBehaviour
         attackHitColliderCall.TriggerEnterEvent.AddListener(OnAttackTriggerEnter);
     }
     /// <summary>
+    /// Enemy attack event
+    /// </summary>
+    private void OnAttackEvent()
+    {
+        attackTimer += Time.deltaTime;
+        animator.SetBool("isRun", false);
+        if (attackTimer >= attackInterval)
+        {
+            animator.SetTrigger("isAttack");
+            attackTimer = 0;
+        }
+    }
+    /// <summary>
     /// Enemy move event
     /// </summary>
     private void OnMoveEvent()
     {
+        attackTimer = 0;
         // Measure distance to target and execute event
         if (currentTarget == null)
         {
+            animator.SetBool("isRun", false);
             ArrivalEvent?.Invoke(this);
             Debug.Log(gameObject.name + " has started to move!");
         }
@@ -224,27 +233,37 @@ public class EnemyBase : MonoBehaviour
     /// <param name="collider"></param>
     private void OnAroundTriggerEnter(Collider collider)
     {
-        if (collider.gameObject.tag == strPlayer) IsBattle = true;
+        if (collider.gameObject.tag == strPlayer)
+        {
+            IsBattle = true;
+            navMeshAgent.SetDestination(this.transform.position);
+            currentTarget = null;
+        }
     }
     /// <summary>
     /// Peripheral radar collider stay event call
     /// </summary>
-    private void OnAroundTriggerStay(Collider collider)
+    protected virtual void OnAroundTriggerStay(Collider collider)
     {
         if (collider.gameObject.tag == strPlayer)
         {
             var dir = (collider.gameObject.transform.position - this.transform.position).normalized;
             dir.y = 0;
             this.transform.forward = dir;
+            currentAttackTarget = collider.gameObject.transform;
         }
     }
     /// <summary>
     /// Peripheral radar collider exit event call
     /// </summary>
     /// <param name="collider"></param>
-    private void OnAroundTriggerExit(Collider collider)
+    protected virtual void OnAroundTriggerExit(Collider collider)
     {
-        if (collider.gameObject.tag == strPlayer) IsBattle = false;
+        if (collider.gameObject.tag == strPlayer)
+        {
+            IsBattle = false;
+            currentAttackTarget = null;
+        }
     }
     /// <summary>
     /// Attack collider enter event call
@@ -281,29 +300,30 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Attack hit animation call
     /// </summary>
-    private void Anim_AttackHit()
+    protected virtual void Anim_AttackHit()
     {
         attackHitColliderCall.gameObject.SetActive(true);
     }
     /// <summary>
     /// Attack animation end call
     /// </summary>
-    private void Anim_AttackEnd()
+    protected virtual void Anim_AttackEnd()
     {
         attackHitColliderCall.gameObject.SetActive(false);
     }
     /// <summary>
     /// Attack hit animation call
     /// </summary>
-    private void Amin_AttackHit()
-    {
-        this.gameObject.SetActive(false);
-    }
+    //private void Amin_AttackHit()
+    //{
+    //    this.gameObject.SetActive(false);
+    //}
     /// <summary>
     /// Death animation call
     /// </summary>
-    private void Amin_DieEnd()
+    private void Anim_DieEnd()
     {
-        this.gameObject.SetActive(false);
+        Destroy(gameObject);
+        //this.gameObject.SetActive(false);
     }
 }
