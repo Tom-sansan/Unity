@@ -29,7 +29,7 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Event class for Enemy move
     /// </summary>
-    public class EnemyMoveEvent : UnityEvent<EnemyBase> { }
+    public class EnemyEvent : UnityEvent<EnemyBase> { }
     #endregion
 
     #region Variables
@@ -79,7 +79,11 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Evnet for destination setting
     /// </summary>
-    public EnemyMoveEvent ArrivalEvent = new EnemyMoveEvent();
+    public EnemyEvent ArrivalEvent = new EnemyEvent();
+    /// <summary>
+    /// Death animation end call
+    /// </summary>
+    public EnemyEvent DestroyEvent = new EnemyEvent();
     /// <summary>
     /// Nav mesh
     /// </summary>
@@ -323,7 +327,8 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     private void Anim_DieEnd()
     {
-        Destroy(gameObject);
         //this.gameObject.SetActive(false);
+        //Destroy(gameObject);
+        DestroyEvent?.Invoke(this);
     }
 }
