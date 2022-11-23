@@ -64,6 +64,11 @@ public class EnemyBase : MonoBehaviour
     [SerializeField]
     private GameObject hitParticlePrefab = null;
     /// <summary>
+    /// Boss or not
+    /// </summary>
+    [SerializeField]
+    public bool IsBoss = false;
+    /// <summary>
     /// Basic status
     /// </summary>
     [SerializeField]

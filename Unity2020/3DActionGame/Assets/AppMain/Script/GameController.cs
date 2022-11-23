@@ -1,10 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour
 {
     #region Variables
+    #region SerializeField
     /// <summary>
     /// Game over object
     /// </summary>
@@ -41,6 +43,27 @@ public class GameController : MonoBehaviour
     [SerializeField]
     private int numberOfEnemy = 2;
     /// <summary>
+    /// Game clear object
+    /// </summary>
+    [SerializeField]
+    private GameObject gameClear = null;
+    /// <summary>
+    /// Boss prefab
+    /// </summary>
+    [SerializeField]
+    private GameObject bossPrefab = null;
+    /// <summary>
+    /// Time display text on game clear screen
+    /// </summary>
+    [SerializeField]
+    private Text gameClearTimeText = null;
+    /// <summary>
+    /// Text to display time on screen during normal operation
+    /// </summary>
+    [SerializeField]
+    private Text timerText = null;
+    #endregion
+    /// <summary>
     /// Enemy list on field
     /// </summary>
     private List<EnemyBase> fieldEnemys = new List<EnemyBase>();
@@ -52,6 +75,18 @@ public class GameController : MonoBehaviour
     /// The number of beaten enemy
     /// </summary>
     private int currentBossCount = 0;
+    /// <summary>
+    /// Boss appearance flag
+    /// </summary>
+    private bool isBossAppeared = false;
+    /// <summary>
+    /// Current time
+    /// </summary>
+    private float currentTime = 0;
+    /// <summary>
+    /// Time measurement flag
+    /// </summary>
+    private bool isTimer = false;
     #endregion
 
     void Start()
@@ -62,10 +97,14 @@ public class GameController : MonoBehaviour
         Init();
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+        if (isTimer)
+        {
+            currentTime += Time.deltaTime;
+            if (currentTime > 999f) timerText.text = "999.9";
+            else timerText.text = currentTime.ToString("000.0");
+        }
     }
     public void OnRetryButtonClicked()
     {
@@ -77,8 +116,12 @@ public class GameController : MonoBehaviour
         fieldEnemys.Clear();
         // Show player
         player.gameObject.SetActive(true);
-        // Hide game over object
-        gameObject.SetActive(false);
+        // Hide game over
+        gameOver.SetActive(false);
+        // Hide game clear
+        gameClear.SetActive(false);
+
+        Init();
     }
     /// <summary>
     /// Initialization
@@ -89,14 +132,18 @@ public class GameController : MonoBehaviour
         isEnemySpawn = true;
         StartCoroutine(EnemyCreateLoop());
         currentBossCount = 0;
+        isBossAppeared= false;
+        currentTime = 0;
+        isTimer = true;
+        timerText.text = "0:00";
     }
     private IEnumerator EnemyCreateLoop()
     {
         while (isEnemySpawn)
         {
             yield return new WaitForSeconds(2f);
-            if (fieldEnemys.Count < 10) CreateEnemy();
-            // Stop creating enemy if enemies more than or equal to 10 are beaten
+            if (fieldEnemys.Count <= 10) CreateEnemy();
+            // Stop creating enemy if enemies more than 10 are beaten
             if (currentBossCount > 10)
             {
                 isEnemySpawn = false;
@@ -109,6 +156,15 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void CreateBoss()
     {
+        if (isBossAppeared) return;
+        var posNum = Random.Range(0, enemyGateList.Count);
+        var pos = enemyGateList[posNum];
+
+        var obj = Instantiate(bossPrefab, pos.position, Quaternion.identity);
+        var enemy = obj.GetComponent<EnemyBase>();
+
+        enemy.ArrivalEvent.AddListener(EnemyMove);
+        enemy.DestroyEvent.AddListener(EnemyDestroy);
         Debug.Log("Boss appears!!");
     }
     /// <summary>
@@ -116,6 +172,7 @@ public class GameController : MonoBehaviour
     /// </summary>
     private void OnGameOver()
     {
+        isTimer = false;
         // Show game over
         gameOver.SetActive(true);
         // Hide player
@@ -184,7 +241,25 @@ public class GameController : MonoBehaviour
     {
         if (fieldEnemys.Contains(enemy)) fieldEnemys.Remove(enemy);
         Destroy(enemy.gameObject);
-        currentBossCount++;
-        if (currentBossCount > 10) CreateBoss();
+
+        if (!enemy.IsBoss)
+        {
+            currentBossCount++;
+            if (currentBossCount > 3) CreateBoss();
+        }
+        else
+        {
+            isTimer = false;
+            if (currentTime > 999f) gameClearTimeText.text = "Time : 999.9";
+            else gameClearTimeText.text = "Time : " + currentTime.ToString("000.0");
+            // Show game clear
+            gameClear.SetActive(true);
+
+            isEnemySpawn = false;
+            // Remove enemy on field and reset list
+            foreach (var fieldEnemy in fieldEnemys) Destroy(fieldEnemy.gameObject);
+            fieldEnemys.Clear();
+            Debug.Log("Game Clear!!");
+        }
     }
 }
