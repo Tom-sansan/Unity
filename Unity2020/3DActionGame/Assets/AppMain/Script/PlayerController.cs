@@ -335,6 +335,16 @@ public class PlayerController : MonoBehaviour
         isAttack = false;
     }
     /// <summary>
+    /// Heal process
+    /// </summary>
+    public void OnHeal(int healPoint)
+    {
+        CurrentStatus.Hp += healPoint;
+        if (CurrentStatus.Hp > DefaultStatus.Hp) CurrentStatus.Hp = DefaultStatus.Hp;
+        hpBar.value = CurrentStatus.Hp;
+        Debug.Log("HP recovered by " + healPoint + "P");
+    }
+    /// <summary>
     /// Destroy particle when it ends
     /// </summary>
     /// <param name="particle"></param>
