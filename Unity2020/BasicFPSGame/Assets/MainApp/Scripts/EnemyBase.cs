@@ -16,9 +16,25 @@ public class EnemyBase : MonoBehaviour
     protected int maxHp = 3;
     #endregion
     /// <summary>
+    /// Target
+    /// </summary>
+    protected GameObject targetPlayer = null;
+    /// <summary>
     /// Current HP
     /// </summary>
     protected int hp = 0;
+    /// <summary>
+    /// Battle system flag
+    /// </summary>
+    protected bool toAttack = false;
+    /// <summary>
+    /// Attacking flag
+    /// </summary>
+    protected bool isAttacking = false;
+    /// <summary>
+    /// Flag for dead
+    /// </summary>
+    protected bool isDead = false;
     /// <summary>
     /// Flag for being attacked
     /// </summary>
@@ -47,6 +63,12 @@ public class EnemyBase : MonoBehaviour
     /// <param name="collision"></param>
     public virtual void OnEnemyColliderEnter(Collision collision)
     {
+        if (isDead)
+        {
+            // Destroy if already dead
+            Destroy(collision.gameObject);
+            return;
+        }
         if (collision.gameObject.tag.Equals("Arrow") && canHit)
         {
             // Acquire Arrow and perform processing when hit by an "Arrow" enemy
@@ -69,7 +91,8 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     protected virtual void OnDead()
     {
-        Destroy(gameObject);
+        // Destroy(gameObject);
+        isDead = true;
         Debug.Log(gameObject.name + " is beaten.");
     }
     /// <summary>
