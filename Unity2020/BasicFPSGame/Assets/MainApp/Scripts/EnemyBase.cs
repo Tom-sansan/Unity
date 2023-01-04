@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using C = Constant;
 
 /// <summary>
 /// Enemy Base
@@ -24,7 +25,7 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     protected int hp = 0;
     /// <summary>
-    /// Battle system flag
+    /// Attack posture flag
     /// </summary>
     protected bool toAttack = false;
     /// <summary>
@@ -69,7 +70,7 @@ public class EnemyBase : MonoBehaviour
             Destroy(collision.gameObject);
             return;
         }
-        if (collision.gameObject.tag.Equals("Arrow") && canHit)
+        if (collision.gameObject.tag.Equals(C.Arrow) && canHit)
         {
             // Acquire Arrow and perform processing when hit by an "Arrow" enemy
             var arrow = collision.gameObject.GetComponent<Arrow>();

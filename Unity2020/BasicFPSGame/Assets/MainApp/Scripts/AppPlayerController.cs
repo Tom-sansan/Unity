@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using UnityEngine;
+using C = Constant;
 
 public class AppPlayerController : MonoBehaviour
 {
@@ -22,6 +23,11 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private GameObject shootPointMarker = null;
+    /// <summary>
+    /// Initial HP
+    /// </summary>
+    [SerializeField]
+    private float maxHp = 50f;
     /// <summary>
     /// Move speed
     /// </summary>
@@ -78,11 +84,16 @@ public class AppPlayerController : MonoBehaviour
     /// Jumping flag
     /// </summary>
     private bool isJumping = false;
+    /// <summary>
+    /// Current HP
+    /// </summary>
+    private float currentHp = 0;
     #endregion
 
     private void Start()
     {
         rigid = GetComponent<Rigidbody>();
+        currentHp = maxHp;
     }
 
     // Update is called once per frame
@@ -96,8 +107,8 @@ public class AppPlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var horizontal = Input.GetAxis("Horizontal");
-        var vertical = Input.GetAxis("Vertical");
+        var horizontal = Input.GetAxis(C.Horizontal);
+        var vertical = Input.GetAxis(C.Vertical);
 
         if (horizontal != 0 || vertical != 0)
         {
@@ -124,7 +135,7 @@ public class AppPlayerController : MonoBehaviour
     /// <param name="collider"></param>
     public void OnGroundTriggerEnter(Collider collider)
     {
-        if (collider.gameObject.tag.Equals("Ground"))
+        if (collider.gameObject.tag.Equals(C.Ground))
         {
             if (isJumping) StartCoroutine(WaitSwitch(0.5f));
             Debug.Log("Ground enter");
@@ -136,11 +147,20 @@ public class AppPlayerController : MonoBehaviour
     /// <param name="collider"></param>
     public void OnGroundTriggerExit(Collider collider)
     {
-        if (collider.gameObject.tag.Equals("Ground"))
+        if (collider.gameObject.tag.Equals(C.Ground))
         {
             if (isJumping) StartCoroutine(WaitSwitch(0.5f));
             Debug.Log("Ground enter");
         }
+    }
+    /// <summary>
+    /// Call at the attack hit of enemy
+    /// </summary>
+    /// <param name="attack"></param>
+    public void OnEnemyAttackHit(float attack)
+    {
+        currentHp -= attack;
+        Debug.Log("Damaged!! The current HP : " + currentHp);
     }
     /// <summary>
     /// Mouse button action
@@ -279,7 +299,7 @@ public class AppPlayerController : MonoBehaviour
             foreach (var h in hits)
             {
                 // If the arrow is hit, ignore it
-                if (h.collider.gameObject.tag.Equals("Arrow")) continue;
+                if (h.collider.gameObject.tag.Equals(C.Arrow)) continue;
                 // Calculate the distance (squared) from the camera to the hit location to find the closest point
                 var dis = (Camera.main.transform.position - h.point).sqrMagnitude;
                 if (nearHit == null || (currentNear != 0 && currentNear > dis))

@@ -2,11 +2,22 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
+using C = Constant;
 
 public class EnemyCrocodile : EnemyBase
 {
     #region Variables
     #region SerializeField
+    /// <summary>
+    /// Attack position
+    /// </summary>
+    [SerializeField]
+    protected Transform attackPoint = null;
+    /// <summary>
+    /// Attack-determination prefab
+    /// </summary>
+    [SerializeField]
+    protected GameObject attackSphere = null;
     /// <summary>
     /// Animator
     /// </summary>
@@ -37,7 +48,7 @@ public class EnemyCrocodile : EnemyBase
     {
         base.Update();
         SetNext();
-        animator.SetFloat("Speed", navMeshAgent.velocity.sqrMagnitude);
+        animator.SetFloat(C.Speed, navMeshAgent.velocity.sqrMagnitude);
     }
     /// <summary>
     /// Dead process
@@ -47,7 +58,7 @@ public class EnemyCrocodile : EnemyBase
         base.OnDead();
         navMeshAgent.SetDestination(transform.position);
         navMeshAgent.isStopped = true;
-        animator.SetTrigger("Dead");
+        animator.SetTrigger(C.Dead);
         StartCoroutine(WaitDead());
     }
     /// <summary>
@@ -56,7 +67,7 @@ public class EnemyCrocodile : EnemyBase
     /// <param name="collider"></param>
     public void OnNeighborhoodTriggerStay(Collider collider)
     {
-        if (collider.gameObject.tag.Equals("Player"))
+        if (collider.gameObject.tag.Equals(C.Player))
         {
             base.targetPlayer = collider.gameObject;
             ToAttack();
@@ -69,12 +80,39 @@ public class EnemyCrocodile : EnemyBase
     /// <param name="collider"></param>
     public void OnNeighborhoodTriggerExit(Collider collider)
     {
-        if (collider.gameObject.tag.Equals("Player"))
+        if (collider.gameObject.tag.Equals(C.Player))
         {
             base.targetPlayer = null;
+            base.isAttacking = false;
             base.toAttack = false;
             Debug.Log("Neighborhood trigger exit Player");
         }
+    }
+    /// <summary>
+    /// Animation end registration process
+    /// </summary>
+    public void OnAttackEnd()
+    {
+        StartCoroutine(WaitAttack());
+    }
+    /// <summary>
+    /// Generation of attack point
+    /// </summary>
+    public void CreateAttackSphere()
+    {
+        var go = Instantiate(attackSphere, attackPoint.position, attackPoint.rotation, attackPoint);
+        var aSphere = go.GetComponent<AttackSphere>();
+        aSphere.Init();
+    }
+    /// <summary>
+    /// Coroutine for attack interval
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator WaitAttack()
+    {
+        yield return new WaitForSeconds(2f);
+        isAttacking = false;
+        toAttack = false;
     }
     /// <summary>
     /// Standby coroutine for destruction at death
@@ -109,7 +147,7 @@ public class EnemyCrocodile : EnemyBase
         }
         else if (navMeshAgent.isStopped)
         {
-            // Resume from isStop
+            // Resume from isStopped
             navMeshAgent.isStopped = false;
             var target = GetMoveTarget();
             if (target != null) navMeshAgent.SetDestination(target.position);
@@ -127,6 +165,14 @@ public class EnemyCrocodile : EnemyBase
         if (dis < 4f)
         {
             navMeshAgent.isStopped = true;
+            animator.SetTrigger(C.Attack);
+            // Keep target player position
+            var targetTransform = base.targetPlayer.transform.position;
+            targetTransform.y = gameObject.transform.position.y;
+            var dir = (targetTransform - gameObject.transform.position).normalized;
+            // Face the player's direction
+            transform.forward = dir;
+            isAttacking = true;
         }
         else navMeshAgent.isStopped = false;
     }

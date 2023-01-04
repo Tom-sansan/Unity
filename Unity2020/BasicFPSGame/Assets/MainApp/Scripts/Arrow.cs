@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using C = Constant;
 
 public class Arrow : MonoBehaviour
 {
@@ -50,7 +51,7 @@ public class Arrow : MonoBehaviour
     public void OnArrowCollisionEnter(Collision collision)
     {
         //if (collision.gameObject.tag.Equals("Ground") || collision.gameObject.tag.Equals("Enemy"))
-        if (collision.gameObject.tag.Equals("Ground"))
+        if (collision.gameObject.tag.Equals(C.Ground))
         {
             if (isAttack)
             {
