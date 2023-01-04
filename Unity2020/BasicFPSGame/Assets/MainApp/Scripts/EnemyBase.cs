@@ -13,9 +13,13 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Maximum HP
     /// </summary>
-    [SerializeField]
+    //[SerializeField]
     protected int maxHp = 3;
     #endregion
+    /// <summary>
+    /// App Game Manager
+    /// </summary>
+    protected AppGameManager gameManager = null;
     /// <summary>
     /// Target
     /// </summary>
@@ -24,6 +28,10 @@ public class EnemyBase : MonoBehaviour
     /// Current HP
     /// </summary>
     protected int hp = 0;
+    /// <summary>
+    /// Attack power
+    /// </summary>
+    protected float attack = 1f;
     /// <summary>
     /// Attack posture flag
     /// </summary>
@@ -44,7 +52,7 @@ public class EnemyBase : MonoBehaviour
 
     protected virtual void Start()
     {
-        Init();
+        // Init();
     }
 
     protected virtual void Update()
@@ -54,9 +62,12 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Initialization
     /// </summary>
-    public virtual void Init()
+    public virtual void Init(AppGameManager appGameManager, int maxHp, float attack)
     {
+        this.maxHp = maxHp;
+        this.attack = attack;
         hp = maxHp;
+        gameManager = appGameManager;
     }
     /// <summary>
     /// Collider enter process
@@ -94,6 +105,7 @@ public class EnemyBase : MonoBehaviour
     {
         // Destroy(gameObject);
         isDead = true;
+        gameManager.OnDeadEnemy(this);
         Debug.Log(gameObject.name + " is beaten.");
     }
     /// <summary>

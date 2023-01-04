@@ -15,7 +15,7 @@ public class AttackSphere : MonoBehaviour
     /// <summary>
     /// Attack power
     /// </summary>
-    [SerializeField]
+    // [SerializeField]
     private float attack = 1f;
     #endregion
     /// <summary>
@@ -27,9 +27,10 @@ public class AttackSphere : MonoBehaviour
     /// <summary>
     /// Initialization
     /// </summary>
-    public void Init()
+    public void Init(float attack)
     {
         cor = StartCoroutine(AutoDestroy());
+        this.attack = attack;
     }
     /// <summary>
     /// Automatic destruction coroutine

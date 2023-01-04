@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.AI;
 using C = Constant;
@@ -31,8 +33,13 @@ public class EnemyCrocodile : EnemyBase
     /// <summary>
     /// Move target list
     /// </summary>
-    [SerializeField]
+    // [SerializeField]
     private List<Transform> moveTargets = new List<Transform>();
+    /// <summary>
+    /// The number of move point
+    /// </summary>
+    [SerializeField]
+    private int movePointCount = 5;
     #endregion
 
     #endregion
@@ -40,8 +47,8 @@ public class EnemyCrocodile : EnemyBase
     protected override void Start()
     {
         base.Start();
-        var target = GetMoveTarget();
-        if (target != null) navMeshAgent.SetDestination(target.position);
+        // var target = GetMoveTarget();
+        // if (target != null) navMeshAgent.SetDestination(target.position);
     }
 
     protected override void Update()
@@ -102,7 +109,51 @@ public class EnemyCrocodile : EnemyBase
     {
         var go = Instantiate(attackSphere, attackPoint.position, attackPoint.rotation, attackPoint);
         var aSphere = go.GetComponent<AttackSphere>();
-        aSphere.Init();
+        // aSphere.Init();
+        aSphere.Init(attack);
+    }
+    /// <summary>
+    /// Set target
+    /// </summary>
+    public void SetTarget()
+    {
+        var target = GetRandomTarget(moveTargets);
+        if (target != null) navMeshAgent.SetDestination(target.position);
+    }
+    /// <summary>
+    /// Create destination list
+    /// </summary>
+    public void SetMoveTargetList(List<Transform> pointList)
+    {
+        if (pointList == null || pointList.Count == 0)
+        {
+            Debug.LogWarning("Please set a point of enemy movement");
+            return;
+        }
+        else if (pointList.Count < movePointCount)
+        {
+            moveTargets = new List<Transform>(pointList);
+            return;
+        }
+        else
+        {
+            var r = new System.Random();
+            moveTargets = pointList.OrderBy(x => System.Guid.NewGuid()).Take(movePointCount).ToList();
+            SetTarget();
+
+            // Get the required number of points from the point list without duplication
+            //for (int i = 0; i < movePointCount; i++)
+            //{
+            //    var point = GetRandomTarget(pointList);
+            //    while (moveTargets.Contains(point))
+            //    {
+            //        point = GetRandomTarget(pointList);
+            //        if (!moveTargets.Contains(point)) break;
+            //    }
+            //    moveTargets.Add(point);
+            //}
+            //SetTarget();
+        }
     }
     /// <summary>
     /// Coroutine for attack interval
@@ -127,11 +178,21 @@ public class EnemyCrocodile : EnemyBase
     /// Randomly obtain a destination for movement
     /// </summary>
     /// <returns></returns>
-    private Transform GetMoveTarget()
+    //private Transform GetMoveTarget()
+    //{
+    //    if (moveTargets == null || moveTargets.Count == 0) return null;
+    //    var num = Random.Range(0, moveTargets.Count);
+    //    return moveTargets[num];
+    //}
+    /// <summary>
+    /// Get destination randomly
+    /// </summary>
+    /// <returns></returns>
+    private Transform GetRandomTarget(List<Transform> list)
     {
-        if (moveTargets == null || moveTargets.Count == 0) return null;
-        var num = Random.Range(0, moveTargets.Count);
-        return moveTargets[num];
+        if (list == null || list.Count == 0) return null;
+        var num = Random.Range(0, list.Count);
+        return list[num];
     }
     /// <summary>
     /// Measuring distances and setting destinations
@@ -142,15 +203,17 @@ public class EnemyCrocodile : EnemyBase
         var dis = navMeshAgent.remainingDistance;
         if (dis < 0.5f)
         {
-            var target = GetMoveTarget();
-            if (target != null) navMeshAgent.SetDestination(target.position);
+            //var target = GetMoveTarget();
+            //if (target != null) navMeshAgent.SetDestination(target.position);
+            SetTarget();
         }
         else if (navMeshAgent.isStopped)
         {
             // Resume from isStopped
             navMeshAgent.isStopped = false;
-            var target = GetMoveTarget();
-            if (target != null) navMeshAgent.SetDestination(target.position);
+            //var target = GetMoveTarget();
+            //if (target != null) navMeshAgent.SetDestination(target.position);
+            SetTarget();
         }
     }
     /// <summary>

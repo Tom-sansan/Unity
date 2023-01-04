@@ -116,7 +116,8 @@ public class EnemyBat : EnemyBase
 
         var go = Instantiate(attackSphere, attackPoint.position, attackPoint.rotation, attackPoint);
         var sSphere = go.GetComponent<AttackSphere>();
-        sSphere.Init();
+        //sSphere.Init();
+        sSphere.Init(attack);
         // Launch Sphere forward
         var rigid = go.GetComponent<Rigidbody>();
         if (rigid != null && targetPlayer != null)
