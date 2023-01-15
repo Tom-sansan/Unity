@@ -1,13 +1,53 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Net.NetworkInformation;
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 using C = Constant;
 
 public class AppPlayerController : MonoBehaviour
 {
+    #region Game State
+    /// <summary>
+    /// Game state
+    /// </summary>
+    public enum GameState
+    {
+        Stop,
+        Ready,
+        Play,
+        End
+    }
+    /// <summary>
+    /// Parameters for game progress
+    /// </summary>
+    public class GameParam
+    {
+        /// <summary>
+        /// Game state
+        /// </summary>
+        public GameState State = GameState.Stop;
+        /// <summary>
+        /// Preparation time (for countdown)
+        /// </summary>
+        public float ReadyTime = 0;
+        /// <summary>
+        /// Game time
+        /// </summary>
+        public float GameTime = 0;
+        /// <summary>
+        /// Number of enemy destroyed
+        /// </summary>
+        public int EnemyDestroyCount = 0;
+    }
+    #endregion
+
     #region Variables
     #region SerializeField
+    /// <summary>
+    /// Player
+    /// </summary>
+    [SerializeField]
+    private AppPlayerController player = null;
     /// <summary>
     /// Arrow prefab
     /// </summary>
@@ -23,6 +63,16 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private GameObject shootPointMarker = null;
+    /// <summary>
+    /// Hit effect image
+    /// </summary>
+    [SerializeField]
+    private Image hitEffectImage = null;
+    /// <summary>
+    /// HP Slider
+    /// </summary>
+    [SerializeField]
+    private Slider hpSlider = null;
     /// <summary>
     /// Initial HP
     /// </summary>
@@ -58,7 +108,34 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private float arrowPower = 5f;
+    /// <summary>
+    /// Countdown time
+    /// </summary>
+    [SerializeField]
+    private float readyTime = 5f;
+    /// <summary>
+    /// Number of clear breakdowns
+    /// </summary>
+    [SerializeField]
+    private int clearCount = 10;
     #endregion
+
+    #region Public
+    /// <summary>
+    /// The current game paramter
+    /// </summary>
+    public GameParam CurrentGameParam = new GameParam();
+    /// <summary>
+    /// Clear event
+    /// </summary>
+    public UnityEvent ClearEvent = new UnityEvent();
+    /// <summary>
+    /// Event when an enemy is defeated
+    /// </summary>
+    public UnityEvent EnemyDeadEvent = new UnityEvent();
+    #endregion
+
+    #region Private
     /// <summary>
     /// Arrows player currently have
     /// </summary>
@@ -68,6 +145,10 @@ public class AppPlayerController : MonoBehaviour
     /// Rigidbody
     /// </summary>
     private Rigidbody rigid = null;
+    /// <summary>
+    /// Hit effect coroutine
+    /// </summary>
+    private Coroutine hitEffectCor = null;
     /// <summary>
     /// Position to start to click mouse
     /// </summary>
@@ -89,11 +170,17 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     private float currentHp = 0;
     #endregion
+    #endregion
+
+    #region Methods
 
     private void Start()
     {
         rigid = GetComponent<Rigidbody>();
         currentHp = maxHp;
+        hpSlider.maxValue = maxHp;
+        hpSlider.value = currentHp;
+        hitEffectImage.gameObject.SetActive(false);
     }
 
     // Update is called once per frame
@@ -160,6 +247,13 @@ public class AppPlayerController : MonoBehaviour
     public void OnEnemyAttackHit(float attack)
     {
         currentHp -= attack;
+        hpSlider.value = currentHp;
+        if (hitEffectCor != null)
+        {
+            StopCoroutine(hitEffectCor);
+            hitEffectCor = null;
+        }
+        hitEffectCor = StartCoroutine(HitEffect());
         Debug.Log("Damaged!! The current HP : " + currentHp);
     }
     /// <summary>
@@ -327,4 +421,16 @@ public class AppPlayerController : MonoBehaviour
             shootPoint = null;
         }
     }
+    /// <summary>
+    /// Effect of attach hit
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator HitEffect()
+    {
+        hitEffectImage.gameObject.SetActive(true);
+        yield return new WaitForSeconds(0.1f);
+        hitEffectImage.gameObject.SetActive(false);
+    }
+
+    #endregion
 }

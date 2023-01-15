@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static AppPlayerController;
 
 /// <summary>
 /// App Game Controller Class
@@ -104,6 +105,34 @@ public class AppGameManager : MonoBehaviour
     {
         if (currentFieldEnemies.Contains(enemy)) currentFieldEnemies.Remove(enemy);
     }
+    #region Game State
+    /// <summary>
+    /// Transition to Ready state
+    /// </summary>
+    private void GameReady()
+    {
+        //CurrentGameParam.State = GameState.Ready;
+        //CurrentGameParam.ReadyTime = readyTime;
+    }
+    /// <summary>
+    /// Transition to Play state
+    /// </summary>
+    private void GameStart()
+    {
+        // CurrentGameParam.State = GameState.Play;
+        InitSpawn();
+    }
+    /// <summary>
+    /// Transition to End state
+    /// </summary>
+    private void GameClear()
+    {
+        // CurrentGameParam.State = GameState.End;
+        if (currentFieldEnemies.Count > 0) foreach (var enemy in currentFieldEnemies) Destroy(enemy.gameObject);
+        currentFieldEnemies.Clear();
+        
+    }
+    #endregion
     /// <summary>
     /// Coroutine for Initialization
     /// * Create one enemy at a time at regular intervals, ending when the maximum number of enemies is reached
