@@ -6,48 +6,8 @@ using C = Constant;
 
 public class AppPlayerController : MonoBehaviour
 {
-    #region Game State
-    /// <summary>
-    /// Game state
-    /// </summary>
-    public enum GameState
-    {
-        Stop,
-        Ready,
-        Play,
-        End
-    }
-    /// <summary>
-    /// Parameters for game progress
-    /// </summary>
-    public class GameParam
-    {
-        /// <summary>
-        /// Game state
-        /// </summary>
-        public GameState State = GameState.Stop;
-        /// <summary>
-        /// Preparation time (for countdown)
-        /// </summary>
-        public float ReadyTime = 0;
-        /// <summary>
-        /// Game time
-        /// </summary>
-        public float GameTime = 0;
-        /// <summary>
-        /// Number of enemy destroyed
-        /// </summary>
-        public int EnemyDestroyCount = 0;
-    }
-    #endregion
-
     #region Variables
     #region SerializeField
-    /// <summary>
-    /// Player
-    /// </summary>
-    [SerializeField]
-    private AppPlayerController player = null;
     /// <summary>
     /// Arrow prefab
     /// </summary>
@@ -108,31 +68,6 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private float arrowPower = 5f;
-    /// <summary>
-    /// Countdown time
-    /// </summary>
-    [SerializeField]
-    private float readyTime = 5f;
-    /// <summary>
-    /// Number of clear breakdowns
-    /// </summary>
-    [SerializeField]
-    private int clearCount = 10;
-    #endregion
-
-    #region Public
-    /// <summary>
-    /// The current game paramter
-    /// </summary>
-    public GameParam CurrentGameParam = new GameParam();
-    /// <summary>
-    /// Clear event
-    /// </summary>
-    public UnityEvent ClearEvent = new UnityEvent();
-    /// <summary>
-    /// Event when an enemy is defeated
-    /// </summary>
-    public UnityEvent EnemyDeadEvent = new UnityEvent();
     #endregion
 
     #region Private

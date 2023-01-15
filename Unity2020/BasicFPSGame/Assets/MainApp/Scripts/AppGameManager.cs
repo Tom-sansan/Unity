@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using static AppPlayerController;
 
 /// <summary>
@@ -8,6 +9,41 @@ using static AppPlayerController;
 /// </summary>
 public class AppGameManager : MonoBehaviour
 {
+    #region Game State
+    /// <summary>
+    /// Game state
+    /// </summary>
+    public enum GameState
+    {
+        Stop,
+        Ready,
+        Play,
+        End
+    }
+    /// <summary>
+    /// Parameters for game progress
+    /// </summary>
+    public class GameParam
+    {
+        /// <summary>
+        /// Game state
+        /// </summary>
+        public GameState State = GameState.Stop;
+        /// <summary>
+        /// Preparation time (for countdown)
+        /// </summary>
+        public float ReadyTime = 0;
+        /// <summary>
+        /// Game time
+        /// </summary>
+        public float GameTime = 0;
+        /// <summary>
+        /// Number of enemy destroyed
+        /// </summary>
+        public int EnemyDestroyCount = 0;
+    }
+    #endregion
+
     #region Enum
     public enum EnemyType
     {
@@ -18,6 +54,11 @@ public class AppGameManager : MonoBehaviour
 
     #region Variables
     #region SerializeField
+    /// <summary>
+    /// Player
+    /// </summary>
+    [SerializeField]
+    private AppPlayerController player = null;
     /// <summary>
     /// Enemy prefab on ground
     /// </summary>
@@ -38,7 +79,34 @@ public class AppGameManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private int enemyCount = 20;
+    /// <summary>
+    /// Countdown time
+    /// </summary>
+    [SerializeField]
+    private float readyTime = 5f;
+    /// <summary>
+    /// Number of clear breakdowns
+    /// </summary>
+    [SerializeField]
+    private int clearCount = 10;
     #endregion
+
+    #region Public
+    /// <summary>
+    /// The current game paramter
+    /// </summary>
+    public GameParam CurrentGameParam = new GameParam();
+    /// <summary>
+    /// Clear event
+    /// </summary>
+    public UnityEvent ClearEvent = new UnityEvent();
+    /// <summary>
+    /// Event when an enemy is defeated
+    /// </summary>
+    public UnityEvent EnemyDeadEvent = new UnityEvent();
+    #endregion
+
+    #region Private
     /// <summary>
     /// Enemies currently on the field
     /// </summary>
@@ -48,6 +116,7 @@ public class AppGameManager : MonoBehaviour
     /// </summary>
     private bool isEnemyRespawn = false;
     #endregion
+    #endregion
 
     private void Start()
     {
@@ -56,6 +125,25 @@ public class AppGameManager : MonoBehaviour
     private void Update()
     {
         UpdateEnemyCount();
+    }
+    /// <summary>
+    /// Reset parameters
+    /// </summary>
+    public void ResetGameParam()
+    {
+        CurrentGameParam.ReadyTime = 0;
+        CurrentGameParam.GameTime = 0;
+        CurrentGameParam.State = GameState.Stop;
+        CurrentGameParam.EnemyDestroyCount = 0;
+    }
+    /// <summary>
+    /// Retry
+    /// </summary>
+    public void Retry()
+    {
+        ResetGameParam();
+        isEnemyRespawn = false;
+        Invoke("GameReady", 2f);
     }
     /// <summary>
     /// Initialization
@@ -111,15 +199,15 @@ public class AppGameManager : MonoBehaviour
     /// </summary>
     private void GameReady()
     {
-        //CurrentGameParam.State = GameState.Ready;
-        //CurrentGameParam.ReadyTime = readyTime;
+        CurrentGameParam.State = GameState.Ready;
+        CurrentGameParam.ReadyTime = readyTime;
     }
     /// <summary>
     /// Transition to Play state
     /// </summary>
     private void GameStart()
     {
-        // CurrentGameParam.State = GameState.Play;
+        CurrentGameParam.State = GameState.Play;
         InitSpawn();
     }
     /// <summary>
@@ -130,7 +218,8 @@ public class AppGameManager : MonoBehaviour
         // CurrentGameParam.State = GameState.End;
         if (currentFieldEnemies.Count > 0) foreach (var enemy in currentFieldEnemies) Destroy(enemy.gameObject);
         currentFieldEnemies.Clear();
-        
+        ClearEvent?.Invoke();
+        Debug.Log($"Clear\n{CurrentGameParam.GameTime}");
     }
     #endregion
     /// <summary>
@@ -179,6 +268,32 @@ public class AppGameManager : MonoBehaviour
             var num = Random.Range(0, 2);
             CreateEnemy((EnemyType)num);
             if (i >= count) isEnemyRespawn = true;
+        }
+    }
+    /// <summary>
+    /// Game time measurement with Update
+    /// </summary>
+    private void UpdateCount()
+    {
+        if (CurrentGameParam.State == GameState.Ready && CurrentGameParam.ReadyTime > 0)
+        {
+            CurrentGameParam.ReadyTime -= Time.deltaTime;
+            if (CurrentGameParam.ReadyTime <= 0)
+            {
+                Debug.Log("Game Start!");
+                GameStart();
+            }
+        }
+        else if (CurrentGameParam.State == GameState.Play && CurrentGameParam.ReadyTime > -1)
+        {
+            CurrentGameParam.ReadyTime -= Time.deltaTime;
+            CurrentGameParam.GameTime += Time.deltaTime;
+            Debug.Log("Count Down: " + CurrentGameParam.ReadyTime);
+        }
+        else if (CurrentGameParam.State == GameState.Play)
+        {
+            CurrentGameParam.ReadyTime = -99999f;
+            CurrentGameParam.GameTime += Time.deltaTime;
         }
     }
 }
