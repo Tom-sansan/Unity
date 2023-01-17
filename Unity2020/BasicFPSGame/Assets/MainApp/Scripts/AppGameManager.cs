@@ -120,10 +120,13 @@ public class AppGameManager : MonoBehaviour
 
     private void Start()
     {
-        InitSpawn();
+        // InitSpawn();
+        if (player != null) player.Init(this);
+        GameReady();
     }
     private void Update()
     {
+        UpdateCount();
         UpdateEnemyCount();
     }
     /// <summary>
@@ -192,6 +195,9 @@ public class AppGameManager : MonoBehaviour
     public void OnDeadEnemy(EnemyBase enemy)
     {
         if (currentFieldEnemies.Contains(enemy)) currentFieldEnemies.Remove(enemy);
+        CurrentGameParam.EnemyDestroyCount++;
+        if (CurrentGameParam.EnemyDestroyCount >= clearCount) GameClear();
+        EnemyDeadEvent?.Invoke();
     }
     #region Game State
     /// <summary>
@@ -215,7 +221,7 @@ public class AppGameManager : MonoBehaviour
     /// </summary>
     private void GameClear()
     {
-        // CurrentGameParam.State = GameState.End;
+        CurrentGameParam.State = GameState.End;
         if (currentFieldEnemies.Count > 0) foreach (var enemy in currentFieldEnemies) Destroy(enemy.gameObject);
         currentFieldEnemies.Clear();
         ClearEvent?.Invoke();
@@ -232,6 +238,7 @@ public class AppGameManager : MonoBehaviour
         while (currentFieldEnemies.Count < enemyCount)
         {
             yield return new WaitForSeconds(1f);
+            if (CurrentGameParam.State != GameState.Play) break;
             var num = Random.Range(0, 2);
             CreateEnemy((EnemyType)num);
             if (currentFieldEnemies.Count >= enemyCount)
@@ -246,6 +253,7 @@ public class AppGameManager : MonoBehaviour
     /// </summary>
     private void UpdateEnemyCount()
     {
+        if (CurrentGameParam.State != GameState.Play) return;
         if (!isEnemyRespawn) return;
         if (currentFieldEnemies.Count < enemyCount)
         {

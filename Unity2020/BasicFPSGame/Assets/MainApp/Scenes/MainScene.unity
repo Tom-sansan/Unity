@@ -467,7 +467,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 189743280}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1133655543}
+        m_TargetAssemblyTypeName: AppPlayerController, Assembly-CSharp
+        m_MethodName: OnRetryButtonClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &189743280
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -549,6 +561,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3a0f414b46b8284e8afb2cce73f1851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  player: {fileID: 1133655543}
   enemyPrefab: {fileID: 1740399003289936980, guid: 0564df810676de2478be78a00e5c5d20, type: 3}
   skyEnemyPrefab: {fileID: 52556684668650052, guid: bac2a546a479b774b9b25e61ec5bf50a, type: 3}
   enemySpawnPoints:
@@ -569,6 +582,14 @@ MonoBehaviour:
   - {fileID: 1383118336}
   - {fileID: 1155185631}
   enemyCount: 20
+  readyTime: 5
+  clearCount: 2
+  ClearEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  EnemyDeadEvent:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &237619868
 GameObject:
   m_ObjectHideFlags: 0
@@ -2678,7 +2699,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e7f6a9c623039445b72aadb92fb5940, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  player: {fileID: 1133655543}
+  startText: {fileID: 1888182807}
+  clearUi: {fileID: 1519931903}
+  clearText: {fileID: 640950907}
+  countText: {fileID: 1897596662}
   arrowPrefab: {fileID: 1366809140621477213, guid: ec6ed5559fa49cc4bba52f911e1966f9, type: 3}
   arrowPoint: {fileID: 237619869}
   shootPointMarker: {fileID: 1113451987}
@@ -2691,14 +2715,6 @@ MonoBehaviour:
   yRotationSpeed: 5
   jumpPower: 20
   arrowPower: 5
-  readyTime: 5
-  clearCount: 10
-  ClearEvent:
-    m_PersistentCalls:
-      m_Calls: []
-  EnemyDeadEvent:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &1155185630
 GameObject:
   m_ObjectHideFlags: 0

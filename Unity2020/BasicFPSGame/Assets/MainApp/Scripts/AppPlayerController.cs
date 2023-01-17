@@ -9,6 +9,26 @@ public class AppPlayerController : MonoBehaviour
     #region Variables
     #region SerializeField
     /// <summary>
+    /// Display text at start
+    /// </summary>
+    [SerializeField]
+    private Text startText = null;
+    /// <summary>
+    /// Display UI at clear
+    /// </summary>
+    [SerializeField]
+    private RectTransform clearUi = null;
+    /// <summary>
+    /// Display text at clear
+    /// </summary>
+    [SerializeField]
+    private Text clearText = null;
+    /// <summary>
+    /// Display text of time, number of destroyed enemy
+    /// </summary>
+    [SerializeField]
+    private Text countText = null;
+    /// <summary>
     /// Arrow prefab
     /// </summary>
     [SerializeField]
@@ -72,6 +92,18 @@ public class AppPlayerController : MonoBehaviour
 
     #region Private
     /// <summary>
+    /// Game Manager
+    /// </summary>
+    private AppGameManager gameManager = null;
+    /// <summary>
+    /// Starting position
+    /// </summary>
+    private Vector3 defaultPosition = Vector3.zero;
+    /// <summary>
+    /// Starting angle
+    /// </summary>
+    private Quaternion defaultRotation = Quaternion.identity;
+    /// <summary>
     /// Arrows player currently have
     /// </summary>
     // private GameObject currentArrow = null;
@@ -116,6 +148,9 @@ public class AppPlayerController : MonoBehaviour
         hpSlider.maxValue = maxHp;
         hpSlider.value = currentHp;
         hitEffectImage.gameObject.SetActive(false);
+        // Keeping initial position rotation
+        defaultPosition = gameObject.transform.position;
+        defaultRotation = Camera.main.gameObject.transform.rotation;
     }
 
     // Update is called once per frame
@@ -125,6 +160,8 @@ public class AppPlayerController : MonoBehaviour
         ProcessJump();
         // Measuring the shooting position
         UpdateShootRay();
+        // Change UI
+        UpdateCount();
     }
 
     private void FixedUpdate()
@@ -150,6 +187,18 @@ public class AppPlayerController : MonoBehaviour
             MoveResistance();
         }
         else StopForce();
+    }
+    /// <summary>
+    /// Initialization (from AppGameManager)
+    /// </summary>
+    /// <param name="appGameManager"></param>
+    public void Init(AppGameManager appGameManager)
+    {
+        gameManager = appGameManager;
+        gameManager.ClearEvent.AddListener(OnClear);
+        gameManager.EnemyDeadEvent.AddListener(OnEnemyDead);
+        clearUi.gameObject.SetActive(false);
+        SetCountText();
     }
     /// <summary>
     /// Trigger Enter Callback for Grounding Collider
@@ -190,6 +239,70 @@ public class AppPlayerController : MonoBehaviour
         }
         hitEffectCor = StartCoroutine(HitEffect());
         Debug.Log("Damaged!! The current HP : " + currentHp);
+    }
+    /// <summary>
+    /// Retry button click call back
+    /// </summary>
+    public void OnRetryButtonClicked()
+    {
+        currentHp = maxHp;
+        hpSlider.maxValue = maxHp;
+        hpSlider.value = currentHp;
+        hitEffectImage.gameObject.SetActive(false);
+        clearUi.gameObject.SetActive(false);
+
+        transform.position = defaultPosition;
+        Camera.main.gameObject.transform.rotation = defaultRotation;
+
+        gameManager.Retry();
+        SetCountText();
+    }
+    /// <summary>
+    /// Display updates according to time
+    /// </summary>
+    private void UpdateCount()
+    {
+        var param = gameManager.CurrentGameParam;
+        if (param.State == AppGameManager.GameState.Ready && param.ReadyTime > 0)
+        {
+            startText.gameObject.SetActive(true);
+            var ceil = Mathf.CeilToInt(param.ReadyTime);
+            startText.text = $"READY {ceil}";
+        }
+        else if (param.State == AppGameManager.GameState.Play && param.ReadyTime > -1) startText.text = "STARAT";
+        else if (param.State == AppGameManager.GameState.Play)
+        {
+            startText.gameObject.SetActive(false);
+            SetCountText();
+        }
+    }
+    /// <summary>
+    /// Clear-time process
+    /// </summary>
+    private void OnClear()
+    {
+        var param = gameManager.CurrentGameParam;
+        if (param.State != AppGameManager.GameState.End) return;
+        clearUi.gameObject.SetActive(true);
+        var time = $"Time : {param.GameTime.ToString("000.0")}";
+        clearText.text = $"CLEAR \n{time}";
+    }
+    /// <summary>
+    /// Dealing with Enemy Destroyed
+    /// </summary>
+    private void OnEnemyDead()
+    {
+        SetCountText();
+    }
+    /// <summary>
+    /// Show count
+    /// </summary>
+    private void SetCountText()
+    {
+        var param = gameManager.CurrentGameParam;
+        var time = $"Time : {param.GameTime.ToString("000.0")}";
+        var dest = $"Beat : {param.EnemyDestroyCount}";
+        countText.text = $"{time} {dest}";
     }
     /// <summary>
     /// Mouse button action
