@@ -92,9 +92,9 @@ public class AppPlayerController : MonoBehaviour
 
     #region Private
     /// <summary>
-    /// Game Manager
+    /// App Game Controller
     /// </summary>
-    private AppGameManager gameManager = null;
+    private AppGameController gameController = null;
     /// <summary>
     /// Starting position
     /// </summary>
@@ -129,18 +129,26 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     private Vector3? shootPoint = null;
     /// <summary>
+    /// Current HP
+    /// </summary>
+    private float currentHp = 0;
+    /// <summary>
+    /// Charging time
+    /// </summary>
+    private float attackChargeTime = 0;
+    /// <summary>
     /// Jumping flag
     /// </summary>
     private bool isJumping = false;
     /// <summary>
-    /// Current HP
+    /// Attack interval flag
     /// </summary>
-    private float currentHp = 0;
+    private bool isAttackWait = false;
     #endregion
     #endregion
 
     #region Methods
-
+    #region Unity Methods
     private void Start()
     {
         rigid = GetComponent<Rigidbody>();
@@ -156,7 +164,7 @@ public class AppPlayerController : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
-        GetMouseButton();
+        InputMouseButton();
         ProcessJump();
         // Measuring the shooting position
         UpdateShootRay();
@@ -188,15 +196,18 @@ public class AppPlayerController : MonoBehaviour
         }
         else StopForce();
     }
+    #endregion
+
+    #region Public
     /// <summary>
     /// Initialization (from AppGameManager)
     /// </summary>
     /// <param name="appGameManager"></param>
-    public void Init(AppGameManager appGameManager)
+    public void Init(AppGameController appGameManager)
     {
-        gameManager = appGameManager;
-        gameManager.ClearEvent.AddListener(OnClear);
-        gameManager.EnemyDeadEvent.AddListener(OnEnemyDead);
+        gameController = appGameManager;
+        gameController.ClearEvent.AddListener(OnClear);
+        gameController.EnemyDeadEvent.AddListener(OnEnemyDead);
         clearUi.gameObject.SetActive(false);
         SetCountText();
     }
@@ -238,6 +249,11 @@ public class AppPlayerController : MonoBehaviour
             hitEffectCor = null;
         }
         hitEffectCor = StartCoroutine(HitEffect());
+        if (currentHp <= 0)
+        {
+            gameController.GameOver();
+            OnPlayerDead();
+        }
         Debug.Log("Damaged!! The current HP : " + currentHp);
     }
     /// <summary>
@@ -254,23 +270,26 @@ public class AppPlayerController : MonoBehaviour
         transform.position = defaultPosition;
         Camera.main.gameObject.transform.rotation = defaultRotation;
 
-        gameManager.Retry();
+        gameController.Retry();
         SetCountText();
     }
+    #endregion
+
+    #region Private
     /// <summary>
     /// Display updates according to time
     /// </summary>
     private void UpdateCount()
     {
-        var param = gameManager.CurrentGameParam;
-        if (param.State == AppGameManager.GameState.Ready && param.ReadyTime > 0)
+        var param = gameController.CurrentGameParam;
+        if (param.State == AppGameController.GameState.Ready && param.ReadyTime > 0)
         {
             startText.gameObject.SetActive(true);
             var ceil = Mathf.CeilToInt(param.ReadyTime);
             startText.text = $"READY {ceil}";
         }
-        else if (param.State == AppGameManager.GameState.Play && param.ReadyTime > -1) startText.text = "STARAT";
-        else if (param.State == AppGameManager.GameState.Play)
+        else if (param.State == AppGameController.GameState.Play && param.ReadyTime > -1) startText.text = "STARAT";
+        else if (param.State == AppGameController.GameState.Play)
         {
             startText.gameObject.SetActive(false);
             SetCountText();
@@ -281,8 +300,8 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     private void OnClear()
     {
-        var param = gameManager.CurrentGameParam;
-        if (param.State != AppGameManager.GameState.End) return;
+        var param = gameController.CurrentGameParam;
+        if (param.State != AppGameController.GameState.End) return;
         clearUi.gameObject.SetActive(true);
         var time = $"Time : {param.GameTime.ToString("000.0")}";
         clearText.text = $"CLEAR \n{time}";
@@ -295,11 +314,23 @@ public class AppPlayerController : MonoBehaviour
         SetCountText();
     }
     /// <summary>
+    /// Game Over Processing
+    /// </summary>
+    private void OnPlayerDead()
+    {
+        var param = gameController.CurrentGameParam;
+        if (param.State != AppGameController.GameState.End) return;
+        clearUi.gameObject.SetActive(true);
+        var time = $"Time : {param.GameTime.ToString("000.0")}";
+        clearText.color = Color.red;
+        clearText.text = $"GAME OVER \n{time}";
+    }
+    /// <summary>
     /// Show count
     /// </summary>
     private void SetCountText()
     {
-        var param = gameManager.CurrentGameParam;
+        var param = gameController.CurrentGameParam;
         var time = $"Time : {param.GameTime.ToString("000.0")}";
         var dest = $"Beat : {param.EnemyDestroyCount}";
         countText.text = $"{time} {dest}";
@@ -307,7 +338,7 @@ public class AppPlayerController : MonoBehaviour
     /// <summary>
     /// Mouse button action
     /// </summary>
-    private void GetMouseButton()
+    private void InputMouseButton()
     {
         // Start to click
         if (Input.GetMouseButtonDown(0))
@@ -315,10 +346,15 @@ public class AppPlayerController : MonoBehaviour
             // Store mouse position and camera angle
             startMousePosition = Input.mousePosition;
             startCameraRotation = Camera.main.gameObject.transform.localRotation.eulerAngles;
-            // currentArrow = Instantiate(arrowPrefab, arrowPoint.position, arrowPoint.rotation, arrowPoint);
-            var currentArrowGo = Instantiate(arrowPrefab, arrowPoint.position, arrowPoint.rotation, arrowPoint);
-            currentArrow = currentArrowGo.GetComponent<Arrow>();
-            currentArrow.OnCreated();
+            if (gameController != null && gameController.CurrentGameParam.State == AppGameController.GameState.Play && !isAttackWait)
+            {
+                // currentArrow = Instantiate(arrowPrefab, arrowPoint.position, arrowPoint.rotation, arrowPoint);
+                var currentArrowGo = Instantiate(arrowPrefab, arrowPoint.position, arrowPoint.rotation, arrowPoint);
+                currentArrow = currentArrowGo.GetComponent<Arrow>();
+                currentArrow.OnCreated();
+                isAttackWait = true;
+                attackChargeTime = 0;
+            }
         }
         // Clicking
         else if (Input.GetMouseButton(0))
@@ -334,6 +370,7 @@ public class AppPlayerController : MonoBehaviour
             currentCameraRotation.y = startCameraRotation.y + (-def.x * yRotationSpeed * 0.01f);
             // Apply to Camera
             Camera.main.transform.localRotation = Quaternion.Euler(currentCameraRotation);
+            if (currentArrow != null) attackChargeTime += Time.deltaTime;
         }
         // End clicking
         else if (Input.GetMouseButtonUp(0))
@@ -410,17 +447,19 @@ public class AppPlayerController : MonoBehaviour
         //arrowRigid.useGravity = false;
         //arrowRigid.isKinematic = false;
         //arrowRigid.AddForce(Camera.main.gameObject.transform.forward * arrowPower * 0.1f, ForceMode.Impulse);
+        var _charge = GetChargeValue(attackChargeTime);
         if (shootPoint != null)
         {
             var dir = ((Vector3)shootPoint - currentArrow.transform.position).normalized;
-            currentArrow.Shoot(dir * arrowPower * 0.1f, ForceMode.Impulse);
+            currentArrow.Shoot(dir * arrowPower * 0.1f, ForceMode.Impulse, _charge);
         }
         else
         {
-            currentArrow.Shoot(Camera.main.gameObject.transform.forward * arrowPower * 0.1f, ForceMode.Impulse);
+            currentArrow.Shoot(Camera.main.gameObject.transform.forward * arrowPower * 0.1f, ForceMode.Impulse, _charge);
         }
         currentArrow.transform.parent = null;
         currentArrow = null;
+        StartCoroutine(AttackWait());
     }
     /// <summary>
     /// Ray processing of firing position determination
@@ -442,6 +481,7 @@ public class AppPlayerController : MonoBehaviour
             {
                 // If the arrow is hit, ignore it
                 if (h.collider.gameObject.tag.Equals(C.Arrow)) continue;
+                if (h.collider.gameObject.layer.Equals(9)) continue;
                 // Calculate the distance (squared) from the camera to the hit location to find the closest point
                 var dis = (Camera.main.transform.position - h.point).sqrMagnitude;
                 if (nearHit == null || (currentNear != 0 && currentNear > dis))
@@ -479,6 +519,26 @@ public class AppPlayerController : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         hitEffectImage.gameObject.SetActive(false);
     }
-
+    /// <summary>
+    /// Coroutine for adjusting the attack interval
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator AttackWait()
+    {
+        yield return new WaitForSeconds(1f);
+        isAttackWait = false;
+    }
+    /// <summary>
+    /// Get the increase value from the charge time
+    /// </summary>
+    /// <param name="chargeTime">Charge time</param>
+    /// <returns>Rate of increase</returns>
+    private float GetChargeValue(float chargeTime)
+    {
+        if (chargeTime <= 1.5f) return 1f;
+        else if (chargeTime < 3) return 1.25f;
+        else return 1.5f;
+    }
+    #endregion
     #endregion
 }

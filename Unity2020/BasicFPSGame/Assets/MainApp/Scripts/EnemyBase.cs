@@ -14,12 +14,12 @@ public class EnemyBase : MonoBehaviour
     /// Maximum HP
     /// </summary>
     //[SerializeField]
-    protected int maxHp = 3;
+    protected float maxHp = 3f;
     #endregion
     /// <summary>
-    /// App Game Manager
+    /// App Game Controller
     /// </summary>
-    protected AppGameManager gameManager = null;
+    protected AppGameController gameController = null;
     /// <summary>
     /// Target
     /// </summary>
@@ -27,7 +27,8 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Current HP
     /// </summary>
-    protected int hp = 0;
+    // protected int hp = 0;
+    protected float hp = 0;
     /// <summary>
     /// Attack power
     /// </summary>
@@ -62,12 +63,12 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Initialization
     /// </summary>
-    public virtual void Init(AppGameManager appGameManager, int maxHp, float attack)
+    public virtual void Init(AppGameController appGameManager, int maxHp, float attack)
     {
         this.maxHp = maxHp;
         this.attack = attack;
         hp = maxHp;
-        gameManager = appGameManager;
+        gameController = appGameManager;
     }
     /// <summary>
     /// Collider enter process
@@ -87,7 +88,8 @@ public class EnemyBase : MonoBehaviour
             var arrow = collision.gameObject.GetComponent<Arrow>();
             arrow.OnEnemyHit();
             // HP minus the attack power of the arrow
-            hp -= arrow.Attack;
+            // hp -= arrow.Attack;
+            hp -= arrow.GetAttack();
             // Dead process
             if (hp <= 0) OnDead();
             else
@@ -105,7 +107,7 @@ public class EnemyBase : MonoBehaviour
     {
         // Destroy(gameObject);
         isDead = true;
-        gameManager.OnDeadEnemy(this);
+        gameController.OnDeadEnemy(this);
         Debug.Log(gameObject.name + " is beaten.");
     }
     /// <summary>

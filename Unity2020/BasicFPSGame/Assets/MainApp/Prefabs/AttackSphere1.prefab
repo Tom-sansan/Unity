@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2738313337028245073}
   - component: {fileID: 4444012443078850060}
   - component: {fileID: 1387093365634347995}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: AttackSphere1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -109,4 +109,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   destroyTime: 0.5
-  attack: 1

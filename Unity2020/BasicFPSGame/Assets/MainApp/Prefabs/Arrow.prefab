@@ -77,6 +77,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1a00b58ac635d104bb449c5990cd9279, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectPrefab: {fileID: 5290828197772606142, guid: e73516288d598f14780e48c8655f5a04, type: 3}
   Attack: 1
 --- !u!114 &-1700616738728201090
 MonoBehaviour:

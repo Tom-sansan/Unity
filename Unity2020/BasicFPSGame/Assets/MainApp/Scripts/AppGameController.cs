@@ -7,7 +7,7 @@ using static AppPlayerController;
 /// <summary>
 /// App Game Controller Class
 /// </summary>
-public class AppGameManager : MonoBehaviour
+public class AppGameController : MonoBehaviour
 {
     #region Game State
     /// <summary>
@@ -118,6 +118,7 @@ public class AppGameManager : MonoBehaviour
     #endregion
     #endregion
 
+    #region Method
     private void Start()
     {
         // InitSpawn();
@@ -129,6 +130,7 @@ public class AppGameManager : MonoBehaviour
         UpdateCount();
         UpdateEnemyCount();
     }
+    #region Public
     /// <summary>
     /// Reset parameters
     /// </summary>
@@ -199,6 +201,14 @@ public class AppGameManager : MonoBehaviour
         if (CurrentGameParam.EnemyDestroyCount >= clearCount) GameClear();
         EnemyDeadEvent?.Invoke();
     }
+    /// <summary>
+    /// Game over
+    /// </summary>
+    public void GameOver() =>
+        GameEnd("Game Over");
+    #endregion
+
+    #region Private
     #region Game State
     /// <summary>
     /// Transition to Ready state
@@ -219,14 +229,8 @@ public class AppGameManager : MonoBehaviour
     /// <summary>
     /// Transition to End state
     /// </summary>
-    private void GameClear()
-    {
-        CurrentGameParam.State = GameState.End;
-        if (currentFieldEnemies.Count > 0) foreach (var enemy in currentFieldEnemies) Destroy(enemy.gameObject);
-        currentFieldEnemies.Clear();
-        ClearEvent?.Invoke();
-        Debug.Log($"Clear\n{CurrentGameParam.GameTime}");
-    }
+    private void GameClear() =>
+        GameEnd("Clear");
     #endregion
     /// <summary>
     /// Coroutine for Initialization
@@ -304,4 +308,18 @@ public class AppGameManager : MonoBehaviour
             CurrentGameParam.GameTime += Time.deltaTime;
         }
     }
+    /// <summary>
+    /// Make game end
+    /// </summary>
+    /// <param name="gameState"></param>
+    private void GameEnd(string gameState)
+    {
+        CurrentGameParam.State = GameState.End;
+        if (currentFieldEnemies.Count > 0) foreach (var enemy in currentFieldEnemies) Destroy(enemy.gameObject);
+        currentFieldEnemies.Clear();
+        ClearEvent?.Invoke();
+        Debug.Log($"{gameState}\n{CurrentGameParam.GameTime}");
+    }
+    #endregion
+    #endregion
 }

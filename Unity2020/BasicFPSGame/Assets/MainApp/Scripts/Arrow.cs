@@ -7,9 +7,19 @@ public class Arrow : MonoBehaviour
 {
     #region Variables
     /// <summary>
+    /// Effect prefab
+    /// </summary>
+    [SerializeField]
+    private GameObject effectPrefab = null;
+    /// <summary>
+    /// Attacking power
+    /// </summary>
+    [SerializeField]
+    private int attack = 1;
+    /// <summary>
     /// Attack power
     /// </summary>
-    public int Attack = 1;
+    /// public int Attack = 1;
     /// <summary>
     /// Auto-destructive coroutine
     /// </summary>
@@ -18,6 +28,10 @@ public class Arrow : MonoBehaviour
     /// Rigidbody
     /// </summary>
     private Rigidbody rigid = null;
+    /// <summary>
+    /// Charge value
+    /// </summary>
+    private float charge = 1f;
     /// <summary>
     /// Flag for attack
     /// </summary>
@@ -36,13 +50,15 @@ public class Arrow : MonoBehaviour
     /// </summary>
     /// <param name="direction"></param>
     /// <param name="forceMode"></param>
-    public void Shoot(Vector3 direction, ForceMode forceMode)
+    /// <param name="chargeValue"></param>
+    public void Shoot(Vector3 direction, ForceMode forceMode, float chargeValue)
     {
         rigid.useGravity = false;
         rigid.isKinematic = false;
         rigid.AddForce(direction, forceMode);
         // StartCoroutine(AutoDestroy(1f));
-        autoDestroyCor = StartCoroutine(AutoDestroy(1f));
+        autoDestroyCor = StartCoroutine(AutoDestroy(1f, gameObject));
+        charge = chargeValue;
     }
     /// <summary>
     /// Collider enter
@@ -73,9 +89,20 @@ public class Arrow : MonoBehaviour
         rigid.isKinematic = true;
         rigid.velocity = Vector3.zero;
         rigid.angularVelocity = Vector3.zero;
+        if (effectPrefab != null)
+        {
+            var go = Instantiate(effectPrefab, this.transform.position, this.transform.rotation);
+            StartCoroutine(AutoDestroy(0.5f, go));
+        }
         isAttack = false;
         Destroy(gameObject);
     }
+    /// <summary>
+    /// Get attack power
+    /// </summary>
+    /// <returns></returns>
+    public float GetAttack() =>
+        attack * charge;
     /// <summary>
     /// Initialization
     /// </summary>
@@ -87,10 +114,11 @@ public class Arrow : MonoBehaviour
     /// Automatic destruction coroutine
     /// </summary>
     /// <param name="time"></param>
+    /// <param name="go"></param>
     /// <returns></returns>
-    private IEnumerator AutoDestroy(float time)
+    private IEnumerator AutoDestroy(float time, GameObject go)
     {
         yield return new WaitForSeconds(time);
-        Destroy(gameObject);
+        Destroy(go);
     }
 }
