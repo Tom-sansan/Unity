@@ -6,6 +6,8 @@ using C = Constant;
 public class Arrow : MonoBehaviour
 {
     #region Variables
+
+    #region SerializeField
     /// <summary>
     /// Effect prefab
     /// </summary>
@@ -16,6 +18,12 @@ public class Arrow : MonoBehaviour
     /// </summary>
     [SerializeField]
     private int attack = 1;
+
+    [SerializeField]
+    private float gravityEnabledTime = 0.5f;
+    #endregion
+
+    #region Private
     /// <summary>
     /// Attack power
     /// </summary>
@@ -24,6 +32,10 @@ public class Arrow : MonoBehaviour
     /// Auto-destructive coroutine
     /// </summary>
     private Coroutine autoDestroyCor = null;
+    /// <summary>
+    /// Gravity-enabled coroutine
+    /// </summary>
+    private Coroutine gravityCor = null;
     /// <summary>
     /// Rigidbody
     /// </summary>
@@ -38,6 +50,11 @@ public class Arrow : MonoBehaviour
     private bool isAttack = true;
     #endregion
 
+    #endregion
+
+    #region Methods
+
+    #region Public
     /// <summary>
     /// Generation-time callback
     /// </summary>
@@ -58,6 +75,7 @@ public class Arrow : MonoBehaviour
         rigid.AddForce(direction, forceMode);
         // StartCoroutine(AutoDestroy(1f));
         autoDestroyCor = StartCoroutine(AutoDestroy(1f, gameObject));
+        gravityCor = StartCoroutine(GravityActivation());
         charge = chargeValue;
     }
     /// <summary>
@@ -78,6 +96,7 @@ public class Arrow : MonoBehaviour
                 Destroy(gameObject);
                 Debug.Log("Ground or Enemy!!! " + collision.gameObject.name);
             }
+            CancelGravityActivation();
         }
     }
     /// <summary>
@@ -95,6 +114,7 @@ public class Arrow : MonoBehaviour
             StartCoroutine(AutoDestroy(0.5f, go));
         }
         isAttack = false;
+        CancelGravityActivation();
         Destroy(gameObject);
     }
     /// <summary>
@@ -103,6 +123,9 @@ public class Arrow : MonoBehaviour
     /// <returns></returns>
     public float GetAttack() =>
         attack * charge;
+    #endregion
+
+    #region Private
     /// <summary>
     /// Initialization
     /// </summary>
@@ -119,6 +142,29 @@ public class Arrow : MonoBehaviour
     private IEnumerator AutoDestroy(float time, GameObject go)
     {
         yield return new WaitForSeconds(time);
+        CancelGravityActivation();
         Destroy(go);
     }
+    /// <summary>
+    /// Gravity-enabled coroutine
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator GravityActivation()
+    {
+        yield return new WaitForSeconds(gravityEnabledTime);
+        if (rigid != null) rigid.useGravity = true;
+    }
+    /// <summary>
+    /// Cancel coroutine for gravity
+    /// </summary>
+    private void CancelGravityActivation()
+    {
+        if (gravityCor != null)
+        {
+            StopCoroutine(gravityCor);
+            gravityCor = null;
+        }
+    }
+    #endregion
+    #endregion
 }
