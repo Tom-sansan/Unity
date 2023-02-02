@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AppMobileUiController : MonoBehaviour
+public class AppMobileUIController : MonoBehaviour
 {
     /// <summary>
     /// Mobile UI stick
@@ -25,6 +25,10 @@ public class AppMobileUiController : MonoBehaviour
     /// Flag during move button touch
     /// </summary>
     private bool isMoveButtonPushing = false;
+    /// <summary>
+    /// Flag during jump button touch
+    /// </summary>
+    private bool isJumpButtonPushing = false;
     void Start()
     {
         
@@ -38,29 +42,49 @@ public class AppMobileUiController : MonoBehaviour
     /// <summary>
     /// Moving UI pointer down
     /// </summary>
-    public void OnMoveUiPointerDown()
+    public void OnMoveUIPointerDown()
     {
-        if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor)
+        if (CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
             moveTouchStartPos = Input.mousePosition;
         else
         {
+            // For Smartphone
+            // Last finger touched
             var _touch = Input.touches[Input.touchCount - 1];
             moveTouchStartPos = _touch.position;
             moveFingerId = _touch.fingerId;
         }
+        // State of clicking on the movement UI.
         isMoveButtonPushing = true;
     }
     /// <summary>
     /// Moving UI pointer up
     /// </summary>
-    public void OnMoveUiPointerUp()
+    public void OnMoveUIPointerUp()
     {
+        // State that the touch of the movement UI is over
         isMoveButtonPushing = false;
         moveTouchStartPos = Vector2.zero;
         moveStick.anchoredPosition = Vector2.zero;
         StickPosition = Vector2.zero;
         moveFingerId = -1;
     }
+    /// <summary>
+    /// Any of the UI buttons pressed
+    /// </summary>
+    /// <returns></returns>
+    public bool IsAnyButtonPushing() =>
+        isMoveButtonPushing || isJumpButtonPushing;
+    /// <summary>
+    /// Jump button down call back
+    /// </summary>
+    public void OnJumpButtonDown() =>
+        isJumpButtonPushing = true;
+    /// <summary>
+    /// Jump button up call back
+    /// </summary>
+    public void OnJumpButtonUp() =>
+        isJumpButtonPushing = false;
     /// <summary>
     /// Process for move buttn pushing
     /// </summary>
@@ -69,10 +93,11 @@ public class AppMobileUiController : MonoBehaviour
         if (isMoveButtonPushing)
         {
             var currentPos = moveTouchStartPos;
-            if (Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor)
-                moveTouchStartPos = Input.mousePosition;
+            if (CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
+                currentPos = Input.mousePosition;
             else if (moveFingerId != -1 && Input.touchCount > 0)
             {
+                // For Smartphone
                 foreach (var touch in Input.touches)
                 {
                     if (touch.fingerId == moveFingerId)
@@ -83,6 +108,7 @@ public class AppMobileUiController : MonoBehaviour
                 }
             }
             var def = currentPos - moveTouchStartPos;
+            // Value adjustment to match the amount of stick movement against the value
             def *= 0.5f;
 
             if (def.x > 75f) def.x = 75f;
@@ -100,5 +126,15 @@ public class AppMobileUiController : MonoBehaviour
 
             Debug.Log("Pushing...");
         }
+    }
+    /// <summary>
+    /// Check if the specifiled platform is used in Application.platform
+    /// </summary>
+    /// <returns></returns>
+    private bool CheckPlatform(params RuntimePlatform[] availablePlatforms)
+    {
+        foreach (var platform in availablePlatforms)
+            if (Application.platform == platform) return true;
+        return false;
     }
 }

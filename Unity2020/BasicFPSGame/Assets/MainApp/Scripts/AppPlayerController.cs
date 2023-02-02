@@ -9,6 +9,11 @@ public class AppPlayerController : MonoBehaviour
     #region Variables
     #region SerializeField
     /// <summary>
+    /// Smartphone UI Controller
+    /// </summary>
+    [SerializeField]
+    private AppMobileUIController mobileUI = null;
+    /// <summary>
     /// Display text at start
     /// </summary>
     [SerializeField]
@@ -273,6 +278,18 @@ public class AppPlayerController : MonoBehaviour
         gameController.Retry();
         SetCountText();
     }
+    /// <summary>
+    /// Jump button click for Smartphone
+    /// </summary>
+    public void OnMobileUIJumpButtonClicked()
+    {
+        if (!isJumping)
+        {
+            isJumping = true;
+            rigid.AddForce(rigid.gameObject.transform.up * jumpPower, ForceMode.Impulse);
+            Debug.Log("Jump(M)" + isJumping);
+        }
+    }
     #endregion
 
     #region Private
@@ -340,6 +357,7 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     private void InputMouseButton()
     {
+        if (mobileUI.IsAnyButtonPushing()) return;
         // Start to click
         if (Input.GetMouseButtonDown(0))
         {
