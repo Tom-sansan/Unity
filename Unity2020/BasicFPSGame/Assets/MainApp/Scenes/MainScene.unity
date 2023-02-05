@@ -1861,6 +1861,10 @@ PrefabInstance:
       propertyPath: m_TagString
       value: Ground
       objectReference: {fileID: 0}
+    - target: {fileID: 6935389143051421056, guid: d2bc72c53feb60d4dbc1a1344890dfd8, type: 3}
+      propertyPath: m_TagString
+      value: Ground
+      objectReference: {fileID: 0}
     - target: {fileID: 6935389143203049466, guid: d2bc72c53feb60d4dbc1a1344890dfd8, type: 3}
       propertyPath: m_TagString
       value: Ground
@@ -3825,7 +3829,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1446834525}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1133655543}
+        m_TargetAssemblyTypeName: AppPlayerController, Assembly-CSharp
+        m_MethodName: OnMobileUIJumpButtonClicked
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1446834525
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -206,6 +206,16 @@ public class AppGameController : MonoBehaviour
     /// </summary>
     public void GameOver() =>
         GameEnd("Game Over");
+    /// <summary>
+    /// Check if the specifiled platform is used in Application.platform
+    /// </summary>
+    /// <returns></returns>
+    public static bool CheckPlatform(params RuntimePlatform[] availablePlatforms)
+    {
+        foreach (var platform in availablePlatforms)
+            if (Application.platform == platform) return true;
+        return false;
+    }
     #endregion
 
     #region Private

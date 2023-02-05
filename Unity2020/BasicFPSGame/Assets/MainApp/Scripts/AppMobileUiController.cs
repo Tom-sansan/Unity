@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using AGC = AppGameController;
 
 public class AppMobileUIController : MonoBehaviour
 {
@@ -44,7 +45,7 @@ public class AppMobileUIController : MonoBehaviour
     /// </summary>
     public void OnMoveUIPointerDown()
     {
-        if (CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
+        if (AGC.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
             moveTouchStartPos = Input.mousePosition;
         else
         {
@@ -93,7 +94,7 @@ public class AppMobileUIController : MonoBehaviour
         if (isMoveButtonPushing)
         {
             var currentPos = moveTouchStartPos;
-            if (CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
+            if (AGC.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
                 currentPos = Input.mousePosition;
             else if (moveFingerId != -1 && Input.touchCount > 0)
             {
@@ -126,15 +127,5 @@ public class AppMobileUIController : MonoBehaviour
 
             Debug.Log("Pushing...");
         }
-    }
-    /// <summary>
-    /// Check if the specifiled platform is used in Application.platform
-    /// </summary>
-    /// <returns></returns>
-    private bool CheckPlatform(params RuntimePlatform[] availablePlatforms)
-    {
-        foreach (var platform in availablePlatforms)
-            if (Application.platform == platform) return true;
-        return false;
     }
 }

@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 using C = Constant;
+using CGA = AppGameController;
 
 public class AppPlayerController : MonoBehaviour
 {
@@ -179,27 +180,37 @@ public class AppPlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        var horizontal = Input.GetAxis(C.Horizontal);
-        var vertical = Input.GetAxis(C.Vertical);
-
-        if (horizontal != 0 || vertical != 0)
+        if (gameController != null && gameController.CurrentGameParam.State != CGA.GameState.Play) return;
+        if (CGA.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
         {
-            // Get camera angle(Vector3)
-            var cameraRotationEul = Camera.main.transform.rotation.eulerAngles;
-            // Change 0 except for Y rotation
-            cameraRotationEul.x = 0;
-            cameraRotationEul.z = 0;
-            var cameraRotation = Quaternion.Euler(cameraRotationEul);
-            // 
-            var forceX = horizontal * moveSpeed;
-            var forceZ = vertical * moveSpeed;
-            var force = cameraRotation * new Vector3(forceX, 0, forceZ);
-            // Add Rigidboty to force
-            rigid.AddForce(force, ForceMode.Force);
-            // Limit move speed
-            MoveResistance();
+            // Get left, right, up and down key input
+            var horizontal = Input.GetAxis(C.Horizontal);
+            var vertical = Input.GetAxis(C.Vertical);
+            // If any of these inputs are entered
+            if (horizontal != 0 || vertical != 0)
+            {
+                // Get camera angle(Vector3)
+                var cameraRotationEul = Camera.main.transform.rotation.eulerAngles;
+                // Change 0 except for Y rotation
+                cameraRotationEul.x = 0;
+                cameraRotationEul.z = 0;
+                var cameraRotation = Quaternion.Euler(cameraRotationEul);
+                // 
+                var forceX = horizontal * moveSpeed;
+                var forceZ = vertical * moveSpeed;
+                var force = cameraRotation * new Vector3(forceX, 0, forceZ);
+                // Add Rigidboty to force
+                rigid.AddForce(force, ForceMode.Force);
+                // Limit move speed
+                MoveResistance();
+            }
+            else StopForce();
         }
-        else StopForce();
+        else
+        {
+
+        }
+
     }
     #endregion
 
@@ -224,7 +235,7 @@ public class AppPlayerController : MonoBehaviour
     {
         if (collider.gameObject.tag.Equals(C.Ground))
         {
-            if (isJumping) StartCoroutine(WaitSwitch(0.5f));
+            if (isJumping) StartCoroutine(WaitSwitch(0.8f));
             Debug.Log("Ground enter");
         }
     }
@@ -236,7 +247,7 @@ public class AppPlayerController : MonoBehaviour
     {
         if (collider.gameObject.tag.Equals(C.Ground))
         {
-            if (isJumping) StartCoroutine(WaitSwitch(0.5f));
+            if (isJumping) StartCoroutine(WaitSwitch(0.8f));
             Debug.Log("Ground enter");
         }
     }
@@ -283,6 +294,7 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     public void OnMobileUIJumpButtonClicked()
     {
+        // if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
         if (!isJumping)
         {
             isJumping = true;
@@ -405,6 +417,8 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     private void ProcessJump()
     {
+        if (mobileUI.IsAnyButtonPushing() || !CGA.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor)) return;
+        // if (!(Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor)) return;
         // Jump process
         if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
         {
