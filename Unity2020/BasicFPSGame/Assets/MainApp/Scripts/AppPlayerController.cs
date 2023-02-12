@@ -135,6 +135,10 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     private Vector3? shootPoint = null;
     /// <summary>
+    /// Currently touching FingerId
+    /// </summary>
+    private int currentFingerId = -1;
+    /// <summary>
     /// Current HP
     /// </summary>
     private float currentHp = 0;
@@ -150,6 +154,10 @@ public class AppPlayerController : MonoBehaviour
     /// Attack interval flag
     /// </summary>
     private bool isAttackWait = false;
+    /// <summary>
+    /// Flag of whether the current platform is Mobile or not
+    /// </summary>
+    private bool isMobilePlatforms = false;
     #endregion
     #endregion
 
@@ -165,13 +173,16 @@ public class AppPlayerController : MonoBehaviour
         // Keeping initial position rotation
         defaultPosition = gameObject.transform.position;
         defaultRotation = Camera.main.gameObject.transform.rotation;
+        isMobilePlatforms = CGA.CheckPlatform(CGA.GetMobileRuntimePlatforms());
     }
 
     // Update is called once per frame
     private void Update()
     {
-        InputMouseButton();
-        ProcessJump();
+        if (isMobilePlatforms) UpdateForMobile();
+        else UpdateForPC();
+        // InputMouseButton();
+        // ProcessJump();
         // Measuring the shooting position
         UpdateShootRay();
         // Change UI
@@ -181,7 +192,7 @@ public class AppPlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         if (gameController != null && gameController.CurrentGameParam.State != CGA.GameState.Play) return;
-        if (CGA.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor))
+        if (CGA.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor, RuntimePlatform.WindowsPlayer, RuntimePlatform.OSXPlayer))
         {
             // Get left, right, up and down key input
             var horizontal = Input.GetAxis(C.Horizontal);
@@ -195,7 +206,8 @@ public class AppPlayerController : MonoBehaviour
                 cameraRotationEul.x = 0;
                 cameraRotationEul.z = 0;
                 var cameraRotation = Quaternion.Euler(cameraRotationEul);
-                // 
+
+                // Multiply input values by coefficients and create values as X,Z values of three-dimensional vectors
                 var forceX = horizontal * moveSpeed;
                 var forceZ = vertical * moveSpeed;
                 var force = cameraRotation * new Vector3(forceX, 0, forceZ);
@@ -208,7 +220,25 @@ public class AppPlayerController : MonoBehaviour
         }
         else
         {
+            if (mobileUI.StickPosition.x != 0 || mobileUI.StickPosition.y != 0)
+            {
+                // Get camera angle (Vector3)
+                var cameraRotationEul = Camera.main.transform.rotation.eulerAngles;
+                cameraRotationEul.x =
+                cameraRotationEul.y = 0;
+                var cameraRotation = Quaternion.Euler(cameraRotationEul);
 
+                // Multiply input values by coefficients and create values as X,Z values of three-dimensional vectors
+                var forceX = mobileUI.StickPosition.x * moveSpeed;
+                var forceZ = mobileUI.StickPosition.y * moveSpeed;
+                var force = cameraRotation * new Vector3(forceX, 0, forceZ);
+
+                // Add Rigidboty to force
+                rigid.AddForce(force, ForceMode.Force);
+                // Limit move speed
+                MoveResistance();
+            }
+            else StopForce();
         }
 
     }
@@ -365,11 +395,20 @@ public class AppPlayerController : MonoBehaviour
         countText.text = $"{time} {dest}";
     }
     /// <summary>
+    /// Update for PC
+    /// </summary>
+    private void UpdateForPC()
+    {
+        if (mobileUI.IsAnyButtonPushing()) return;
+        InputMouseButton();
+        ProcessJump();
+    }
+    /// <summary>
     /// Mouse button action
     /// </summary>
     private void InputMouseButton()
     {
-        if (mobileUI.IsAnyButtonPushing()) return;
+        // if (mobileUI.IsAnyButtonPushing()) return;
         // Start to click
         if (Input.GetMouseButtonDown(0))
         {
@@ -417,13 +456,101 @@ public class AppPlayerController : MonoBehaviour
     /// </summary>
     private void ProcessJump()
     {
-        if (mobileUI.IsAnyButtonPushing() || !CGA.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor)) return;
+        // if (mobileUI.IsAnyButtonPushing() || !CGA.CheckPlatform(RuntimePlatform.WindowsEditor, RuntimePlatform.OSXEditor)) return;
         // if (!(Application.platform == RuntimePlatform.WindowsEditor || Application.platform == RuntimePlatform.OSXEditor)) return;
         // Jump process
         if (Input.GetKeyDown(KeyCode.Space) && !isJumping)
         {
             isJumping = true;
             rigid.AddForce(rigid.gameObject.transform.up * jumpPower, ForceMode.Impulse);
+        }
+    }
+    /// <summary>
+    /// Update for mobile
+    /// </summary>
+    private void UpdateForMobile()
+    {
+        // Acquisition of touching finger information
+        if (Input.touchCount > 0)
+        {
+            Touch? currentTouch = null;
+            if (currentFingerId != -1)
+            {
+                foreach (var touch in Input.touches)
+                {
+                    if (currentFingerId == touch.fingerId)
+                    {
+                        currentTouch = touch;
+                        currentFingerId = touch.fingerId;
+                        break;
+                    }
+                }
+                if (currentTouch == null)
+                {
+                    foreach (var touch in Input.touches)
+                    {
+                        if (touch.fingerId != mobileUI.MoveFingerId && touch.fingerId != mobileUI.JumpFingerId)
+                        {
+                            currentTouch = touch;
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                foreach (var touch in Input.touches)
+                {
+                    if (touch.fingerId != mobileUI.MoveFingerId && touch.fingerId != mobileUI.JumpFingerId)
+                    {
+                        currentTouch = touch;
+                        currentFingerId = touch.fingerId;
+                        break;
+                    }
+                }
+            }
+            // Camera rotation, attack processing
+            if (currentTouch != null)
+            {
+                var touch = (Touch)currentTouch;
+                switch (touch.phase)
+                {
+                    case TouchPhase.Began:
+                        // Keep mouse position and camera angle
+                        startMousePosition = touch.position;
+                        startCameraRotation = Camera.main.gameObject.transform.localRotation.eulerAngles;
+                        if (gameController != null && gameController.CurrentGameParam.State == CGA.GameState.Play)
+                        {
+                            if (!isAttackWait)
+                            {
+                                var currentArrowGo = Instantiate(arrowPrefab, arrowPoint.position, arrowPoint.rotation, arrowPoint);
+                                currentArrow = currentArrowGo.GetComponent<Arrow>();
+                                currentArrow.OnCreated();
+                                isAttackWait = true;
+                                attackChargeTime = 0;
+                            }
+                        }
+                        Debug.Log("Began" + currentFingerId);
+                        break;
+                    case TouchPhase.Moved:
+                    case TouchPhase.Stationary:
+                        Debug.Log("Move" + currentFingerId);
+                        break;
+                    case TouchPhase.Ended:
+                        Debug.Log("Ended" + currentFingerId);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else
+            {
+                currentFingerId = -1;
+            }
+        }
+        else
+        {
+            currentFingerId = -1;
         }
     }
     /// <summary>

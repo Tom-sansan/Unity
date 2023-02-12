@@ -132,6 +132,18 @@ public class AppGameController : MonoBehaviour
     }
     #region Public
     /// <summary>
+    /// Get mobile runtime platforms
+    /// </summary>
+    /// <returns></returns>
+    public static RuntimePlatform[] GetMobileRuntimePlatforms()
+    {
+        return new RuntimePlatform[]
+        {
+            RuntimePlatform.IPhonePlayer,
+            RuntimePlatform.Android
+        };
+    }
+    /// <summary>
     /// Reset parameters
     /// </summary>
     public void ResetGameParam()
