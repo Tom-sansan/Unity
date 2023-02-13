@@ -534,9 +534,38 @@ public class AppPlayerController : MonoBehaviour
                         break;
                     case TouchPhase.Moved:
                     case TouchPhase.Stationary:
+                        // Get the current mouse position
+                        Vector3  currentMousePosition = touch.position;
+                        // Calculate the difference from the click start position
+                        var def = currentMousePosition - startMousePosition;
+                        // the current camera rotation
+                        var currentCameraRotation = Camera.main.transform.localRotation.eulerAngles;
+                        // Calculate angle of rotation
+                        currentCameraRotation.x = startCameraRotation.x + def.y * xRotationSpeed * 0.01f;
+                        currentCameraRotation.y = startCameraRotation.y - def.x * yRotationSpeed * 0.01f;
+                        // Applied to camera
+                        Camera.main.transform.localRotation = Quaternion.Euler(currentCameraRotation);
+                        if (currentArrow != null) attackChargeTime += Time.deltaTime;
                         Debug.Log("Move" + currentFingerId);
                         break;
                     case TouchPhase.Ended:
+                        // Reset stored values
+                        startMousePosition =
+                        startCameraRotation = Vector3.zero;
+                        if (currentArrow != null)
+                        {
+                            var charge = GetChargeValue(attackChargeTime);
+                            if (shootPoint != null)
+                            {
+                                var dir = ((Vector3)shootPoint - currentArrow.transform.position).normalized;
+                                currentArrow.Shoot(dir * arrowPower * 0.1f, ForceMode.Impulse, charge);
+                            }
+                            else currentArrow.Shoot(Camera.main.gameObject.transform.forward * arrowPower * 0.1f, ForceMode.Impulse, charge);
+
+                            currentArrow.transform.parent = null;
+                            currentArrow = null;
+                            StartCoroutine(AttackWait());
+                        }
                         Debug.Log("Ended" + currentFingerId);
                         break;
                     default:
