@@ -174,6 +174,7 @@ public class AppPlayerController : MonoBehaviour
         defaultPosition = gameObject.transform.position;
         defaultRotation = Camera.main.gameObject.transform.rotation;
         isMobilePlatforms = CGA.CheckPlatform(CGA.GetMobileRuntimePlatforms());
+        mobileUI.gameObject.SetActive(isMobilePlatforms);
     }
 
     // Update is called once per frame
