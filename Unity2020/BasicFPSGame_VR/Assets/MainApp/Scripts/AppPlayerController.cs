@@ -162,7 +162,7 @@ public class AppPlayerController : MonoBehaviour
     /// <summary>
     /// Flag of whether the current platform is Mobile or not
     /// </summary>
-    private bool isMobilePlatforms = false;
+    // private bool isMobilePlatforms = false;
     /// <summary>
     /// VR camera rotating flag
     /// </summary>
@@ -182,8 +182,8 @@ public class AppPlayerController : MonoBehaviour
         // Keeping initial position rotation
         defaultPosition = gameObject.transform.position;
         defaultRotation = Camera.main.gameObject.transform.rotation;
-        isMobilePlatforms = CGA.CheckPlatform(CGA.GetMobileRuntimePlatforms());
-        mobileUI.gameObject.SetActive(isMobilePlatforms);
+        // isMobilePlatforms = CGA.CheckPlatform(CGA.GetMobileRuntimePlatforms());
+        // mobileUI.gameObject.SetActive(isMobilePlatforms);
     }
 
     // Update is called once per frame
@@ -493,6 +493,7 @@ public class AppPlayerController : MonoBehaviour
     {
         // Jump process
         ProcessJump();
+        ProcessGameEnd();
     }
     /// <summary>
     /// Process jump
@@ -509,6 +510,15 @@ public class AppPlayerController : MonoBehaviour
             rigid.AddForce(rigid.gameObject.transform.up * jumpPower, ForceMode.Impulse);
             Debug.Log("Jump " + isJumping);
         }
+    }
+    /// <summary>
+    /// Process game end
+    /// </summary>
+    private void ProcessGameEnd()
+    {
+        if (gameController.CurrentGameParam.State == CGA.GameState.End)
+            if (OVRInput.GetDown(OVRInput.Button.Two) || OVRInput.GetDown(OVRInput.Button.Four))
+                OnRetryButtonClicked();
     }
     /// <summary>
     /// Process rotation
