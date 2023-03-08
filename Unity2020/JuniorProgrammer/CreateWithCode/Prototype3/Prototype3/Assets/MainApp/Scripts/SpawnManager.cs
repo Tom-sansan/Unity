@@ -5,7 +5,7 @@ using UnityEngine;
 public class SpawnManager : MonoBehaviour
 {
     public GameObject obstaclePrefab;
-    private PlayerController playerControllerScript;
+    private PlayerController playerController;
     private Vector3 spawnPos = new Vector3(25, 0, 0);
     private float startDelay = 2f;
     private float repeatRate = 2f;
@@ -13,7 +13,7 @@ public class SpawnManager : MonoBehaviour
     void Start()
     {
         InvokeRepeating("SpawnObstacle", startDelay, repeatRate);
-        playerControllerScript = GameObject.Find("Player").GetComponent<PlayerController>();
+        playerController = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     // Update is called once per frame
@@ -24,7 +24,7 @@ public class SpawnManager : MonoBehaviour
 
     private void SpawnObstacle()
     {
-        if (!!playerControllerScript)
+        if (!playerController.gameOver)
             Instantiate(obstaclePrefab, spawnPos, obstaclePrefab.transform.rotation);
     }
 }
