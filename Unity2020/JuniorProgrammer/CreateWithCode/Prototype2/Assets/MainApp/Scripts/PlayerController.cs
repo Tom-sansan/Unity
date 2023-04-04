@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Net.Http.Headers;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class _PlayerController : MonoBehaviour
 {
     public GameObject projectilePrefab;
     public float horizontalInput;

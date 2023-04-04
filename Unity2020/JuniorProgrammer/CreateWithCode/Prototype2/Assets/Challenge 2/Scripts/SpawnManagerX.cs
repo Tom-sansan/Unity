@@ -17,7 +17,6 @@ public class SpawnManagerX : MonoBehaviour
     void Start()
     {
         InvokeRepeating("SpawnRandomBall", startDelay, spawnInterval);
-        if (Input.GetKeyDown(KeyCode.UpArrow)
     }
 
     // Spawn random ball at random x position at top of play area

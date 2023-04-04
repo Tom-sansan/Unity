@@ -15,16 +15,25 @@ public class Target : MonoBehaviour
     private float maxTorque = 10;
     private float xRange = 4;
     private float ySpawnPos = -2;
-    // Start is called before the first frame update
+
     void Start()
     {
         Init();
     }
 
-    // Update is called once per frame
     void Update()
     {
         gameManager = GameObject.Find("GameManager").GetComponent<GameManager>();
+    }
+
+    public void DestroyTarget()
+    {
+        if (gameManager.isGameActive)
+        {
+            Destroy(gameObject);
+            Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
+            gameManager.UpdateScore(pointValue);
+        }
     }
 
     private void Init()
@@ -44,16 +53,18 @@ public class Target : MonoBehaviour
     private Vector3 RandomSpawnPos() =>
         new Vector3(Random.Range(-xRange, xRange), ySpawnPos);
 
-    private void OnMouseDown()
-    {
-        if (!gameManager.isGameActive) return;
-        Destroy(gameObject);
-        Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
-        gameManager.UpdateScore(pointValue);
-    }
+    //private void OnMouseDown()
+    //{
+    //    if (!gameManager.isGameActive) return;
+    //    Destroy(gameObject);
+    //    Instantiate(explosionParticle, transform.position, explosionParticle.transform.rotation);
+    //    gameManager.UpdateScore(pointValue);
+    //}
+
     private void OnTriggerEnter(Collider other)
     {
         Destroy(gameObject);
-        if (!gameObject.CompareTag("Bad")) gameManager.GameOver();
+        if (!gameObject.CompareTag("Bad") && gameManager.lives > 0) gameManager.UpdateLives();
+        else if (!gameObject.CompareTag("Bad") && gameManager.lives <= 0) gameManager.GameOver();
     }
 }

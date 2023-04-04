@@ -8,32 +8,37 @@ using UnityEngine.UI;
 public class GameManager : MonoBehaviour
 {
     public GameObject titleScreen;
+    public GameObject pauseScreen;
     public Button restartButton;
     public List<GameObject> targets;
     public TextMeshProUGUI scoreText;
+    public TextMeshProUGUI livesText;
     public TextMeshProUGUI gameOverText;
+    public Slider soundSlider;
     public bool isGameActive;
-    private float spawnRate = 1.0f;
-    private int score = 0;
+    public int lives = 5;
+    private AudioSource audioSource;
+    private bool isPaused;
     private const string strSCORE = "Score: ";
+    private const string strLIVES = "Lives: ";
+    private float spawnRate = 1.0f;
+    private float soundVolume = 50.0f;
+    private int score = 0;
 
-    void Start()
+    private void Update()
     {
-
+        // Check if the user has pressed the P key
+        if (Input.GetKeyDown(KeyCode.P)) ChangePaused();
     }
-
-    void Update()
-    {
-        
-    }
-
     public void StartGame(int difficulty)
     {
         scoreText.text = strSCORE + score;
+        livesText.text = strLIVES + lives;
         isGameActive = true;
         StartCoroutine(SpawnTarget());
         titleScreen.gameObject.SetActive(false);
         spawnRate /= difficulty;
+        // PlaySound();
     }
     public void UpdateScore(int scoreToAdd)
     {
@@ -41,6 +46,11 @@ public class GameManager : MonoBehaviour
         scoreText.text = strSCORE + score;
     }
 
+    public void UpdateLives()
+    {
+        livesText.text = strLIVES + --lives;
+        if (lives == 0) GameOver();
+    }
     public void GameOver()
     {
         gameOverText.gameObject.SetActive(true);
@@ -62,4 +72,20 @@ public class GameManager : MonoBehaviour
             Instantiate(targets[index]);
         }
     }
+
+    private void ChangePaused()
+    {
+        var _isPaused = isPaused;
+        isPaused = !_isPaused;
+        pauseScreen.SetActive(isPaused);
+        Time.timeScale = _isPaused ? 1 : 0;
+    }
+    //private void PlaySound()
+    //{
+    //    var sound = GetComponent<AudioSource>();
+    //    sound.loop = true;
+    //    sound.volume = soundSlider.value;
+    //    sound.Play();
+    //    Debug.Log("Playing Vol: " + soundSlider.value);
+    //}
 }
