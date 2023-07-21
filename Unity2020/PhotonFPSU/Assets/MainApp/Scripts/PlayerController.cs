@@ -1,14 +1,35 @@
-﻿using System;
-using System.Collections;
+﻿using Photon.Pun;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Animations;
 
-public class PlayerController : MonoBehaviour
+/// <summary>
+/// Player Controller Class
+/// </summary>
+public class PlayerController : MonoBehaviourPunCallbacks
 {
     #region Variables
 
-    #region Public
+    #region Public Variables
+    /// <summary>
+    /// Animator
+    /// </summary>
+    public Animator animator;
+    /// <summary>
+    /// Blood Effect
+    /// </summary>
+    public GameObject hitEffect;
+    /// <summary>
+    /// Player Model
+    /// </summary>
+    public GameObject[] playerModel;
+    /// <summary>
+    /// Gunholder for player
+    /// </summary>
+    public Gun[] gunsHolder;
+    /// <summary>
+    /// Gunholder for other players
+    /// </summary>
+    public Gun[] otherGunsHolder;
     /// <summary>
     /// Parent object of camera
     /// </summary>
@@ -40,14 +61,14 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The maximum number of possession ammunition")]
     public int[] maxAmmunition;
     /// <summary>
-    /// Number of bullets in machine gun
+    /// The number of bullets in machine gun
     /// </summary>
-    [Tooltip("The maximum number of possession ammunition")]
+    [Tooltip("The number of bullets in machine gun")]
     public int[] ammoClip;
     /// <summary>
-    /// Maximum number of ammunition in a machine gun
+    /// The maximum number of ammunition in a machine gun
     /// </summary>
-    [Tooltip("The maximum number of possession ammunition")]
+    [Tooltip("The maximum number of ammunition in a machine gun")]
     public int[] maxAmmoClip;
     /// <summary>
     /// Speed of viewpoint movement
@@ -61,9 +82,17 @@ public class PlayerController : MonoBehaviour
     /// Speed of run
     /// </summary>
     public float runSpeed = 8f;
-    #endregion
+    /// <summary>
+    /// Maximum HP
+    /// </summary>
+    public int maxHP = 100;
+    #endregion Public Variables
 
-    #region Private
+    #region Private Variables
+    /// <summary>
+    /// Game Manager
+    /// </summary>
+    private GameManager gameManager;
     /// <summary>
     /// Camera
     /// </summary>
@@ -76,6 +105,10 @@ public class PlayerController : MonoBehaviour
     /// UI Manager
     /// </summary>
     private UIManager uIManager;
+    /// <summary>
+    /// SpawnManager格納
+    /// </summary>
+    private SpawnManager spawnManager;
     /// <summary>
     /// Stores input values
     /// </summary>
@@ -97,7 +130,7 @@ public class PlayerController : MonoBehaviour
     /// </summary>
     private float activeMoveSpeed = 4f;
     /// <summary>
-    /// 
+    /// Interval time of firing
     /// </summary>
     private float shotTimer;
     /// <summary>
@@ -108,35 +141,53 @@ public class PlayerController : MonoBehaviour
     /// Numerical values for arms control in the selection
     /// </summary>
     private int selectedGun = 0;
-    #endregion
+    /// <summary>
+    /// The current HP
+    /// </summary>
+    private int currentHP;
+    #endregion Private Variables
 
-    #endregion
+    #endregion Variables
 
     #region Methods
 
     #region Unity Methods
-
     private void Awake()
     {
+        // Set uIManager
         uIManager = GameObject.FindGameObjectWithTag("UIManager").GetComponent<UIManager>();
+        // Set SpawnManager
+        spawnManager = GameObject.FindGameObjectWithTag("SpawnManager").GetComponent<SpawnManager>();
+        // Set GameManager
+        gameManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<GameManager>();
     }
 
     private void Start()
     {
+        // Set MAX HP to the current HP
+        currentHP = maxHP;
         // Camera storage
         cam = Camera.main;
         // Get Rigidboty
         rb = GetComponent<Rigidbody>();
+        // ランダムな位置でスポーンさせる関数呼び出し
+        // transform.position = spawnManager.GetSpawnPoint().position;
+        // Initialize the gun list
+        guns.Clear();
+        SwitchDisplayModelsGuns();
         // Cursor display decision function
         UpdateCursorLock();
     }
 
     private void Update()
     {
+        // Return if this object is other players(Otherwise, this PlayerController is by itself)
+        if (!photonView.IsMine) return;
+
         // Call the viewpoint shift function
-        PlayerRotate();
+        RotatePlayer();
         // Call move function
-        PlayerMove();
+        MovePlayer();
 
         if (IsGround())
         {
@@ -153,149 +204,103 @@ public class PlayerController : MonoBehaviour
         Reload();
         // Weapon change key detection function
         SwitchingGuns();
+        // Animation transition
+        SetAnimator();
+        // Stop gun sound
+        StopGunSound();
+        // Back to menu
+        BackToMenu();
+        // Cursor display decision function
+        UpdateCursorLock();
+    }
+
+    private void FixedUpdate()
+    {
+        if (!photonView.IsMine) return;
+        // Update magasin text
+        uIManager.SetBulletsText(ammoClip[selectedGun], ammunition[selectedGun]);
     }
 
     private void LateUpdate()
+    {
+        if (!photonView.IsMine) return;
+        // Adjust camera view
+        AdjustCameraView();
+    }
+    /// <summary>
+    /// Called when the player component is turned off
+    /// </summary>
+    public override void OnDisable()
+    {
+        DisplayMouse();
+    }
+    #endregion
+
+    #region Public Methods
+    /// <summary>
+    /// Remote callable gun switching method
+    /// </summary>
+    [PunRPC]
+    public void SetGun(int gunNo)
+    {
+        if (gunNo < guns.Count)
+        {
+            selectedGun = gunNo;
+            SwitchGun();
+        }
+    }
+    /// <summary>
+    /// Being shot (Common for all players)
+    /// </summary>
+    /// <param name="damage"></param>
+    /// <param name="name"></param>
+    /// <param name="actor"></param>
+    [PunRPC]
+    public void Hit(int damage, string name, int actor)
+    {
+        Debug.Log("Hit is called.");
+        // Decrease HP
+        ReceiveDamage(damage, name, actor);
+    }
+    /// <summary>
+    /// Generate sound
+    /// </summary>
+    [PunRPC]
+    public void GenerateSound()
+    {
+        switch (selectedGun)
+        {
+            case 2:
+                guns[selectedGun].LoopOnSubmachineGun();
+                break;
+            default:
+                guns[selectedGun].SoundGunShot();
+                break;
+        }
+    }
+    /// <summary>
+    /// Stop sound
+    /// </summary>
+    [PunRPC]
+    public void StopSound() =>
+        guns[2].LoopOffSubmachineGun();
+    #endregion
+
+    #region Private Methods
+    /// <summary>
+    /// Adjust camera view
+    /// </summary>
+    private void AdjustCameraView()
     {
         // Adjusting the camera position
         cam.transform.position = viewPoint.position;
         // The camera rotation
         cam.transform.rotation = viewPoint.rotation;
     }
-
-    #endregion
-
-    #region Public Methods
     /// <summary>
-    /// Run
+    /// Move player
     /// </summary>
-    public void Run()
-    {
-        // Switching speeds when the shift button is pressed
-        if (Input.GetKey(KeyCode.LeftShift)) activeMoveSpeed = runSpeed;
-        else activeMoveSpeed = walkSpeed;
-    }
-    /// <summary>
-    /// Jump
-    /// </summary>
-    public void Jump()
-    {
-        if (IsGround() && Input.GetKeyDown(KeyCode.Space)) rb.AddForce(jumpForce, ForceMode.Impulse);
-    }
-    /// <summary>
-    /// True if the player is on ground
-    /// </summary>
-    /// <returns></returns>
-    public bool IsGround()
-    {
-        // Return bool (レーザーを飛ばすポジション、方向、距離、判定するレイヤー)
-        return Physics.Raycast(groundCheckPoint.position, Vector3.down, 0.25f, groundLayers);
-    }
-    /// <summary>
-    /// Display mouse cursor or not
-    /// </summary>
-    public void UpdateCursorLock()
-    {
-        // Change bool
-        if (Input.GetKeyDown(KeyCode.Escape)) cursorLock = false;   // Display cursor
-        else if (Input.GetMouseButton(0)) cursorLock = true;        // Hide cursor
-        if (cursorLock) Cursor.lockState = CursorLockMode.Locked;   // Fixes the cursor in the center and hides it
-        else Cursor.lockState = CursorLockMode.None;                // Display cursor
-    }
-    /// <summary>
-    /// Switching guns by scrolling mouse wheel or number keys
-    /// </summary>
-    public void SwitchingGuns()
-    {
-        // Switching guns by scrolling mouse wheel
-        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
-        {
-            selectedGun++;
-            if (selectedGun >= guns.Count) selectedGun = 0;
-            // Switch guns
-            SwitchGun();
-        }
-        else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
-        {
-            selectedGun--;
-            if (selectedGun < 0) selectedGun = guns.Count - 1;
-            // Switch guns
-            SwitchGun();
-        }
-
-        // Switching guns by number keys
-        for (int i = 0; i < guns.Count; i++)
-        {
-            // Whether a numeric key has been pressed
-            if (Input.GetKeyDown((i + 1).ToString()))
-            {
-                // Switch guns
-                selectedGun = i;
-                SwitchGun();
-            }
-        }
-    }
-    /// <summary>
-    /// Switch gun
-    /// </summary>
-    public void SwitchGun()
-    {
-        // First, hide all gun objects
-        foreach (var gun in guns) gun.gameObject.SetActive(false);
-        // Gun of certain elements in the list is displayed
-        guns[selectedGun].gameObject.SetActive(true);
-    }
-    /// <summary>
-    /// Aim
-    /// </summary>
-    public void Aim()
-    {
-        // Check right click
-        if (Input.GetMouseButton(1))
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, guns[selectedGun].adsZoom, guns[selectedGun].adsSpeed * Time.deltaTime);
-        else
-            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60f, guns[selectedGun].adsSpeed * Time.deltaTime);
-    }
-    /// <summary>
-    /// Fire
-    /// </summary>
-    public void Fire()
-    {
-        // Check if a gun can be shot
-        if (Input.GetMouseButtonDown(0) && ammoClip[selectedGun] > 0 && Time.time > shotTimer)
-        {
-            //  Call to fire a bullet
-            FiringBullet();
-        }
-    }
-    /// <summary>
-    /// Fire a bullet
-    /// </summary>
-    public void FiringBullet()
-    {
-        // Reduces one bullet from the magazine
-        ammoClip[selectedGun]--;
-        
-        // Create a ray
-        Ray ray = cam.ViewportPointToRay(new Vector2(0.5f, 0.5f));
-        if (Physics.Raycast(ray, out RaycastHit hit))
-        {
-            // Debug.Log("Objects hit is " + hit.collider.gameObject.name);
-            // Generates a bullet hole where it hit
-            GameObject buletImpactObject = Instantiate(guns[selectedGun].bulletImpact, hit.point + (hit.normal * 0.02f), Quaternion.LookRotation(hit.normal, Vector3.up));
-            Destroy(buletImpactObject, 10f);
-        }
-        // Firing time interval setting
-        shotTimer = Time.time + guns[selectedGun].shootInterval;
-
-    }
-    #endregion
-
-    #region Private Methods
-    /// <summary>
-    /// Player move
-    /// </summary>
-    private void PlayerMove()
+    private void MovePlayer()
     {
         // Detects input of keys for movement and stores values
         moveDir = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
@@ -305,9 +310,9 @@ public class PlayerController : MonoBehaviour
         transform.position += movement * activeMoveSpeed * Time.deltaTime;
     }
     /// <summary>
-    /// Player rotate
+    /// Rotate player
     /// </summary>
-    private void PlayerRotate()
+    private void RotatePlayer()
     {
         // Stores user mouse movements in variables
         mouseInput = new Vector2(Input.GetAxisRaw("Mouse X") * mouseSensitivity, Input.GetAxisRaw("Mouse Y") * mouseSensitivity);
@@ -321,7 +326,143 @@ public class PlayerController : MonoBehaviour
         viewPoint.rotation = Quaternion.Euler(-verticalMouseInput, viewPoint.transform.rotation.eulerAngles.y, viewPoint.transform.rotation.eulerAngles.z);
     }
     /// <summary>
-    /// Reload
+    /// Run
+    /// </summary>
+    private void Run()
+    {
+        // Switching speeds when the shift button is pressed
+        if (Input.GetKey(KeyCode.LeftShift)) activeMoveSpeed = runSpeed;
+        else activeMoveSpeed = walkSpeed;
+    }
+    /// <summary>
+    /// Jump
+    /// </summary>
+    private void Jump()
+    {
+        if (IsGround() && Input.GetKeyDown(KeyCode.Space)) rb.AddForce(jumpForce, ForceMode.Impulse);
+    }
+    /// <summary>
+    /// True if the player is on ground
+    /// </summary>
+    /// <returns></returns>
+    private bool IsGround()
+    {
+        // Return bool (レーザーを飛ばすポジション、方向、距離、判定するレイヤー)
+        return Physics.Raycast(groundCheckPoint.position, Vector3.down, 0.25f, groundLayers);
+    }
+    /// <summary>
+    /// Switching guns by scrolling mouse wheel or number keys
+    /// </summary>
+    private void SwitchingGuns()
+    {
+        // Switching guns by scrolling mouse wheel
+        if (Input.GetAxisRaw("Mouse ScrollWheel") > 0f)
+        {
+            selectedGun++;
+            if (selectedGun >= guns.Count) selectedGun = 0; // Set the gun to the first one
+            // Switch guns
+            // SwitchGun();
+            // Switching guns that can be shared by all players
+            photonView.RPC("SetGun", RpcTarget.All, selectedGun);
+        }
+        else if (Input.GetAxisRaw("Mouse ScrollWheel") < 0f)
+        {
+            selectedGun--;
+            if (selectedGun < 0) selectedGun = guns.Count - 1;  // Set the gun to the last one
+            // Switch guns
+            // SwitchGun();
+            // Switching guns that can be shared by all players
+            photonView.RPC("SetGun", RpcTarget.All, selectedGun);
+        }
+
+        // Switching guns by number keys
+        for (int i = 0; i < guns.Count; i++)
+        {
+            // Whether a numeric key has been pressed
+            if (Input.GetKeyDown((i + 1).ToString()))
+            {
+                // Switch guns
+                selectedGun = i;
+                // SwitchGun();
+                // Switching guns that can be shared by all players
+                photonView.RPC("SetGun", RpcTarget.All, selectedGun);
+            }
+            Debug.Log("Current number: " + i);
+        }
+    }
+    /// <summary>
+    /// Switch gun
+    /// </summary>
+    private void SwitchGun()
+    {
+        // First, hide all gun objects
+        foreach (var gun in guns) gun.gameObject.SetActive(false);
+        // Gun of certain elements in the list is displayed
+        guns[selectedGun].gameObject.SetActive(true);
+    }
+    /// <summary>
+    /// Aim
+    /// </summary>
+    private void Aim()
+    {
+        // Check right click
+        if (Input.GetMouseButton(1))
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, guns[selectedGun].adsZoom, guns[selectedGun].adsSpeed * Time.deltaTime);
+        else
+            cam.fieldOfView = Mathf.Lerp(cam.fieldOfView, 60f, guns[selectedGun].adsSpeed * Time.deltaTime);
+    }
+    /// <summary>
+    /// Fire
+    /// </summary>
+    private void Fire()
+    {
+        // Check if a gun can be shot
+        if (Input.GetMouseButtonDown(0) && ammoClip[selectedGun] > 0 && Time.time > shotTimer)
+            // Call to fire a bullet
+            FiringBullet();
+    }
+    /// <summary>
+    /// Fire a bullet
+    /// </summary>
+    private void FiringBullet()
+    {
+        // Reduces one bullet from the magazine
+        ammoClip[selectedGun]--;
+
+        // Create a ray
+        Ray ray = cam.ViewportPointToRay(new Vector2(0.5f, 0.5f));
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            // Debug.Log("Objects hit is " + hit.collider.gameObject.name);
+            if (hit.collider.gameObject.tag.Equals("Player"))
+            {
+                // If the player is hit
+                // Blood effect
+                PhotonNetwork.Instantiate(hitEffect.name, hit.point, Quaternion.identity);
+                hit.collider.gameObject.GetPhotonView().RPC
+                (
+                    "Hit",                                  // Target method. The followings are parameters of Hit method.
+                    RpcTarget.All,                          // Target is all(Destination target)
+                    guns[selectedGun].shotDamage,           // Damage value of the gun currently equipped
+                    photonView.Owner.NickName,              // Player name who shot
+                    PhotonNetwork.LocalPlayer.ActorNumber   // The number to manage player
+                );
+            }
+            else
+            {
+                // If object other than player is hit
+                // Generates a bullet hole where it hit
+                GameObject buletImpactObject = Instantiate(guns[selectedGun].bulletImpact, hit.point + (hit.normal * 0.02f), Quaternion.LookRotation(hit.normal, Vector3.up));
+                Destroy(buletImpactObject, 10f);
+            }
+        }
+        // Firing time interval setting
+        shotTimer = Time.time + guns[selectedGun].shootInterval;
+        // Sound
+        photonView.RPC(nameof(GenerateSound), RpcTarget.All);
+    }
+    /// <summary>
+    /// Reload a gun
     /// </summary>
     private void Reload()
     {
@@ -342,6 +483,118 @@ public class PlayerController : MonoBehaviour
                 ammoClip[selectedGun] += ammoAvailable;
             }
         }
+    }
+    /// <summary>
+    /// Animator transition
+    /// </summary>
+    private void SetAnimator()
+    {
+        // Check walk
+        // moveDir != Vector3.zero: true; walk, false; not walk
+        animator.SetBool("walk", moveDir != Vector3.zero);
+        // Check Run
+        // Input.GetKey(KeyCode.LeftShift): true; run, false; not run
+        animator.SetBool("run", Input.GetKey(KeyCode.LeftShift));
+    }
+    /// <summary>
+    /// Switch display of models and guns
+    /// </summary>
+    private void SwitchDisplayModelsGuns()
+    {
+        if (photonView.IsMine)
+        {
+            // For player
+            // Hide 3D Model of mine
+            foreach (var model in playerModel) model.SetActive(false);
+            // Set a gun for display
+            foreach (var gun in gunsHolder) guns.Add(gun);
+            // Reflect HP in the slider
+            UpdateHP();
+        }
+        // For other players
+        else foreach (var gun in otherGunsHolder) guns.Add(gun);
+        // Display gun
+        // SwitchGun();
+        // Switching guns that can be shared by all players
+        photonView.RPC("SetGun", RpcTarget.All, selectedGun);
+    }
+    /// <summary>
+    /// Decrease HP
+    /// </summary>
+    private void ReceiveDamage(int damage, string name, int actor)
+    {
+        Debug.Log("ReceiveDamage is called.");
+        if (!photonView.IsMine) return;
+        // Decrease HP
+        currentHP -= damage;
+        Debug.Log("currentHP is " + currentHP);
+        // Check if the current HP is less than or equal 0
+        // Death
+        if (currentHP <= 0) Death(name, actor);
+        // Reflect HP in the slider
+        UpdateHP();
+    }
+    /// <summary>
+    /// Death
+    /// </summary>
+    private void Death(string playerName, int actor)
+    {
+        currentHP = 0;
+        // Death process
+        uIManager.UpdateDeathUI(playerName);
+        spawnManager.Die();
+        // Call KillDeathEvent
+        // Calling of events upon one's own death
+        gameManager.GetScore(PhotonNetwork.LocalPlayer.ActorNumber, 1, 1);
+        // Kill event. actor means a user's number that the user beat you
+        gameManager.GetScore(actor, 0, 1);
+    }
+    /// <summary>
+    /// Update HP
+    /// </summary>
+    private void UpdateHP() =>
+        uIManager.UpdateHP(maxHP, currentHP);
+    /// <summary>
+    /// Display mouse
+    /// </summary>
+    private void DisplayMouse()
+    {
+        cursorLock = false;
+        Cursor.lockState = CursorLockMode.None;
+    }
+    /// <summary>
+    /// Stop gun sound
+    /// </summary>
+    private void StopGunSound()
+    {
+        if (Input.GetMouseButtonUp(0) || ammoClip[2] <= 0)
+            photonView.RPC(nameof(StopSound), RpcTarget.All);
+    }
+    /// <summary>
+    /// Return to the menu when a specific button is pressed
+    /// </summary>
+    private void BackToMenu()
+    {
+        if (Input.GetKeyDown(KeyCode.M))
+        {
+            // Delete player from player list
+            gameManager.RemovePlayerInfo(PhotonNetwork.LocalPlayer.ActorNumber);
+            // Set scene synchronization
+            PhotonNetwork.AutomaticallySyncScene = false;
+            // Leave room
+            PhotonNetwork.LeaveRoom();
+        }
+    }
+    /// <summary>
+    /// Display mouse cursor or not
+    /// </summary>
+    private void UpdateCursorLock()
+    {
+        // Change bool
+        if (Input.GetKeyDown(KeyCode.Escape)) cursorLock = false;   // Display cursor
+        else if (Input.GetMouseButton(0)) cursorLock = true;        // Hide cursor
+        if (cursorLock) Cursor.lockState = CursorLockMode.Locked;   // Fixes the cursor in the center and hides it
+        else Cursor.lockState = CursorLockMode.None;                // Display cursor
     }
     #endregion
 
