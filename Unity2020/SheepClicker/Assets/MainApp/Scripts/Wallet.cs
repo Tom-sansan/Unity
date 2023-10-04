@@ -1,9 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.Numerics;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Wallet Class
+/// </summary>
 public class Wallet : MonoBehaviour
 {
     #region Variables
@@ -15,11 +16,6 @@ public class Wallet : MonoBehaviour
 
     public BigInteger money;
     #endregion
-
-    void Start()
-    {
-        
-    }
 
     void Update()
     {
