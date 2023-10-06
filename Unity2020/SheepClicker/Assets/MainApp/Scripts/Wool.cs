@@ -17,6 +17,11 @@ public class Wool : MonoBehaviour
     /// </summary>
     [SerializeField]
     private SpriteRenderer woolSpriteRenderer;
+    /// <summary>
+    /// Coin prefab
+    /// </summary>
+    [SerializeField]
+    private Coin coinPrefab;
     #endregion SerializeField
 
     #region Public Variables
@@ -54,6 +59,9 @@ public class Wool : MonoBehaviour
     /// <param name="wallet"></param>
     public void Sell(Wallet wallet)
     {
+        var coin = Instantiate(coinPrefab, transform.position, transform.rotation);
+        coin.value = price;
+        coin.wallet = wallet;
         wallet.money += price;
         Destroy(gameObject);
     }
