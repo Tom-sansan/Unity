@@ -103,11 +103,13 @@ public class Sheep : MonoBehaviour
             sheepRenderer.sprite = cutSheepSprite;
             // Back to white color as no more wool
             sheepRenderer.color = Color.white;
+            SoundManager.Instance.Play(nameof(SoundManager.SoundType.Cry));
         }
         var wool = Instantiate(woolPrefab, transform.position, transform.rotation);
         // Set the Wool object the wool you have sheared this time
         wool.price = sheepData.basePrice;
         wool.woolColor = sheepData.color;
+        SoundManager.Instance.Play(nameof(SoundManager.SoundType.Shear));
     }
     #endregion Private Methods
 }

@@ -1,6 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// AspectKeeper Class
@@ -9,41 +7,41 @@ using UnityEngine;
 public class AspectKeeper : MonoBehaviour
 {
     /// <summary>
-    /// Target camera
+    /// 対象とするカメラ
     /// </summary>
     [SerializeField]
     private Camera targetCamera;
     /// <summary>
-    /// Target resolution
+    /// 目的の解像度
     /// </summary>
     [SerializeField]
     private Vector2 aspectVec;
 
     void Update()
     {
-        // Screen aspect ratio
+        // 画面のアスペクト比
         var screenAspect = Screen.width / (float)Screen.height;
-        // Target aspect ratio
+        // 目的のアスペクト比
         var targetAspect = aspectVec.x / aspectVec.y;
-        // Magnification to target aspect ratio
+        // 目的アスペクト比にするための倍率
         var magRate = targetAspect / screenAspect;
-        // Create Rect with Viewport initial values
+        // Viewport初期値でRectを作成
         var viewportRect = new Rect(0, 0, 1, 1);
         if (magRate < 1)
         {
-            // Change the width to use
+            // 使用する横幅を変更
             viewportRect.width = magRate;
-            // Centering
+            // 中央寄せ
             viewportRect.x = 0.5f - viewportRect.width * 0.5f;
         }
         else
         {
-            // Change the height to use
+            // 使用する縦幅を変更
             viewportRect.height = 1 / magRate;
-            // Centering
+            // 中央寄せ
             viewportRect.y = 0.5f - viewportRect.height * 0.5f;
         }
-        // Apply to camera Viewport
+        // カメラのViewportに適用
         targetCamera.rect = viewportRect;
     }
 }

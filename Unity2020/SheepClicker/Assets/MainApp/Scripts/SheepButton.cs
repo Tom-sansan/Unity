@@ -1,10 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class SheepButton : MonoBehaviour
 {
+    #region Variables
+
+    #region SerializeField Variables
     /// <summary>
     /// Button object
     /// </summary>
@@ -30,6 +31,9 @@ public class SheepButton : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Text infoText;
+    #endregion SerializeField Variables
+
+    #region Public Variables
     /// <summary>
     /// Money possessed object
     /// </summary>
@@ -46,11 +50,21 @@ public class SheepButton : MonoBehaviour
     /// The current number of sheep
     /// </summary>
     public int currentCount;
+    #endregion Public Variables
+
+    #region Private Variables
+    /// <summary>
+    /// Data save process for sheep purchases
+    /// </summary>
+    private SaveLoadManager saveLoadManager;
+    #endregion Private Variables
+
+    #endregion Variables
 
     void Start()
     {
-        Debug.Log(button.gameObject.name);
         button.onClick.AddListener(CreateSheep);
+        saveLoadManager = GameObject.Find(nameof(SaveLoadManager)).GetComponent<SaveLoadManager>();
     }
 
     void Update()
@@ -63,12 +77,14 @@ public class SheepButton : MonoBehaviour
     /// </summary>
     public void CreateSheep()
     {
-        Debug.Log(nameof(CreateSheep));
         var price = GetPrice();
         // Purchase is deducted from the amount of money held
         wallet.money -= price;
         currentCount++;
         sheepGenerator.CreateSheep(sheepData);
+        // Save data
+        saveLoadManager.Save();
+        SoundManager.Instance.Play(nameof(SoundManager.SoundType.Cry));
     }
 
     /// <summary>
@@ -77,7 +93,6 @@ public class SheepButton : MonoBehaviour
     private void SetText()
     {
         var price = GetPrice();
-        Debug.Log(price);
         sheepImage.color = sheepData.color;
         priceText.text = price.ToString("C0");
         // The current / maximum number of sheep
