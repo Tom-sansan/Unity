@@ -4,6 +4,9 @@ using UnityEditor;
 using UnityEngine;
 using UnityEngine.UI;
 
+/// <summary>
+/// Dammy Hand UI Class
+/// </summary>
 public class DammyHandUI : MonoBehaviour
 {
     #region Variables
@@ -56,7 +59,7 @@ public class DammyHandUI : MonoBehaviour
     /// <summary>
     /// Create or delete a dummy hand to reach a specified number of cards
     /// </summary>
-    /// <param name="value"></param>
+    /// <param name="value">The number of setting for dammy cards</param>
     public void SetHandNum(int value)
     {
         if (dammyHandList == null)
@@ -64,7 +67,7 @@ public class DammyHandUI : MonoBehaviour
             // Initial run time
             // Initialize list
             dammyHandList = new List<Transform>();
-            // AddhandObj(value);
+            AddHandObj(value);
         }
         else
         {
@@ -105,9 +108,9 @@ public class DammyHandUI : MonoBehaviour
     #endregion Private Methods
 
     /// <summary>
-    /// Adds a specified number of dummy cards to the hand
+    /// Add a specified number of dummy cards to the hand
     /// </summary>
-    /// <param name="value"></param>
+    /// <param name="value">The number of addition</param>
     private void AddHandObj(int value)
     {
         // Create objects for additional number of sheets
@@ -122,7 +125,7 @@ public class DammyHandUI : MonoBehaviour
     /// <summary>
     /// Remove specified number of dummy cards from hand
     /// </summary>
-    /// <param name="value"></param>
+    /// <param name="value">The number of deletion</param>
     private void RemoveHandObj(int value)
     {
         // Get the number of sheets deleted as a positive number
