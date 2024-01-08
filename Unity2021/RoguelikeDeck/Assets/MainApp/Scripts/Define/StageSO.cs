@@ -14,6 +14,12 @@ public class StageSO : ScriptableObject
     public string nameEN;
 
     [Space(10)]
+    [Header("難易度表示(日本語)")]
+    public string difficultyJP;
+    [Header("難易度表示(英語)")]
+    public string difficultyEN;
+
+    [Space(10)]
     [Header("ステージアイコン画像")]
     public Sprite stageIcon;
     [Header("ステージ背景画像")]

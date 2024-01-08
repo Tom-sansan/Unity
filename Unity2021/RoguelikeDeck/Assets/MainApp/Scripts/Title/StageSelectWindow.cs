@@ -1,7 +1,8 @@
-using DG.Tweening;
+﻿using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 /// <summary>
 /// Title scene/stage select window class
@@ -16,6 +17,32 @@ public class StageSelectWindow : MonoBehaviour
 
     #region SerializeField
 
+    /// <summary>
+    /// Stage name text
+    /// </summary>
+    [SerializeField]
+    private Text stageNameText = null;
+    /// <summary>
+    /// Stage Difficulty Text
+    /// </summary>
+    [SerializeField]
+    private Text stageDifficultyText = null;
+    /// <summary>
+    /// Number of battles Text
+    /// </summary>
+    [SerializeField]
+    private Text battleNumText = null;
+    /// <summary>
+    /// Stage icon image
+    /// </summary>
+    [SerializeField]
+    private Image stageIconImage = null;
+    /// <summary>
+    /// Selected Stage Number Dot Image List
+    /// </summary>
+    [SerializeField]
+    private List<Image> stageOrderImages = null;
+
     #endregion SerializeField
 
     #region Public Variables
@@ -23,6 +50,15 @@ public class StageSelectWindow : MonoBehaviour
     #endregion Public Variables
 
     #region Private Variables
+
+    /// <summary>
+    /// Total number of stages
+    /// </summary>
+    private int stageListNum;
+    /// <summary>
+    /// Selecting Stage ID
+    /// </summary>
+    private int selectStageID;
 
     #endregion Private Variables
 
@@ -68,6 +104,10 @@ public class StageSelectWindow : MonoBehaviour
     {
         this.titleManager = titleManager;
         windowRectTransform = GetComponent<RectTransform>();
+        stageListNum = Data.instance.stageSOs.Count;
+        // Reflect initial stage selection
+        selectStageID = Data.instance.nowStageID;
+        ShowStageData();
         // Hide Window
         windowRectTransform.transform.localScale = Vector2.zero;
         windowRectTransform.gameObject.SetActive(true);
@@ -82,6 +122,8 @@ public class StageSelectWindow : MonoBehaviour
         windowTween = windowRectTransform.DOScale(1.0f, WindowAnimTime).SetEase(Ease.OutBack);
         // Activate window background panel
         titleManager.SetWindowBackPanelActive(true);
+        // Show stage info
+        ShowStageData();
     }
     /// <summary>
     /// Hide window
@@ -97,6 +139,11 @@ public class StageSelectWindow : MonoBehaviour
     #endregion Public Methods
 
     #region Private Methods
+
+    private void ShowStageData()
+    {
+
+    }
 
     #endregion Private Methods
 

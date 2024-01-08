@@ -34,6 +34,15 @@ public class Data : MonoBehaviour
     /// Deck management class
     /// </summary>
     public PlayerDeckData playerDeckData;
+    /// <summary>
+    /// List of all stages available for selection on the title screen
+    /// </summary>
+    public List<StageSO> stageSOs;
+    /// <summary>
+    /// Stage ID in progress
+    /// </summary>
+    [HideInInspector]
+    public int nowStageID;
 
     #endregion Public Variables
 
