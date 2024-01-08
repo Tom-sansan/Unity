@@ -160,6 +160,8 @@ public class PlayBoardManager : MonoBehaviour
         this.battleManager = battleManager;
         fieldManager = battleManager.fieldManager;
         characterManager = battleManager.characterManager;
+        // Initialize the card's persistence effect
+        ClearAllSustainedEffects();
         // Get Transform for each card zone
         cardZonesTrs = new Transform[PlayBoardCardNum];
         for (int i = 0; i < PlayBoardCardNum; i++)
@@ -197,8 +199,18 @@ public class PlayBoardManager : MonoBehaviour
                 // Card effect activation
                 playSequence.AppendCallback(() =>
                 {
-                    // Effect activation
-                    PlayCard(boardCards[index], useCharaID, index);
+                    if (!isSeal && stunCharaID != useCharaID)
+                    {
+                        // Not sealed or stunned
+                        // Effect activation
+                        PlayCard(boardCards[index], useCharaID, index);
+                    }
+                    else
+                    {
+                        // If the card is sealed or stunned, the card does not trigger and the sustained effect is initialized
+                        ClearOneCardSustainedEffects();
+                    }
+
                 });
                 // Tween semi-transparent cards
                 playSequence.Append(boardCards[index].HideFadeTween());
@@ -219,6 +231,9 @@ public class PlayBoardManager : MonoBehaviour
             else
             {
                 // No card exits
+                playSequence.AppendCallback(() =>
+                    ClearOneCardSustainedEffects()
+                );
             }
             // Set time interval
             playSequence.AppendInterval(PlayIntervalTime);
@@ -233,6 +248,8 @@ public class PlayBoardManager : MonoBehaviour
             // Delete all card objects on the board
             foreach (var card in boardCards)
                 if (card != null) fieldManager.DestroyCardObject(card);
+            // Initialize all effects that last only one turn
+            ClearOneTurnSustainedEffects();
             // End-of-turn call
             battleManager.TurnEnd();
         });
@@ -244,7 +261,20 @@ public class PlayBoardManager : MonoBehaviour
     /// <returns>Position value</returns>
     public Vector2 GetPlayZonePos(int areaID) =>
         cardZonesTrs[areaID].position;
-
+    /// <summary>
+    /// Initialize all persistent effects of the card
+    /// </summary>
+    public void ClearAllSustainedEffects()
+    {
+        // Initialize all effects that last only one turn
+        ClearOneTurnSustainedEffects();
+        // Restore the player's maximum HP
+        characterManager.RecoverMaxHPPlayer();
+        // Initialize the number of times weapon damage was inflicted
+        weaponCount = new int[Card.CharaNum];
+        // Initialize the number of times HP is recovered
+        healCount = new int[Card.CharaNum];
+    }
     #endregion Public Methods
 
     #region Private Methods
@@ -260,7 +290,8 @@ public class PlayBoardManager : MonoBehaviour
     {
         // Target character ID
         int targetCharaID = useCharaID ^ 1;
-        // Amount of each effect of the card
+
+        #region Amount of each effect of the card
         // Damage Amount
         int damagePoint = 0;
         // Amount of damage done to self
@@ -281,13 +312,33 @@ public class PlayBoardManager : MonoBehaviour
         bool isBloodPact = false;
         // Rebound damage flag
         bool isReflection = false;
+        #endregion Amount of each effect of the card
 
+        #region Get and reflect various sustained effects
+        // Focus Energy(気合溜め)
+        bool isKiai = kiaiCharaID == useCharaID;
+        // Increase in "enhanced" damage(「増強」与ダメージ増加量)
+        damagePoint += augmentPoint;
+        // Amount of "electrocution" damage reduction(「感電」与ダメージ低下量)
+        weakPoint += electrocutionPoint;
+        // Amount of "leakage" damage reduction(「漏電」与ダメージ低下量)
+        weakPoint += leakagePoint;
+        #endregion Get and reflect various sustained effects
+
+        // Clear sustained effects up to this card.
+        ClearOneCardSustainedEffects();
         // Execute each effect in the card
         // 1: Effects that take precedence over other effects
         foreach (var effect in targetCard.effects)
         {
             switch (effect.cardEffect)
             {
+                // Inversion(反転)
+                case CardEffectDefine.CardEffect.Reverse:
+                    useCharaID = targetCharaID;
+                    targetCharaID = useCharaID ^ 1;
+                    break;
+
                 #region strength-limiting system
 
                 // Intensity n limited(強度n限定)
@@ -318,13 +369,22 @@ public class PlayBoardManager : MonoBehaviour
             switch (effect.cardEffect)
             {
                 #region Damage effect
+
                 // Damage(ダメージ)
                 case CardEffectDefine.CardEffect.Damage:
                     damagePoint += effect.value;
                     break;
                 // Weapon Damage(武器ダメージ)
                 case CardEffectDefine.CardEffect.WeaponDmg:
-                    damagePoint += effect.value;
+                    if (!noWeaponFlag[targetCharaID])
+                    {
+                        // The opponent is not flagged as weapon disabled.
+                        damagePoint += effect.value;
+                        // Additional damage when "Kiai
+                        if (isKiai) damagePoint += effect.value;
+                        // Number of Attacks Count
+                        weaponCount[useCharaID]++;
+                    }
                     break;
                 // assault(突撃)
                 case CardEffectDefine.CardEffect.Assault:
@@ -361,6 +421,10 @@ public class PlayBoardManager : MonoBehaviour
                 case CardEffectDefine.CardEffect.SelfInjury:
                     selfDamagePoint += effect.value;
                     break;
+                // Reaction(反動)
+                case CardEffectDefine.CardEffect.Reaction:
+                    isReflection = true;
+                    break;
 
                 #endregion Damage effect
 
@@ -369,6 +433,8 @@ public class PlayBoardManager : MonoBehaviour
                 // Heal(回復)
                 case CardEffectDefine.CardEffect.Heal:
                     healPoint += effect.value;
+                    // Recovery Count(回復回数カウント)
+                    healCount[useCharaID]++;
                     break;
                 // SelfPredation(自己捕食)
                 case CardEffectDefine.CardEffect.SelfPredation:
@@ -376,6 +442,8 @@ public class PlayBoardManager : MonoBehaviour
                     selfBurnPoint += characterManager.maxHP[useCharaID] / 2;
                     // Heal(回復)
                     healPoint += characterManager.maxHP[useCharaID] - characterManager.nowHP[useCharaID];
+                    // Recovery Count(回復回数カウント)
+                    healCount[useCharaID]++;
                     break;
                 // Absorption(吸収)
                 case CardEffectDefine.CardEffect.Absorption:
@@ -394,8 +462,87 @@ public class PlayBoardManager : MonoBehaviour
                 case CardEffectDefine.CardEffect.Weakness:
                     weakPoint += effect.value;
                     break;
+                // Electric shock(感電)
+                case CardEffectDefine.CardEffect.Electrocution:
+                    electrocutionPoint += effect.value;
+                    break;
+                // Short circuit(漏電)
+                case CardEffectDefine.CardEffect.Leakage:
+                    leakagePoint += effect.value;
+                    break;
+                // Self-defense(防衛)
+                case CardEffectDefine.CardEffect.Defense:
+                    defencePoint[useCharaID] += effect.value;
+                    break;
+                // Augmentation(増強)
+                case CardEffectDefine.CardEffect.Augment:
+                    augmentPoint += effect.value;
+                    break;
+                // Focus Energy(気合溜め)
+                case CardEffectDefine.CardEffect.Kiai:
+                    kiaiCharaID = useCharaID;
+                    break;
+                // Recovery stop(回復停止)
+                case CardEffectDefine.CardEffect.NoHeal:
+                    noHealFlag[targetCharaID] = true;
+                    break;
+                // Seal(封印)
+                case CardEffectDefine.CardEffect.Seal:
+                    isSeal = true;
+                    break;
+                // Stun(スタン)
+                case CardEffectDefine.CardEffect.Stun:
+                    stunCharaID = useCharaID;
+                    break;
+                // Deck regeneration(山札再生)
+                case CardEffectDefine.CardEffect.DeckRegen:
+                    // Number of deck cards recovered only when used by player(プレイヤー使用時のみ山札枚数回復)
+                    if (useCharaID == Card.CharaIDPlayer)
+                        fieldManager.AddDeckCardsNum(effect.value);
+                    break;
+                // Weapon disabled(武器無効)
+                case CardEffectDefine.CardEffect.NoWeapon:
+                    noWeaponFlag[useCharaID] = true;
+                    break;
 
                 #endregion Support and interference system(支援・妨害系)
+
+                #region Status Abnormalities(状態異常系)
+
+                // Poison(毒)
+                case CardEffectDefine.CardEffect.Poison:
+                    characterManager.ChangeStatusEffect(targetCharaID, StatusEffectIcon.StatusEffectType.Poison, effect.value);
+                    break;
+                // Detoxification(解毒)
+                case CardEffectDefine.CardEffect.Detox:
+                    characterManager.ChangeStatusEffect(targetCharaID, StatusEffectIcon.StatusEffectType.Poison, -999);
+                    break;
+                // Flame(炎上)
+                case CardEffectDefine.CardEffect.Flame:
+                    characterManager.ChangeStatusEffect(targetCharaID, StatusEffectIcon.StatusEffectType.Flame, effect.value);
+                    break;
+
+                #endregion Status Abnormalities(状態異常系)
+            }
+        }
+
+        // 3: Performing effects that refer to the number of actions
+        foreach (var effect in targetCard.effects)
+        {
+            switch (effect.cardEffect)
+            {
+                // Rush(ラッシュ)
+                case CardEffectDefine.CardEffect.Rush:
+                    // Number of weapon attacks*3 damage(武器攻撃回数*3のダメージ)
+                    damagePoint += weaponCount[useCharaID] * 3;
+                    break;
+                // HealRush(ヒールラッシュ)
+                case CardEffectDefine.CardEffect.HealRush:
+                    // Recovery times*3(回復回数*3の回復)
+                    healPoint += healCount[useCharaID] * 3;
+                    // Heal count(回復回数カウント)
+                    healCount[useCharaID]++;
+                    break;
             }
         }
 
@@ -406,16 +553,18 @@ public class PlayBoardManager : MonoBehaviour
             healPoint = 0;
         }
         // Weakness and multiplier applied to the amount of damage inflicted
-        // Weakening application
+        // Weakening application(弱体化適用)
         damagePoint -= weakPoint;
-        // Damage scaling factor applied
+        // Application of Weakening by Defense(防衛による弱体化適用)
+        damagePoint -= defencePoint[targetCharaID];
+        // Damage scaling factor applied(ダメージ倍率適用)
         damagePoint = damagePoint * damageMulti;
-        // Ensure that the damage is not negative
+        // Ensure that the damage is not negative(ダメージがマイナスにならないようにする)
         if (damagePoint < 0) damagePoint = 0;
-        // Calculate the damage to yourself from the reaction
+        // Calculate the damage to self from the reaction(反動による自身へのダメージを計算)
         if (isReflection) selfDamagePoint += damagePoint / 2;
 
-        // Various calculated values are applied to each target
+        // Various calculated values are applied to each target(各種計算数値を対象ごとに適用)
         // Damage to max HP
         characterManager.ChangeStatusMaxHP(targetCharaID, -burnPoint);
         // Damage
@@ -425,11 +574,13 @@ public class PlayBoardManager : MonoBehaviour
         // Damage to self
         characterManager.ChangeStatusNowHP(useCharaID, -selfDamagePoint);
         // Heal
-        characterManager.ChangeStatusNowHP(useCharaID, healPoint);
-        // energy absorption
-        if (isAbsorption)
-            characterManager.ChangeStatusNowHP(useCharaID, damagePoint);
-
+        if (!noHealFlag[useCharaID])
+        {
+            characterManager.ChangeStatusNowHP(useCharaID, healPoint);
+            // Energy absorption(体力吸収)
+            if (isAbsorption)
+                characterManager.ChangeStatusNowHP(useCharaID, damagePoint);
+        }
         return true;
     }
     /// <summary>
@@ -460,6 +611,37 @@ public class PlayBoardManager : MonoBehaviour
         Vector2 res = cardZonesTrs[PlayBoardCardNum - 1].position;
         res.x += FrameObjPositionFixX;
         return res;
+    }
+    /// <summary>
+    /// Initialize all effects that last only one turn
+    /// </summary>
+    private void ClearOneTurnSustainedEffects()
+    {
+        // Initialize all effects that last only for one card
+        ClearOneCardSustainedEffects();
+        // Leakage point initialization(漏電ポイント初期化)
+        leakagePoint = 0;
+        // Incremental point initialization(増強ポイント初期化)
+        augmentPoint = 0;
+        // Initialization of defense points(防衛ポイント初期化)
+        defencePoint = new int[Card.CharaNum];
+        // Recovery stop effect flag initialization(回復停止効果フラグ初期化)
+        noHealFlag = new bool[Card.CharaNum];
+        // Initialization of weapon disabling effect flag(武器無効効果フラグ初期化)
+        noWeaponFlag = new bool[Card.CharaNum];
+    }
+    /// <summary>
+    /// Initialize all effects that last only for one card
+    /// </summary>
+    private void ClearOneCardSustainedEffects()
+    {
+        // Aiki-Tamenuri End(気合溜め終了)
+        kiaiCharaID = Card.CharaIDNone;
+        // Initialization of damage reduction(与ダメージ低下量初期化)
+        electrocutionPoint = 0;
+        // Card seal flag initialization(カード封印フラグ初期化)
+        isSeal = false;
+        stunCharaID = Card.CharaIDNone;
     }
 
     #endregion Private Methods

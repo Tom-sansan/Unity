@@ -34,7 +34,7 @@ public class EnemyStatusSO : ScriptableObject
     public int maxHP;
 
     [Header("各ターンに使用するカードと設置先のリスト")]
-    public List<EnemyUseCardData> useCardDatas;
+    public List<EnemyUseCardData> useCardData;
 
     [Header("撃破ボーナス：選択肢の個数")]
     public int bonusOptions;

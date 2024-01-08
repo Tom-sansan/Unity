@@ -1,5 +1,4 @@
 ﻿using DG.Tweening;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
@@ -39,7 +38,12 @@ public class StatusUI : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Text enemyCharaNameText = null;
-
+    /// <summary>
+    /// State Abnormality Icon List
+    /// </summary>
+    [SerializeField]
+    private List<StatusEffectIcon> statusEffectIcons = null;
+    
     #endregion SerializeField
 
     #region Public Variables
@@ -62,17 +66,6 @@ public class StatusUI : MonoBehaviour
 
     #region Methods
 
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
-
     #region Public Methods
 
     /// <summary>
@@ -93,7 +86,22 @@ public class StatusUI : MonoBehaviour
         // Show text
         hpText.text = nowHP + " / " + maxHP;
     }
-
+    /// <summary>
+    /// Displays the value of the condition abnormality
+    /// </summary>
+    /// <param name="effectType"></param>
+    /// <param name="value"></param>
+    public void SetStatusEffectUI(StatusEffectIcon.StatusEffectType effectType, int value)
+    {
+        // Search for target icon processing class
+        var max = (int)StatusEffectIcon.StatusEffectType._MAX;
+        for (int i = 0; i < max; i++)
+        {
+            if (statusEffectIcons[i].statusEffectType == effectType)
+                // Change of display contents
+                statusEffectIcons[i].SetValue(value);
+        }
+    }
     #region Enemy status display-only
 
     /// <summary>

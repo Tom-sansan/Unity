@@ -1,5 +1,6 @@
 using DG.Tweening;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -122,6 +123,10 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// Performancen time at 1.0
     /// </summary>
     private const float AnimTime1 = 1.0f;
+    /// <summary>
+    /// Upper limit of card strength (if this limit is exceeded, the card is destroyed)
+    /// </summary>
+    private const int MaxForcePoint = 9;
     /// <summary>
     /// Field manger
     /// </summary>
@@ -282,6 +287,54 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     }
     /// <summary>
+    /// Add card effects through composition
+    /// </summary>
+    /// <param name="newEffect">Types of effects and numerical data</param>
+    public void CompoCardEffect(CardEffectDefine newEffect)
+    {
+        // Get the possibility of composing the effect
+        var compoMode = CardEffectDefine.DicEffectCompoMode[newEffect.cardEffect];
+        // Get whether this card is on the enemy side
+        bool isEnemyCard = false;
+        if (controllerCharaID == CharaIDEnemy) isEnemyCard = true;
+        // If composition is not possible, exit
+        switch (compoMode)
+        {
+            case CardEffectDefine.EffectCompoMode.Impossible:
+                // Impossible to compose
+                break;
+            case CardEffectDefine.EffectCompoMode.OnlyOwn:
+                // Composition is possible only between player and card
+                if (isEnemyCard) return;
+                break;
+            case CardEffectDefine.EffectCompoMode.OnlyOwnNew:
+                // Can be combined only with player and card (only for new card)
+                if (isEnemyCard) return;
+                break;
+        }
+        // Find out if the same type of effect already exists as the effect being added
+        // Number of current effect types
+        int length = effects.Count;
+        // Number in sequence of the same effect data
+        int index;
+        for (index = 0; index < length; index++)
+            // If present: Save the number and exit the loop
+            if (effects[index].cardEffect == newEffect.cardEffect) break;
+        // Composite and additive processing of effects
+        if (index < length)
+        {
+            // Same type of effect: Composition process
+            // If the effect is limited to newly added effects, do not compose
+            if (compoMode == CardEffectDefine.EffectCompoMode.OnlyNew ||
+                compoMode == CardEffectDefine.EffectCompoMode.OnlyOwnNew)
+                return;
+            // Effect value increase/decrease
+            EnhanceCardEffect(index, newEffect.value);
+        }
+        // No effect of the same type: new addition process
+        else AddCardEffect(newEffect);
+    }
+    /// <summary>
     /// Add card effect
     /// </summary>
     public void AddCardEffect(CardEffectDefine newEffect)
@@ -298,18 +351,49 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         cardUI.AddCardEffectText(effectData);
     }
     /// <summary>
+    /// Increase or decrease the effect value of a card
+    /// </summary>
+    /// <param name="index">Number in sequence of target effect data</param>
+    /// <param name="value">Amount of change</param>
+    public void EnhanceCardEffect(int index, int value)
+    {
+        // Change effect value
+        var effectData = effects[index];
+        effectData.value += value;
+        // Show UI
+        cardUI.ApplyCardEffectText(effects[index]);
+    }
+    /// <summary>
     /// Set card intensity
+    /// Returns true when a card's destruction condition (strength 10 or greater) is met
     /// </summary>
     /// <param name="value"></param>
-    public void SetForcePoint(int value)
+    /// <returns></returns>
+    public bool SetForcePoint(int value)
     {
         // Set parameter
         forcePoint = value;
         // Show UI
         cardUI.SetForcePointText(forcePoint);
+        // Confirmation of destruction conditions
+        return value > MaxForcePoint;
     }
 
     #endregion Parameter addition/update
+
+    /// <summary>
+    /// Find the existence of the relevant effect type in the effect list
+    /// </summary>
+    /// <param name="effectType"></param>
+    /// <returns></returns>
+    public bool CheckContainEffect(CardEffectDefine.CardEffect effectType)
+    {
+        // returns true if applicable effect
+        foreach (var effect in effects)
+            if (effect.cardEffect == effectType) return true;
+        // Returns false if not present
+        return false;
+    }
 
     #endregion Public Methods
 

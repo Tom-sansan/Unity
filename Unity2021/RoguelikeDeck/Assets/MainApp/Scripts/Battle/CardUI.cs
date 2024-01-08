@@ -232,16 +232,11 @@ public class CardUI : MonoBehaviour
         for (int i = 0; i < length; i++)
             Destroy(cardEffectTextParent.GetChild(i).gameObject);
     }
-
-    #endregion Public Methods
-
-    #region Private Methods
-
     /// <summary>
     /// Update displayed content of card effect text
     /// </summary>
     /// <param name="effectData"></param>
-    private void ApplyCardEffectText(CardEffectDefine effectData)
+    public void ApplyCardEffectText(CardEffectDefine effectData)
     {
         // Get target TextUI
         var targetText = cardEffectTextDic[effectData];
@@ -256,6 +251,10 @@ public class CardUI : MonoBehaviour
         else if (Data.nowLanguage == SystemLanguage.English)
             targetText.text = string.Format(CardEffectDefine.DicEffectNameEN[effectData.cardEffect], effectValueMes);
     }
+    #endregion Public Methods
+
+    #region Private Methods
+
     #endregion Private Methods
 
     #endregion Methods

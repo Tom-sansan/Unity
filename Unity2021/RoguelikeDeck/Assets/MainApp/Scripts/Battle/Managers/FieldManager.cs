@@ -236,8 +236,9 @@ public class FieldManager : MonoBehaviour
             (targetCard.nowZone >= CardZone.ZoneType.PlayBoard0 &&
             targetCard.nowZone <= CardZone.ZoneType.PlayBoard4))
         {
-            // If card overlaps with a card on the play board
-            // Synthesis process
+            // If card overlaps with a card on the play board, composit process
+            CompositeCard(targetCard, draggingCard);
+            CheckHandCardsNum();
         }
         else if (targetZone != null)
         {
@@ -261,7 +262,45 @@ public class FieldManager : MonoBehaviour
         // Post-processing
         draggingCard = null;
     }
-
+    /// <summary>
+    /// Combine two cards into one card
+    /// </summary>
+    /// <param name="baseCard">Original card (main card)</param>
+    /// <param name="consumeCard">Cards to be used as materials for composition (consumption cards)</param>
+    private void CompositeCard(Card baseCard, Card consumeCard)
+    {
+        if (baseCard == null || consumeCard == null) return;
+        // Check if there is an effect that makes the card itself unsynthesizable(カード自体の合成を不可にする効果の有無を確認)
+        // ①: If the body card has a material-only effect(本体カードに素材限定効果がある場合)
+        // ②: If the body card has a body-only effect(素材カードに本体限定効果がある場合)
+        // ③: If the body card has an effect that disables composition(本体カードに合成無効効果がある場合)
+        // ④: If the material card has an effect that disables composition(素材カードに合成無効効果がある場合)
+        if (baseCard.CheckContainEffect(CardEffectDefine.CardEffect.PartsOnly) ||
+            consumeCard.CheckContainEffect(CardEffectDefine.CardEffect.BaseOnly) ||
+            baseCard.CheckContainEffect(CardEffectDefine.CardEffect.NoCompo) ||
+            consumeCard.CheckContainEffect(CardEffectDefine.CardEffect.NoCompo))
+        {
+            // when compositing is not possible
+            // Return the dragged card to its original position and exit without compositing
+            draggingCard.BackToBasePos();
+            return;
+        }
+        // Intensity addition and destroy condition check
+        if (baseCard.SetForcePoint(baseCard.forcePoint + consumeCard.forcePoint))
+        {
+            // Destruction condition is met
+            // Card deletion
+            DestroyCardObject(baseCard);
+            DestroyCardObject(consumeCard);
+            return;
+        }
+        // Compose effects
+        foreach (var effect in consumeCard.effects) baseCard.CompoCardEffect(effect);
+        // Add icons
+        foreach (var iconSprite in consumeCard.iconSprites) baseCard.AddCardIcon(iconSprite);
+        // Delete consumeCard
+        DestroyCardObject(consumeCard);
+    }
     #endregion Card drag process
 
     #region Game progression
@@ -292,6 +331,8 @@ public class FieldManager : MonoBehaviour
         reserveHandAlign = true;
         // Enable card execution button
         cardPlayButton.interactable = true;
+        // Place enemy cards
+        PlacingEnemyCards();
     }
     /// <summary>
     /// Process executed at the end of the turn
@@ -509,6 +550,59 @@ public class FieldManager : MonoBehaviour
     }
     #endregion Player-side hand and deck processing
 
+    /// <summary>
+    /// (At the beginning of the turn) Place all cards of the enemy side on the play board
+    /// (ターン開始時)敵側のカードをプレイボードに全て設置する
+    /// </summary>
+    private void PlacingEnemyCards()
+    {
+        var enemyData = battleManager.characterManager.enemyData;
+        // Get the number of the enemy card set to be used this turn(このターンに使用する敵カードセットの番号を取得)
+        int enemyAttackOrderID = battleManager.nowTurns % enemyData.useCardData.Count;
+        // Place enemy cards
+        // List of cards used this turn
+        var useCardDataInThisTurn = enemyData.useCardData[enemyAttackOrderID];
+        for (int i = 0; i < PlayBoardManager.PlayBoardCardNum; i++)
+        {
+            // Get an placed card for each zone
+            CardDataSO cardData = null;
+            switch (i)
+            {
+                case 0:
+                    cardData = useCardDataInThisTurn.placeCardData0;
+                    break;
+                case 1:
+                    cardData = useCardDataInThisTurn.placeCardData1;
+                    break;
+                case 2:
+                    cardData = useCardDataInThisTurn.placeCardData2;
+                    break;
+                case 3:
+                    cardData = useCardDataInThisTurn.placeCardData3;
+                    break;
+                case 4:
+                    cardData = useCardDataInThisTurn.placeCardData4;
+                    break;
+            }
+            // No palced card, then next
+            if (cardData == null) continue;
+            // Get zone ID for placement
+            var areaType = CardZone.ZoneType.PlayBoard0 + i;
+            // Get the Vector2 coordinates of the placement location
+            Vector2 targetPosition = battleManager.playBoardManager.GetPlayZonePos(i);
+            // Create object
+            var obj = Instantiate(cardPrefab, cardsParent);
+            // Get card processing class and store in list
+            Card objCard = obj.GetComponent<Card>();
+            cardInstances.Add(objCard);
+            // Initialize card
+            // Card appearance coordinates are the same as the enemy image
+            objCard.Init(this, battleManager.characterManager.GetEnemyPosition());
+            objCard.PutToZone(areaType, targetPosition);
+            // Specify Enemy ID
+            objCard.SetInitialCardData(cardData, Card.CharaIDEnemy);
+        }
+    }
     #endregion Private Methods
 
     #endregion Methods

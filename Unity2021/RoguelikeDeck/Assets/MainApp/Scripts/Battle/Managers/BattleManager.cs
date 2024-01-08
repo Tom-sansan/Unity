@@ -55,6 +55,18 @@ public class BattleManager : MonoBehaviour
     /// </summary>
     public PlayBoardManager playBoardManager;
     /// <summary>
+    /// Boss appearance processing class
+    /// </summary>
+    public BossIncoming bossIncoming;
+    /// <summary>
+    /// Stage clear class
+    /// </summary>
+    public StageClear stageClear;
+    /// <summary>
+    /// Game over class
+    /// </summary>
+    public GameOver gameOver;
+    /// <summary>
     /// Stage data under attack
     /// </summary>
     public StageSO stageSO;
@@ -96,9 +108,7 @@ public class BattleManager : MonoBehaviour
         // Get progression where stage boss appears
         battleNum = stageSO.appearEnemyTables.Count;
         // Managers initialization
-        fieldManager.Init(this);
-        characterManager.Init(this);
-        playBoardManager.Init(this);
+        Init();
         // Show Stage info
         ApplyStageUIs();
         // Start battle
@@ -165,13 +175,16 @@ public class BattleManager : MonoBehaviour
         if (nowProgress >= stageSO.appearEnemyTables.Count)
         {
             // Victory in battle against all enemies
-            Debug.Log("Stage Clear");
+            // Start stage clear animation
+            stageClear.StartAnimation();
         }
         // Process appearance of enemy characters
         // Determines which enemies will appear
         var appearEnemyTable = stageSO.appearEnemyTables[nowProgress].appearEnemies;
         int rand = Random.Range(0, appearEnemyTable.Count);
         characterManager.SpawnEnemy(appearEnemyTable[rand]);
+        // If there is only one type of enemy that appears, then the direction for the boss
+        if (appearEnemyTable.Count == 1) bossIncoming.StartAnimation();
         // Start battle(delayed execution)
         DOVirtual.DelayedCall(
             1.0f,
@@ -207,10 +220,13 @@ public class BattleManager : MonoBehaviour
         // Confirm the end of battle
         bool isPlayerWin = characterManager.IsEnemyDefeated();
         bool isPlayerLose = characterManager.IsPlayerDefeated();
+        // End-of-battle processing
         if (isPlayerWin || isPlayerLose)
         {
             // Delete cards on the field
             fieldManager.DestroyAllCards();
+            // End of sustained effects of cards activated during combat(戦闘中に発動したカードの持続効果終了)
+            playBoardManager.ClearAllSustainedEffects();
             // Processing by winning character (delayed execution)
             DOVirtual.DelayedCall(
                 0.5f,
@@ -219,7 +235,8 @@ public class BattleManager : MonoBehaviour
                     // Player lose
                     if (isPlayerLose)
                     {
-                        Debug.Log("Game Over");
+                        // Start game over animation
+                        gameOver.StartAnimation();
                     }
                     // Player win
                     else if (isPlayerWin)
@@ -240,6 +257,19 @@ public class BattleManager : MonoBehaviour
     #endregion Public Methods
 
     #region Private Methods
+
+    /// <summary>
+    /// Managers initialization
+    /// </summary>
+    private void Init()
+    {
+        fieldManager.Init(this);
+        characterManager.Init(this);
+        playBoardManager.Init(this);
+        bossIncoming.Init();
+        stageClear.Init();
+        gameOver.Init();
+    }
 
     #region Stage UI
 
