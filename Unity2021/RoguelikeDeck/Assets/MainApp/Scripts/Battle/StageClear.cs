@@ -1,7 +1,6 @@
 using DG.Tweening;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -123,10 +122,9 @@ public class StageClear : MonoBehaviour
     /// <summary>
     /// Go to title screen
     /// </summary>
-    public void GoTitleScene()
-    {
-
-    }
+    public void GoTitleScene() =>
+        // Switch to title scene
+        SceneManager.LoadScene("TitleScene");
 
     #endregion Public Methods
 

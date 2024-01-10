@@ -103,6 +103,8 @@ public class BattleManager : MonoBehaviour
     #region Unity Methods
     void Start()
     {
+        // Get stage info
+        stageSO = Data.instance.stageSOs[Data.instance.nowStageID];
         // progression initialization
         nowProgress = -1;
         // Get progression where stage boss appears

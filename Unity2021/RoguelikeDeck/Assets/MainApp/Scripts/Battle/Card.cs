@@ -22,6 +22,7 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// CanvasGroup of object
     /// </summary>
     [SerializeField] private CanvasGroup canvasGroup = null;
+
     #endregion SerializeField
 
     #region Public Variables
@@ -88,6 +89,10 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// RectTransform
     /// </summary>
     public RectTransform rectTransform;
+    /// <summary>
+    /// Card flags in deck (for deck edit screen)
+    /// </summary>
+    public bool isInDeckCard;
 
     #endregion
 
@@ -139,7 +144,10 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// Basic coordinates (coordinates to return to after the end of the drag)
     /// </summary>
     private Vector2 basePos;
-
+    /// <summary>
+    /// For deck edit screen
+    /// </summary>
+    private DeckEditWindow deckEditWindow;
 
     #endregion Private Variables
 
@@ -178,6 +186,17 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         nowZone = CardZone.ZoneType.Hand;
         iconSprites = new List<Sprite>();
         effects = new List<CardEffectDefine>();
+    }
+    /// <summary>
+    /// Initialization (for calling from deck edit class)
+    /// </summary>
+    /// <param name="deckEditWindow">DeckEditWindow reference</param>
+    /// <param name="isInDeckCard">Card flags in the deck</param>
+    public void Init(DeckEditWindow deckEditWindow, bool isInDeckCard)
+    {
+        this.deckEditWindow = deckEditWindow;
+        this.isInDeckCard = isInDeckCard;
+        Init(null, Vector2.zero);
     }
     /// <summary>
     /// Get and set various parameters from card definition data
@@ -224,8 +243,8 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerDown(PointerEventData eventData)
     {
         // Drag start process
-        fieldManager.StartDragging(this);
-        Debug.Log("Card is tapped.");
+        if (fieldManager != null) fieldManager.StartDragging(this);
+        else if (deckEditWindow != null) deckEditWindow.SelectCard(this);
     }
     /// <summary>
     /// Executed at the end of a tap
@@ -234,8 +253,7 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     public void OnPointerUp(PointerEventData eventData)
     {
         // Drag end process
-        fieldManager.EndDragging();
-        Debug.Log("Tap to card has ended.");
+        if (fieldManager != null) fieldManager.EndDragging();
     }
 
     #endregion Tap event
@@ -381,6 +399,8 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 
     #endregion Parameter addition/update
 
+    #region Get/Set
+
     /// <summary>
     /// Find the existence of the relevant effect type in the effect list
     /// </summary>
@@ -394,6 +414,22 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         // Returns false if not present
         return false;
     }
+    /// <summary>
+    /// Displays the number of cards in the player's storage (for deck editing)
+    /// </summary>
+    public void ShowCardAmountInStorage()
+    {
+        int amount = PlayerDeckData.storageCardList[baseCardData.serialNum];
+        cardUI.SetAmountText(amount);
+    }
+    /// <summary>
+    /// Change the highlighting status of a card
+    /// </summary>
+    /// <param name="mode"></param>
+    public void SetCardHighlight(bool mode) =>
+        cardUI.SetHighlightImage(mode);
+
+    #endregion Get/Set
 
     #endregion Public Methods
 
