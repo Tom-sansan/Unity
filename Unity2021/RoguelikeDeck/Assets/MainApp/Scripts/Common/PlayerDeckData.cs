@@ -91,8 +91,21 @@ public class PlayerDeckData : MonoBehaviour
         for (int i = 0; i < storageCardList.Count; i++)
             // Add 1 to each of the Values corresponding to all the Keys in the Dictionary
             storageCardList[keys[i]] += 1;
-
     }
+    /// <summary>
+    /// Remove a card from the deck
+    /// </summary>
+    /// <param name="cardSerialNum">Serial number of card</param>
+    public static void RemoveCardFromDeck(int cardSerialNum) =>
+        deckCardList.Remove(cardSerialNum);
+    /// <summary>
+    /// Change the quantity of cards in storage
+    /// </summary>
+    /// <param name="cardSerialNum">Serial number of the card</param>
+    /// <param name="amount">Change amount (+ to add)</param>
+    public static void ChangeStorageCardNum(int cardSerialNum, int amount) =>
+        storageCardList[cardSerialNum] += amount;
+
     #endregion Public Methods
 
     #region Private Methods
@@ -106,19 +119,6 @@ public class PlayerDeckData : MonoBehaviour
         deckCardList.Add(cardSerialNum);
         deckCardList.Sort();
     }
-    /// <summary>
-    /// Remove a card from the deck
-    /// </summary>
-    /// <param name="cardSerialNum">Serial number of card</param>
-    private static void RemoveCardFromDeck(int cardSerialNum) =>
-        deckCardList.Remove(cardSerialNum);
-    /// <summary>
-    /// Change the quantity of cards in storage
-    /// </summary>
-    /// <param name="cardSerialNum">Serial number of the card</param>
-    /// <param name="amount">Change amount (+ to add)</param>
-    private static void ChangeStorageCardNum(int cardSerialNum, int amount) =>
-        storageCardList[cardSerialNum] += amount;
 
     #endregion Private Methods
 

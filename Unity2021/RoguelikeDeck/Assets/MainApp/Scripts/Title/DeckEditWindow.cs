@@ -161,6 +161,134 @@ public class DeckEditWindow : MonoBehaviour
         DeselectCard();
         gameObject.SetActive(false);
     }
+    /// <summary>
+    /// Change the order of deck card objects
+    /// </summary>
+    public void AlignDeckList()
+    {
+        // Align the list of deck card objects
+        deckCardObjects.Sort((a, b) =>
+            dicDeckCardObjectByCard[a].baseCardData.serialNum - dicDeckCardObjectByCard[b].baseCardData.serialNum);
+        // Transform sibling relationships are also aligned based on the sorted list
+        int length = deckCardObjects.Count;
+        for (int i = 0; i < length; i++) deckCardObjects[i].transform.SetAsLastSibling();
+    }
+    /// <summary>
+    /// Change the order of card objects in storage
+    /// </summary>
+    public void AlignStorageList()
+    {
+        // Align list of objects
+        storageCardObjects.Sort((a, b) =>
+            dicStorageCardObjectByCard[a].baseCardData.serialNum - dicStorageCardObjectByCard[b].baseCardData.serialNum);
+        // Transform sibling relationships are also aligned based on the sorted list
+        int length = storageCardObjects.Count;
+        for (int i = 0; i < length; i++) storageCardObjects[i].transform.SetAsLastSibling();
+    }
+    /// <summary>
+    /// Tap destination card selection process
+    /// </summary>
+    /// <param name="targetCard"></param>
+    public void SelectCard(Card targetCard)
+    {
+        // End of highlighting of the previously selected card
+        if (selectCard != null) selectCard.SetCardHighlight(false);
+        // Get selection info
+        selectCard = targetCard;
+        // Selection Card Highlighting
+        targetCard.SetCardHighlight(true);
+        // Change the status of various button presses
+        if (selectCard.isInDeckCard)
+        {
+            // When selecting a card in the deck being edited
+            backToStorageButton.interactable = true;
+            IntoDeckButton.interactable = false;
+        }
+        else
+        {
+            // When a card in the in-storage list is selected
+            backToStorageButton.interactable = false;
+            IntoDeckButton.interactable = true;
+        }
+    }
+    /// <summary>
+    /// Deselect card
+    /// </summary>
+    public void DeselectCard()
+    {
+        // End of selection card highlighting
+        if (selectCard != null) selectCard.SetCardHighlight(false);
+        // Clear selection info
+        selectCard = null;
+        // Change the status of various button presses
+        backToStorageButton.interactable = false;
+        IntoDeckButton.interactable = false;
+    }
+
+    #region processing when a button is pressed
+
+    /// <summary>
+    /// Remove button from deck
+    /// </summary>
+    public void ButtonBackToStorage()
+    {
+        // When the number of decks reaches the lower limit, end without adding
+        if (PlayerDeckData.deckCardList.Count <= MinDeckNum) return;
+        // Memory/unselection of selected cards
+        if (selectCard == null) return;
+        Card targetCard = selectCard;
+        DeselectCard();
+        // Memorize the card to the right of one
+        Card nextSelectCard = null;
+        int selectCardIndexInList = deckCardObjects.IndexOf(targetCard.gameObject);
+        if (selectCardIndexInList + 1 < deckCardObjects.Count)
+            nextSelectCard = dicDeckCardObjectByCard[deckCardObjects[selectCardIndexInList + 1]];
+        // Remove cards from the deck
+        PlayerDeckData.RemoveCardFromDeck(targetCard.baseCardData.serialNum);
+        // Add a card to the in storage list
+        PlayerDeckData.ChangeStorageCardNum(targetCard.baseCardData.serialNum, 1);
+        // Additional card objects in storage area
+        Card cardInstanceInStorageArea = null;
+        for (int i = 0; i < storageCardObjects.Count; i++)
+        {
+            var targetStorageCard = dicStorageCardObjectByCard[storageCardObjects[i]];
+            if (targetCard.baseCardData.serialNum == targetStorageCard.baseCardData.serialNum)
+            {
+                cardInstanceInStorageArea = targetStorageCard;
+                break;
+            }
+        }
+        if (cardInstanceInStorageArea != null)
+            // The corresponding card object exists
+            // Update card display
+            cardInstanceInStorageArea.ShowCardAmountInStorage();
+        else
+        {
+            // The corresponding card object does not exist
+            // Card object created
+            CreateStorageCardObject(targetCard.baseCardData);
+            // Aligning the list of cards in custody
+            AlignStorageList();
+        }
+        // Delete objects in the deck area being edited
+        deckCardObjects.Remove(targetCard.gameObject);
+        dicDeckCardObjectByCard.Remove(targetCard.gameObject);
+        Destroy(targetCard.gameObject);
+        // Number of decks updated
+        RefreshDeckNumToUI();
+        // Card deselection
+        DeselectCard();
+        // If the next card is available, it is automatically selected
+        if (nextSelectCard != null) SelectCard(nextSelectCard);
+    }
+    /// <summary>
+    /// Put button on deck
+    /// </summary>
+    public void ButtonIntoDeck()
+    {
+
+    }
+    #endregion processing when a button is pressed
 
     #endregion Public Methods
 
@@ -187,9 +315,50 @@ public class DeckEditWindow : MonoBehaviour
     /// Create a card object in the deck
     /// </summary>
     /// <param name="cardData"></param>
-    private void CreateDeckCardObj(CardDataSO cardData)
+    private void CreateDeckCardObject(CardDataSO cardData)
     {
-
+        // Create object
+        var obj = Instantiate(cardPrefab, deckAreaTransform);
+        // Get card processing class and store in list
+        Card objCard = obj.GetComponent<Card>();
+        deckCardObjects.Add(obj);
+        dicDeckCardObjectByCard.Add(obj, objCard);
+        // Initialize Card
+        objCard.Init(this, true);
+        objCard.SetInitialCardData(cardData, Card.CharaIDPlayer);
+        // Alignment of card objects in the deck
+        int alignToIndex = 99;
+        var cardObjectListLength = deckAreaTransform.childCount;
+        for (int i = 0; i < cardObjectListLength; i++)
+        {
+            var cardObject = deckAreaTransform.GetChild(i);
+            if (objCard.baseCardData.serialNum <= cardObject.GetComponent<Card>().baseCardData.serialNum)
+            {
+                alignToIndex = i;
+                break;
+            }
+        }
+        obj.transform.SetSiblingIndex(alignToIndex);
+    }
+    /// <summary>
+    /// Update the display of the number of decks
+    /// </summary>
+    private void RefreshDeckNumToUI()
+    {
+        int nowDeckNum = PlayerDeckData.deckCardList.Count;
+        // Update the display of the number of decks
+        deckLogoText.text = string.Empty;
+        deckLogoText.text += $"<size=20>({nowDeckNum})</size>";
+        // Highlight when the number of decks is less than or equal to the minimum number of decks
+        if (nowDeckNum < MinDeckNum)
+        {
+            deckLogoText.text = deckLogoText.text.Insert(0, "<color=red>");
+            deckLogoText.text += "</color>";
+        }
+        if (Data.nowLanguage == SystemLanguage.Japanese)
+            deckLogoText.text = deckLogoText.text.Insert(0, "デッキ");
+        else if (Data.nowLanguage == SystemLanguage.English)
+            deckLogoText.text = deckLogoText.text.Insert(0, "Deck");
     }
     #endregion Private Methods
 
