@@ -286,8 +286,35 @@ public class DeckEditWindow : MonoBehaviour
     /// </summary>
     public void ButtonIntoDeck()
     {
-
+        // When the number of decks has reached the limit, end without adding more decks
+        if (PlayerDeckData.deckCardList.Count >= MaxDeckNum) return;
+        // Memory/unselection of selected cards
+        if (selectCard == null) return;
+        Card targetCard = selectCard;
+        // Add Cards to Deck
+        PlayerDeckData.AddCardToDeck(targetCard.baseCardData.serialNum);
+        // Remove a card from the in storage list
+        PlayerDeckData.ChangeStorageCardNum(targetCard.baseCardData.serialNum, -1);
+        // Delete card objects in the storage area
+        if (PlayerDeckData.storageCardList[targetCard.baseCardData.serialNum] > 0)
+            targetCard.ShowCardAmountInStorage();
+        else
+        {
+            // Card deselection
+            DeselectCard();
+            // Delete object
+            storageCardObjects.Remove(targetCard.gameObject);
+            dicStorageCardObjectByCard.Remove(targetCard.gameObject);
+            Destroy(targetCard.gameObject);
+        }
+        // Number of decks updated
+        RefreshDeckNumToUI();
+        // Add objects in the deck area being edited
+        CreateDeckCardObject(targetCard.baseCardData);
+        // Deck card list alignment
+        AlignDeckList();
     }
+
     #endregion processing when a button is pressed
 
     #endregion Public Methods

@@ -75,6 +75,10 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// Character ID: None
     /// </summary>
     public const int CharaIDNone = -1;
+    /// <summary>
+    /// Character ID: For Bonus
+    /// </summary>
+    public const int CharaIDBonus = 2;
 
     #endregion Character ID
 
@@ -137,6 +141,14 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// </summary>
     private FieldManager fieldManager;
     /// <summary>
+    /// For deck edit screen
+    /// </summary>
+    private DeckEditWindow deckEditWindow;
+    /// <summary>
+    /// For battle reward screen
+    /// </summary>
+    private Reward rewardPanel;
+    /// <summary>
     /// Move Tween
     /// </summary>
     private Tween moveTween;
@@ -144,10 +156,6 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// Basic coordinates (coordinates to return to after the end of the drag)
     /// </summary>
     private Vector2 basePos;
-    /// <summary>
-    /// For deck edit screen
-    /// </summary>
-    private DeckEditWindow deckEditWindow;
 
     #endregion Private Variables
 
@@ -199,6 +207,15 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         Init(null, Vector2.zero);
     }
     /// <summary>
+    /// Initialization (for calling from the battle reward screen)
+    /// </summary>
+    /// <param name="rewardPanel"></param>
+    public void Init(Reward rewardPanel)
+    {
+        this.rewardPanel = rewardPanel;
+        Init(null, Vector2.zero);
+    }
+    /// <summary>
     /// Get and set various parameters from card definition data
     /// </summary>
     /// <param name="cardData"></param>
@@ -245,6 +262,7 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         // Drag start process
         if (fieldManager != null) fieldManager.StartDragging(this);
         else if (deckEditWindow != null) deckEditWindow.SelectCard(this);
+        else if (rewardPanel != null) rewardPanel.SelectCard(this);
     }
     /// <summary>
     /// Executed at the end of a tap
@@ -382,6 +400,27 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
         cardUI.ApplyCardEffectText(effects[index]);
     }
     /// <summary>
+    /// Increases or decreases the effect value of a card (specifies the type of effect directly)
+	/// If the specified effect does not exist, exit without doing anything
+    /// </summary>
+    /// <param name="effectType">Target effect data</param>
+    /// <param name="value">Variation</param>
+    public void EnhanceCardEffect(CardEffectDefine.CardEffect effectType, int value)
+    {
+        for (int i = 0; i < effects.Count; i++)
+        {
+            if (effects[i].cardEffect == effectType)
+            {
+                // Target effect exists
+                // Effect value is changed
+                effects[i].value += value;
+                // Display UI
+                cardUI.ApplyCardEffectText(effects[i]);
+                return;
+            }
+        }
+    }
+    /// <summary>
     /// Set card intensity
     /// Returns true when a card's destruction condition (strength 10 or greater) is met
     /// </summary>
@@ -413,6 +452,20 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
             if (effect.cardEffect == effectType) return true;
         // Returns false if not present
         return false;
+    }
+    /// <summary>
+    /// Return effect amount if effect type exists in effect list
+	/// (-1 if effect does not exist)
+    /// </summary>
+    /// <param name="effectType"></param>
+    /// <returns></returns>
+    public int GetEffectValue(CardEffectDefine.CardEffect effectType)
+    {
+        // Return effect size if applicable
+        foreach (var effect in effects)
+            if (effect.cardEffect == effectType) return effect.value;
+        // If not, return -1
+        return -1;
     }
     /// <summary>
     /// Displays the number of cards in the player's storage (for deck editing)

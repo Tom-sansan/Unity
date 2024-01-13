@@ -1,3 +1,4 @@
+using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,6 +44,14 @@ public class Data : MonoBehaviour
     /// </summary>
     [HideInInspector]
     public int nowStageID;
+    /// <summary>
+    /// Player's gold coin
+    /// </summary>
+    public int playerGold;
+    /// <summary>
+    /// Earned Experience
+    /// </summary>
+    public int playerEXP;
 
     #endregion Public Variables
 
@@ -79,6 +88,23 @@ public class Data : MonoBehaviour
     #endregion Unity Methods
 
     #region Public Methods
+
+    #region Various player data change processes
+
+    /// <summary>
+    /// Change the amount of gold coins player has
+    /// </summary>
+    /// <param name="value">Amount of change (+ for increase)</param>
+    public void ChangePlayerGold(int value) =>
+        playerGold += value;
+    /// <summary>
+    /// Change the amount of player experience
+    /// </summary>
+    /// <param name="value">Amount of change (+ for increase)</param>
+    public void ChangePlayerEXP(int value) =>
+        playerEXP += value;
+
+    #endregion Various player data change processes
 
     #endregion Public Methods
 

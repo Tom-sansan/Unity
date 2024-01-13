@@ -23,6 +23,11 @@ public class TitleManager : MonoBehaviour
     [SerializeField]
     private StageSelectWindow stageSelectWindow = null;
     /// <summary>
+    /// Deck Edit Window Class
+    /// </summary>
+    [SerializeField]
+    private DeckEditWindow deckEditWindow = null;
+    /// <summary>
     /// Title Logo RectTransform
     /// </summary>
     [SerializeField]
@@ -100,6 +105,7 @@ public class TitleManager : MonoBehaviour
     {
         // Initialization of managed components
         stageSelectWindow.Init(this);
+        deckEditWindow.Init(this);
         // Play animation at game startup
         InitAnimation();
         // Disable window background object

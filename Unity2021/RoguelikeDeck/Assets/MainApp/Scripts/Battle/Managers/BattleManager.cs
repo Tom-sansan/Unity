@@ -37,6 +37,16 @@ public class BattleManager : MonoBehaviour
     /// Stage progress gauge image
     /// </summary>
     [SerializeField] private Image progressGageImage = null;
+    /// <summary>
+    /// Amount of experienceText
+    /// </summary>
+    [SerializeField]
+    private Text playerEXPText = null;
+    /// <summary>
+    /// Gold in possessionText
+    /// </summary>
+    [SerializeField]
+    private Text playerGoldText = null;
 
     #endregion SerializeField
 
@@ -54,6 +64,10 @@ public class BattleManager : MonoBehaviour
     /// Card effect activation management class
     /// </summary>
     public PlayBoardManager playBoardManager;
+    /// <summary>
+    /// Battle Reward Screen Class
+    /// </summary>
+    public Reward rewardPanel;
     /// <summary>
     /// Boss appearance processing class
     /// </summary>
@@ -86,13 +100,38 @@ public class BattleManager : MonoBehaviour
     #region Private Variables
 
     /// <summary>
+    /// Amount of stage progress added when calculating bonus amount
+    /// (ボーナス量計算時のステージ進行度加算量)
+    /// </summary>
+    private const int BonusValueBase = 4;
+    /// <summary>
+    /// // Bonus amount random range: min
+    /// </summary>
+    private const float BonusRandomMultiMin = 0.7f;
+    /// <summary>
+    /// Random range of bonus amount: max.
+    /// </summary>
+    private const float BonusRandomMultiMax = 1.3f;
+    /// <summary>
     /// Gauge display performance time
     /// </summary>
     private const float GageAnimationTime = 2.0f;
     /// <summary>
+    /// Production time
+    /// </summary>
+    private const float AnimationTime = 1.0f;
+    /// <summary>
     /// Progression at which stage boss appears
     /// </summary>
     private int battleNum;
+    /// <summary>
+    /// Variable for displaying experience amountText
+    /// </summary>
+    private int playerEXPDisp;
+    /// <summary>
+    /// Variable for displaying Text of gold coins in possession
+    /// </summary>
+    private int playerGoldDisp;
 
     #endregion Private Variables
 
@@ -113,6 +152,9 @@ public class BattleManager : MonoBehaviour
         Init();
         // Show Stage info
         ApplyStageUIs();
+        // Initialize experience and gold coin UI
+        ApplyEXPText();
+        ApplyGoldText();
         // Start battle
         DOVirtual.DelayedCall(
             1.0f,
@@ -244,7 +286,9 @@ public class BattleManager : MonoBehaviour
                     else if (isPlayerWin)
                     {
                         // Increase in progression
-                        ProgressingStage();
+                        // ProgressingStage();
+                        // Display the battle reward screen
+                        rewardPanel.OpenWindow(characterManager.enemyData);
                     }
                 }
             );
@@ -255,6 +299,63 @@ public class BattleManager : MonoBehaviour
     }
 
     #endregion Stage progression
+
+    #region Stage Battle Rewards
+
+    /// <summary>
+    /// Return amount of gold obtained from enemy destruction bonus
+    /// </summary>
+    /// <returns></returns>
+    public int GetBonusGoldValue() =>
+        GetBonusValue(stageSO.bonusGold * (BonusValueBase + nowProgress));
+
+    /// <summary>
+    /// Return amount of experience gained from enemy destruction bonus
+    /// </summary>
+    /// <returns></returns>
+    public int GetBonusEXPValue() =>
+        // Base acquisition
+        GetBonusValue(stageSO.bonusEXP * (BonusValueBase + nowProgress));
+    /// <summary>
+    /// Return amount of HP recovery for enemy destruction bonus
+    /// </summary>
+    /// <returns></returns>
+    public int GetBonusHealValue() =>
+        GetBonusValue(stageSO.bonusHeal);
+    /// <summary>
+    /// Update display of experience amount Text
+    /// </summary>
+    public void ApplyEXPText()
+    {
+        // Gradually changing number production
+        DOTween.To(() =>
+            playerEXPDisp,
+            (n) => playerEXPDisp = n,
+            Data.instance.playerEXP,
+            AnimationTime
+        ).OnUpdate(() =>
+        {
+            playerEXPText.text = playerEXPDisp.ToString("#,0") + " EXP";
+        });
+    }
+    /// <summary>
+    /// Update display of gold in possessionText
+    /// </summary>
+    public void ApplyGoldText()
+    {
+        // Gradually changing number production
+        DOTween.To(() =>
+            playerGoldDisp,
+            (n) => playerGoldDisp = n,
+            Data.instance.playerGold,
+            AnimationTime
+        ).OnUpdate(() =>
+        {
+            playerGoldText.text = playerGoldDisp.ToString("#,0") + " G";
+        });
+    }
+
+    #endregion  Stage Battle Rewards
 
     #endregion Public Methods
 
@@ -271,6 +372,7 @@ public class BattleManager : MonoBehaviour
         bossIncoming.Init();
         stageClear.Init();
         gameOver.Init();
+        rewardPanel.Init(this);
     }
 
     #region Stage UI
@@ -293,14 +395,22 @@ public class BattleManager : MonoBehaviour
 
     #endregion Stage UI
 
-    #endregion Private Methods
-
     /// <summary>
     /// Display stage progress gauge
     /// </summary>
     /// <param name="ratio">Progression rate (0.0f-1.0f)</param>
     private void ShowProgressGage(float ratio) =>
         progressGageImage.DOFillAmount(ratio, GageAnimationTime);
+    /// <summary>
+    /// Get bonus value
+    /// </summary>
+    /// <param name="value"></param>
+    /// <returns></returns>
+    private int GetBonusValue(int value) =>
+        // Random width application
+        (int)(value * Random.Range(BonusRandomMultiMin, BonusRandomMultiMax));
+
+    #endregion Private Methods
 
     #endregion Methods
 }

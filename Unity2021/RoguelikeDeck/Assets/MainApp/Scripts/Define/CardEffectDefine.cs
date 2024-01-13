@@ -59,9 +59,9 @@ public class CardEffectDefine
         Reaction, // Reaction (反動)
         NoWeapon, // weapon disabled (武器無効)
 
-        Bonus_Gold, // (bonus) money ((ボーナス用)お金)
-        Bonus_EXP, // (bonus) experience ((ボーナス用)経験値)
-        Bonus_Heal, // (Bonus) strength recovery ((ボーナス用)体力回復)
+        BonusGold, // (bonus) money ((ボーナス用)お金)
+        BonusEXP, // (bonus) experience ((ボーナス用)経験値)
+        BonusHeal, // (Bonus) strength recovery ((ボーナス用)体力回復)
 
         _MAX,
     }
@@ -143,9 +143,9 @@ public class CardEffectDefine
         {CardEffect.Stun, "スタン" },
         {CardEffect.Reaction, "反動" },
         {CardEffect.NoWeapon, "武器無効" },
-        {CardEffect.Bonus_Gold, "金貨 {0}" },
-        {CardEffect.Bonus_EXP, "経験値 {0}" },
-        {CardEffect.Bonus_Heal, "回復 {0}" },
+        {CardEffect.BonusGold, "金貨 {0}" },
+        {CardEffect.BonusEXP, "経験値 {0}" },
+        {CardEffect.BonusHeal, "回復 {0}" },
     };
     /// <summary>
     /// Effect name (EN)
@@ -190,9 +190,9 @@ public class CardEffectDefine
         {CardEffect.Stun, "Stun" },
         {CardEffect.Reaction, "Reaction" },
         {CardEffect.NoWeapon, "No Weapon" },
-        {CardEffect.Bonus_Gold, "Gold {0}" },
-        {CardEffect.Bonus_EXP, "EXP {0}" },
-        {CardEffect.Bonus_Heal, "Heal {0}" },
+        {CardEffect.BonusGold, "Gold {0}" },
+        {CardEffect.BonusEXP, "EXP {0}" },
+        {CardEffect.BonusHeal, "Heal {0}" },
     };
     /// <summary>
     /// Effect Description (JP)
@@ -237,9 +237,9 @@ public class CardEffectDefine
         {CardEffect.Stun, "右隣の自分のカードは発動できない" },
         {CardEffect.Reaction, "相手に与えたダメージの半分だけ自分の残り体力を減らす\n（端数切り捨て）" },
         {CardEffect.NoWeapon, "ターン終了まで相手から武器ダメージを受けない" },
-        {CardEffect.Bonus_Gold, "(ボーナス専用)\nお金を{0}得る" },
-        {CardEffect.Bonus_EXP, "(ボーナス専用)\n経験値を{0}得る" },
-        {CardEffect.Bonus_Heal, "(ボーナス専用)\n体力を{0}回復する" },
+        {CardEffect.BonusGold, "(ボーナス専用)\nお金を{0}得る" },
+        {CardEffect.BonusEXP, "(ボーナス専用)\n経験値を{0}得る" },
+        {CardEffect.BonusHeal, "(ボーナス専用)\n体力を{0}回復する" },
     };
     /// <summary>
     /// Effect Description (EN)
@@ -284,9 +284,9 @@ public class CardEffectDefine
         {CardEffect.Stun, "Your right neighbor's card cannot be activated" },
         {CardEffect.Reaction, "Reduce your HP by half of the damage inflicted\non the opponent (rounding down fractions)" },
         {CardEffect.NoWeapon, "No weapon damage from opponent until end of turn." },
-        {CardEffect.Bonus_Gold, "(Bonus only)\nGain {0} Gold" },
-        {CardEffect.Bonus_EXP, "(Bonus only)\nGain {0} EXP" },
-        {CardEffect.Bonus_Heal, "(Bonus only)\nRestore HP {0} times" },
+        {CardEffect.BonusGold, "(Bonus only)\nGain {0} Gold" },
+        {CardEffect.BonusEXP, "(Bonus only)\nGain {0} EXP" },
+        {CardEffect.BonusHeal, "(Bonus only)\nRestore HP {0} times" },
     };
     /// <summary>
     /// Composite mode
@@ -331,9 +331,9 @@ public class CardEffectDefine
         {CardEffect.Stun, EffectCompoMode.Possible },
         {CardEffect.Reaction, EffectCompoMode.Possible },
         {CardEffect.NoWeapon, EffectCompoMode.Impossible },
-        {CardEffect.Bonus_Gold, EffectCompoMode.Impossible },
-        {CardEffect.Bonus_EXP, EffectCompoMode.Impossible },
-        {CardEffect.Bonus_Heal, EffectCompoMode.Impossible },
+        {CardEffect.BonusGold, EffectCompoMode.Impossible },
+        {CardEffect.BonusEXP, EffectCompoMode.Impossible },
+        {CardEffect.BonusHeal, EffectCompoMode.Impossible },
     };
 
     #endregion Effect type definition

@@ -105,20 +105,19 @@ public class PlayerDeckData : MonoBehaviour
     /// <param name="amount">Change amount (+ to add)</param>
     public static void ChangeStorageCardNum(int cardSerialNum, int amount) =>
         storageCardList[cardSerialNum] += amount;
-
-    #endregion Public Methods
-
-    #region Private Methods
-
     /// <summary>
     /// Add a card to the deck
     /// </summary>
     /// <param name="cardSerialNum">Serial number of card</param>
-    private static void AddCardToDeck(int cardSerialNum)
+    public static void AddCardToDeck(int cardSerialNum)
     {
         deckCardList.Add(cardSerialNum);
         deckCardList.Sort();
     }
+
+    #endregion Public Methods
+
+    #region Private Methods
 
     #endregion Private Methods
 

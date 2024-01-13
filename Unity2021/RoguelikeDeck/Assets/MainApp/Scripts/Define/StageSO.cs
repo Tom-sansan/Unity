@@ -28,6 +28,14 @@ public class StageSO : ScriptableObject
     [Space(10)]
     [Header("各進行度別の敵の出現テーブル")]
     public List<AppearEnemyTable> appearEnemyTables;
+
+    [Space(10)]
+    [Header("戦闘報酬：経験値獲得量係数")]
+    public int bonusEXP;
+    [Header("戦闘報酬：金貨獲得量係数")]
+    public int bonusGold;
+    [Header("戦闘報酬：体力回復量(固定)")]
+    public int bonusHeal;
 }
 
 /// <summary>

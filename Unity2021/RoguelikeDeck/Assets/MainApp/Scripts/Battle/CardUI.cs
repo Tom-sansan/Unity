@@ -90,6 +90,11 @@ public class CardUI : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Sprite cardBackSpriteEnemy = null;
+    /// <summary>
+    /// Bonus Card Background Sprite
+    /// </summary>
+    [SerializeField]
+    private Sprite cardBackSpriteBonus = null;
 
     #endregion Various sprite materials
 
@@ -150,6 +155,8 @@ public class CardUI : MonoBehaviour
             cardBackImage.sprite = cardBackSpritePlayer;
         else if (cardControllerCharaID == Card.CharaIDEnemy)
             cardBackImage.sprite = cardBackSpriteEnemy;
+        else if (cardControllerCharaID == Card.CharaIDBonus)
+            cardBackImage.sprite = cardBackSpriteBonus;
     }
     /// <summary>
     /// Show card name
