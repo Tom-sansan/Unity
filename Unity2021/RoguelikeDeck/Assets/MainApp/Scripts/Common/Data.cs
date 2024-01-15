@@ -52,6 +52,14 @@ public class Data : MonoBehaviour
     /// Earned Experience
     /// </summary>
     public int playerEXP;
+    /// <summary>
+    /// Player's maximum HP
+    /// </summary>
+    public int playerMaxHP = 20;
+    /// <summary>
+    /// Number of cards in the player's hand for each turn (not including the increase due to occupation)
+    /// </summary>
+    public int playerHandNum = 5;
 
     #endregion Public Variables
 
@@ -103,6 +111,18 @@ public class Data : MonoBehaviour
     /// <param name="value">Amount of change (+ for increase)</param>
     public void ChangePlayerEXP(int value) =>
         playerEXP += value;
+    /// <summary>
+    /// Change the maximum HP of player
+    /// </summary>
+    /// <param name="value">Amount of change (+ for increase)</param>
+    public void ChangePlayerMaxHP(int value) =>
+        playerMaxHP += value;
+    /// <summary>
+    /// Change number of cards in player's hand each turn
+    /// </summary>
+    /// <param name="value">Amount of change (+ for increase)</param>
+    public void ChangePlayerHandNum(int value) =>
+        playerHandNum += value;
 
     #endregion Various player data change processes
 
