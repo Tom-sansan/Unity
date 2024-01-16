@@ -326,8 +326,11 @@ public class FieldManager : MonoBehaviour
     /// </summary>
     public void OnTurnStarting()
     {
+        // Determine the number of cards to draw
+        // Number of cards in hand
+        int nextHandCardsNum = Data.instance.playerHandNum;
         // Draw process
-        DrawCardsUntilNum(NextHandCardsNum);
+        DrawCardsUntilNum(nextHandCardsNum);
         reserveHandAlign = true;
         // Enable card execution button
         cardPlayButton.interactable = true;

@@ -119,7 +119,8 @@ public class CharacterManager : MonoBehaviour
     public void ResetHPPlayer()
     {
         // HP initialization
-        maxHP[Card.CharaIDPlayer] = 30;
+        // Player's maximum HP
+        maxHP[Card.CharaIDPlayer] = Data.instance.playerMaxHP; // 30;
         nowHP[Card.CharaIDPlayer] = maxHP[Card.CharaIDPlayer];
         playerStatusUI.SetHPView(nowHP[Card.CharaIDPlayer], maxHP[Card.CharaIDPlayer]);
         // Initialization of various state abnormalities
@@ -183,7 +184,7 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     public void RecoverMaxHPPlayer()
     {
-        maxHP[Card.CharaIDPlayer] = 30;
+        maxHP[Card.CharaIDPlayer] = Data.instance.playerMaxHP; // 30;
         if (nowHP[Card.CharaIDPlayer] > maxHP[Card.CharaIDPlayer])
             nowHP[Card.CharaIDPlayer] = maxHP[Card.CharaIDPlayer];
         playerStatusUI.SetHPView(nowHP[Card.CharaIDPlayer], maxHP[Card.CharaIDPlayer]);

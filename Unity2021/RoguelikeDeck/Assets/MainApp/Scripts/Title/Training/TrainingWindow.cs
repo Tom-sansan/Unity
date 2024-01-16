@@ -112,6 +112,9 @@ public class TrainingWindow : MonoBehaviour
     /// <param name="titleManager"></param>
     public void Init(TitleManager titleManager)
     {
+        // TODO: For Debug
+        Data.instance.ChangePlayerEXP(100000);
+
         this.titleManager = titleManager;
         windowRectTransform = GetComponent<RectTransform>();
         trainingItemInstances = new List<TrainingItem>();
@@ -124,7 +127,7 @@ public class TrainingWindow : MonoBehaviour
             trainingItemInstances.Add(trainingItem);
             // Set item
             trainingItem.Init(this, TrainingItem.TrainingMode.MaxHPUP);
-            trainingItem.SetIcon(itemIcon_MaxHP_UP);
+            trainingItem.SetIcon(itemIconMaxHPUP);
         }
         // Increase in the number of cards in hand
         if (GetHandNumTrainCount() < TrainingItem.TrainPriceHandNumUP.Length)
@@ -137,6 +140,20 @@ public class TrainingWindow : MonoBehaviour
             // Set item
             trainingItem.Init(this, TrainingItem.TrainingMode.HandNumUP);
             trainingItem.SetIcon(itemIconHandNumUP);
+        }
+        // Job release
+        int length = (int)JobDataDefine.JobType._Max;
+        for (int i = 0; i < length; i++)
+        {
+            // Create for the number of unopened jobs
+            if (Data.instance.jobUnlocks[i]) continue;
+            // Creaate item
+            var obj = Instantiate(trainingItemPrefab, trainingItemsParent);
+            var trainingItem = obj.GetComponent<TrainingItem>();
+            trainingItemInstances.Add(trainingItem);
+            // Set item
+            trainingItem.Init(this, TrainingItem.TrainingMode.UnlockJob, JobDataDefine.GetJobTypeByInt(i));
+            trainingItem.SetIcon(Data.instance.jobIcons[(int)JobDataDefine.GetJobTypeByInt(i)]);
         }
         // Display of the amount of EXP in possession
         statusValueText.text = Data.instance.playerEXP.ToString("#,0");
@@ -189,7 +206,7 @@ public class TrainingWindow : MonoBehaviour
                 Data.instance.ChangePlayerMaxHP(1);
                 targetItem.RefreshUI();
                 break;
-            case TrainingItem.TrainingMode.HandNumHP:
+            case TrainingItem.TrainingMode.HandNumUP:
                 // Increase in the number of cards in hand
                 Data.instance.ChangePlayerHandNum(1);
                 if (GetHandNumTrainCount() < TrainingItem.TrainPriceHandNumUP.Length)
@@ -203,6 +220,14 @@ public class TrainingWindow : MonoBehaviour
                     // Delete from list
                     trainingItemInstances.Remove(targetItem);
                 }
+                break;
+            case TrainingItem.TrainingMode.UnlockJob:
+                // Job release
+                Data.instance.UnlockJob((int)targetItem.jobType);
+                // Delete object
+                Destroy(targetItem.gameObject);
+                // Delete from list
+                trainingItemInstances.Remove(targetItem);
                 break;
         }
     }

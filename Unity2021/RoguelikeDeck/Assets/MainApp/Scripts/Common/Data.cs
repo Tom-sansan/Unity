@@ -40,6 +40,18 @@ public class Data : MonoBehaviour
     /// </summary>
     public List<StageSO> stageSOs;
     /// <summary>
+    /// List of icons for each occupation (stored in a list in the order of job definition Enum)
+    /// </summary>
+    public List<Sprite> jobIcons;
+    /// <summary>
+    /// Selected job
+    /// </summary>
+    public JobDataDefine.JobType playerJob;
+    /// <summary>
+    /// Job release status list
+    /// </summary>
+    public List<bool> jobUnlocks;
+    /// <summary>
     /// Stage ID in progress
     /// </summary>
     [HideInInspector]
@@ -123,6 +135,18 @@ public class Data : MonoBehaviour
     /// <param name="value">Amount of change (+ for increase)</param>
     public void ChangePlayerHandNum(int value) =>
         playerHandNum += value;
+    /// <summary>
+    /// Change player's job
+    /// </summary>
+    /// <param name="jobID">Number in the Enum of job to be changed</param>
+    public void SetPlayerJob(int jobID) =>
+        playerJob = JobDataDefine.GetJobTypeByInt(jobID);
+    /// <summary>
+    /// Release job
+    /// </summary>
+    /// <param name="jobTypeID">Job type id</param>
+    public void UnlockJob(int jobTypeID) =>
+        jobUnlocks[jobTypeID] = true;
 
     #endregion Various player data change processes
 
@@ -143,6 +167,15 @@ public class Data : MonoBehaviour
         playerDeckData.Init();
         // Initialization of player's card data (called at another time after the save function is implemented)
         playerDeckData.InitializeData();
+        // Initialize job data
+        // Player's current job
+        playerJob = JobDataDefine.JobType.None;
+        // Job release status
+        jobUnlocks = new List<bool>();
+        int length = (int)JobDataDefine.JobType._Max;
+        for (int i = 0; i < length; i++) jobUnlocks.Add(false);
+        // Initial job release
+        UnlockJob((int)JobDataDefine.JobType.None);
     }
     /// <summary>
     /// Retrieve and return the language settings of the execution environment
