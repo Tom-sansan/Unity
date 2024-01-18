@@ -43,6 +43,11 @@ public class StageSelectWindow : MonoBehaviour
     /// </summary>
     [SerializeField]
     private List<Image> stageOrderImages = null;
+    /// <summary>
+    /// Individual job UI processing class list (set references in the order of left, selected, right)
+    /// </summary>
+    [SerializeField]
+    private List<EachJobUI> eachJobUIs = null;
 
     #endregion SerializeField
 
@@ -52,6 +57,22 @@ public class StageSelectWindow : MonoBehaviour
 
     #region Private Variables
 
+    /// <summary>
+    /// ID in the list of job UI one left
+    /// </summary>
+    private const int JobUI_ID_Prev = 0;
+    /// <summary>
+    /// ID in the list of selected job UI
+    /// </summary>
+    private const int JobUI_ID_Current = 1;
+    /// <summary>
+    /// ID in the list of job UI one right
+    /// </summary>
+    private const int JobUI_ID_Next = 2;
+    /// <summary>
+    /// List of Released job IDs
+    /// </summary>
+    private List<int> unlockJobsIDList;
     /// <summary>
     /// Total number of stages
     /// </summary>
@@ -125,6 +146,8 @@ public class StageSelectWindow : MonoBehaviour
         titleManager.SetWindowBackPanelActive(true);
         // Show stage info
         ShowStageData();
+        // Initialize job selection UI
+        RefreshUnlockJobsList();
     }
     /// <summary>
     /// Hide window
@@ -169,6 +192,66 @@ public class StageSelectWindow : MonoBehaviour
         Data.instance.nowStageID = selectStageID;
         // Scene switching
         SceneManager.LoadScene("BattleScene");
+    }
+    /// <summary>
+    /// Retrieve list of jobs being released and reflect it in the UI
+    /// </summary>
+    public void RefreshUnlockJobsList()
+    {
+        // Get a list of released job IDs
+        unlockJobsIDList = new List<int>();
+        for (int i = 0; i < (int)JobDataDefine.JobType._Max; i++)
+            if (Data.instance.jobUnlocks[i]) unlockJobsIDList.Add(i);
+        // Display UI
+        ShowJobs();
+    }
+    /// <summary>
+    /// Reflect each of the indications of each job.
+    /// </summary>
+    public void ShowJobs()
+    {
+        // Currently selected job data
+        eachJobUIs[JobUI_ID_Current].SetJobUI((int)Data.instance.playerJob);
+        // Display one previous release job
+        // Search for IDs in the corresponding list
+        int prevID = unlockJobsIDList.IndexOf((int)Data.instance.playerJob);
+        prevID--;
+        if (prevID < 0) prevID = unlockJobsIDList.Count - 1;
+        // Display job UI
+        eachJobUIs[JobUI_ID_Prev].SetJobUI(unlockJobsIDList[prevID]);
+        // Display one next release job
+        // Search for IDs in the corresponding list
+        int nextID = unlockJobsIDList.IndexOf((int)Data.instance.playerJob);
+        nextID++;
+        if (nextID >= unlockJobsIDList.Count) nextID = 0;
+        // Display job UI
+        eachJobUIs[JobUI_ID_Next].SetJobUI(unlockJobsIDList[nextID]);
+    }
+    /// <summary>
+    /// Switch to one previous job
+    /// </summary>
+    public void JobChangeButtonPrev()
+    {
+        // Search for IDs in the list of applicable job
+        int prevID = unlockJobsIDList.IndexOf((int)Data.instance.playerJob);
+        prevID--;
+        if (prevID < 0) prevID = unlockJobsIDList.Count - 1;
+        // Job switchover reflection
+        Data.instance.SetPlayerJob(unlockJobsIDList[prevID]);
+        ShowJobs();
+    }
+    /// <summary>
+    /// Switch to one next job
+    /// </summary>
+    public void JobChangeButtonNext()
+    {
+        // Search for IDs in the list of applicable job
+        int nextID = unlockJobsIDList.IndexOf((int)Data.instance.playerJob);
+        nextID++;
+        if (nextID >= unlockJobsIDList.Count) nextID = 0;
+        // Job switchover reflection
+        Data.instance.SetPlayerJob(unlockJobsIDList[nextID]);
+        ShowJobs();
     }
 
     #endregion Public Methods

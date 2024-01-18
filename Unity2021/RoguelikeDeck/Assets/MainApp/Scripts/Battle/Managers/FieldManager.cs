@@ -51,6 +51,21 @@ public class FieldManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Button cardPlayButton = null;
+    /// <summary>
+    /// Job icon Image
+    /// </summary>
+    [SerializeField]
+    private Image playerJobIconImage = null;
+    /// <summary>
+    /// Job name Text
+    /// </summary>
+    [SerializeField]
+    private Text playerJobNameText = null;
+    /// <summary>
+    /// Job explanation Text
+    /// </summary>
+    [SerializeField]
+    private Text playerJobExplainText = null;
 
     #endregion SerializeField
 
@@ -145,6 +160,7 @@ public class FieldManager : MonoBehaviour
         // UI initialization
         // Transparent display of the number of cards remaining in the deck
         deckNumText.color = Color.clear;
+        SetJobUIs();
         // Debug draw process (delayed execution)
         //DOVirtual.DelayedCall(
         //    1.0f,   // 1.0 second delay
@@ -606,6 +622,28 @@ public class FieldManager : MonoBehaviour
             objCard.SetInitialCardData(cardData, Card.CharaIDEnemy);
         }
     }
+    /// <summary>
+    /// Set job UIs
+    /// </summary>
+    private void SetJobUIs()
+    {
+        Sprite jobIcon = Data.instance.jobIcons[(int)Data.instance.playerJob];
+        if (jobIcon == null) playerJobIconImage.color = Color.clear;
+        else playerJobIconImage.sprite = jobIcon;
+        // Job Text
+        var jobData = JobDataDefine.DicJobData[Data.instance.playerJob];
+        if (Data.nowLanguage == SystemLanguage.Japanese)
+        {
+            playerJobNameText.text = jobData.nameJP;
+            playerJobExplainText.text = jobData.explainJP;
+        }
+        else if (Data.nowLanguage == SystemLanguage.English)
+        {
+            playerJobNameText.text = jobData.nameEN;
+            playerJobExplainText.text = jobData.explainEN;
+        }
+    }
+
     #endregion Private Methods
 
     #endregion Methods
