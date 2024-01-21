@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -136,9 +137,13 @@ public class CharacterManager : MonoBehaviour
     {
         // If player already has 0 HP now, return
         if (nowHP[charaID] <= 0) return;
+        // Maximum HP added for "Monk" occupation.
         // Change the current HP
         nowHP[charaID] += value;
         // Process to avoid exceeding the maximum HP
+        // 職業「僧侶」時最大HP追加
+        if (charaID == Card.CharaIDPlayer && Data.instance.playerJob == JobDataDefine.JobType.Healer && value > 0)
+            ChangeStatusMaxHP(Card.CharaIDPlayer, 2);
         if (nowHP[charaID] > maxHP[charaID]) nowHP[charaID] = maxHP[charaID];
         // Abnormality: Apply the effect of fire (damage when maximum HP is reduced)
         if (value < 0)
@@ -308,12 +313,23 @@ public class CharacterManager : MonoBehaviour
         // State abnormality process for each character
         for (int i = 0; i < Card.CharaNum; i++)
         {
-            // Activate poison effect
+            // Activate Poison effect
             int poisonDamange = statusEffectsPoints[i, (int)StatusEffectIcon.StatusEffectType.Poison];
             if (poisonDamange > 0) ChangeStatusNowHP(i, -poisonDamange);
+            // TODO: Activate Flame effect
+            //int flameDamange = statusEffectsPoints[i, (int)StatusEffectIcon.StatusEffectType.Flame];
+            //if (flameDamange > 0) ChangeStatusNowHP(i, -flameDamange);
             // Decrease in remaining effect size
             ChangeStatusEffect(i, StatusEffectIcon.StatusEffectType.Poison, -1);
             ChangeStatusEffect(i, StatusEffectIcon.StatusEffectType.Flame, -1);
+            // 1 additional decrease when occupation "Feng Shui Master" is selected.職業「風水師」時追加で1減少
+            if (i == Card.CharaIDPlayer && Data.instance.playerJob == JobDataDefine.JobType.FengShui)
+            {
+                ChangeStatusEffect(i, StatusEffectIcon.StatusEffectType.Poison, -1);
+                ChangeStatusEffect(i, StatusEffectIcon.StatusEffectType.Flame, -1);
+
+            }
+
         }
 
     }

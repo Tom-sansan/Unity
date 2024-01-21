@@ -345,6 +345,9 @@ public class FieldManager : MonoBehaviour
         // Determine the number of cards to draw
         // Number of cards in hand
         int nextHandCardsNum = Data.instance.playerHandNum;
+        // If job is "Wise Man", one additional piece is added.職業「賢者」なら１枚追加
+        if (Data.instance.playerJob == JobDataDefine.JobType.Sage)
+            nextHandCardsNum++;
         // Draw process
         DrawCardsUntilNum(nextHandCardsNum);
         reserveHandAlign = true;

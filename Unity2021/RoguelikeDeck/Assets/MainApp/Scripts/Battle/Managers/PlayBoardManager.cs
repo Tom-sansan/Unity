@@ -1,4 +1,5 @@
 ﻿using DG.Tweening;
+using Unity.Jobs.LowLevel.Unsafe;
 using UnityEngine;
 
 /// <summary>
@@ -363,6 +364,26 @@ public class PlayBoardManager : MonoBehaviour
                 #endregion strength-limiting system
             }
         }
+        // Between 1: and 2: Effects of some jobs applied
+        switch (Data.instance.playerJob)
+        {
+            case JobDataDefine.JobType.Samurai:
+                // Job "Samurai", double the damage dealt by the left-most card (5 less damage if it's an enemy card)
+                // 職業「侍」左端のカードが与えるダメージ２倍 （敵のカードならダメージ５減少）
+                if (boardIndex == 0)
+                {
+                    if (useCharaID == Card.CharaIDPlayer) damageMulti *= 2;
+                    else weakPoint = 5;
+                }
+                break;
+            case JobDataDefine.JobType.Sorcerer:
+                // All effects of cards activated by the right side of the job "Spellcaster" are tripled.
+                // 職業「呪術師」右端で発動するカードの 効果量が全て３倍
+                if (boardIndex == PlayBoardCardNum - 1 && useCharaID == Card.CharaIDPlayer)
+                    // Total effect amount tripled
+                    foreach (var effect in targetCard.effects) effect.value *= 3;
+                break;
+        }
         // 2: Normal effect
         foreach (var effect in targetCard.effects)
         {
@@ -382,6 +403,9 @@ public class PlayBoardManager : MonoBehaviour
                         damagePoint += effect.value;
                         // Additional damage when "Kiai
                         if (isKiai) damagePoint += effect.value;
+                        // Additional damage when profession "fighter". 闘士の効果は「武器ダメージを与える時に+2追加」
+                        if (useCharaID == Card.CharaIDPlayer && Data.instance.playerJob == JobDataDefine.JobType.Fighter)
+                            damagePoint += isKiai ? 4 : 2;
                         // Number of Attacks Count
                         weaponCount[useCharaID]++;
                     }
@@ -512,6 +536,9 @@ public class PlayBoardManager : MonoBehaviour
                 // Poison(毒)
                 case CardEffectDefine.CardEffect.Poison:
                     characterManager.ChangeStatusEffect(targetCharaID, StatusEffectIcon.StatusEffectType.Poison, effect.value);
+                    // Additional 1 granted when job "Feng Shui Master".// 職業「風水師」時追加で１付与
+                    if (useCharaID == Card.CharaIDPlayer && Data.instance.playerJob == JobDataDefine.JobType.FengShui)
+                        characterManager.ChangeStatusEffect(targetCharaID, StatusEffectIcon.StatusEffectType.Poison, 1);
                     break;
                 // Detoxification(解毒)
                 case CardEffectDefine.CardEffect.Detox:
@@ -520,6 +547,9 @@ public class PlayBoardManager : MonoBehaviour
                 // Flame(炎上)
                 case CardEffectDefine.CardEffect.Flame:
                     characterManager.ChangeStatusEffect(targetCharaID, StatusEffectIcon.StatusEffectType.Flame, effect.value);
+                    // Additional 1 granted when job "Feng Shui Master".職業「風水師」時追加で１付与
+                    if (useCharaID == Card.CharaIDPlayer && Data.instance.playerJob == JobDataDefine.JobType.FengShui)
+                        characterManager.ChangeStatusEffect(targetCharaID, StatusEffectIcon.StatusEffectType.Flame, 1);
                     break;
 
                 #endregion Status Abnormalities(状態異常系)
