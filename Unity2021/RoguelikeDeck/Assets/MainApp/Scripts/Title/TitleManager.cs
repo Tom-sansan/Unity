@@ -33,6 +33,11 @@ public class TitleManager : MonoBehaviour
     [SerializeField]
     private TrainingWindow trainingWindow = null;
     /// <summary>
+    /// Shopping window class
+    /// </summary>
+    [SerializeField]
+    private ShoppingWindow shoppingWindow = null;
+    /// <summary>
     /// Title Logo RectTransform
     /// </summary>
     [SerializeField]
@@ -112,6 +117,7 @@ public class TitleManager : MonoBehaviour
         stageSelectWindow.Init(this);
         deckEditWindow.Init(this);
         trainingWindow.Init(this);
+        shoppingWindow.Init(this);
         // Play animation at game startup
         InitAnimation();
         // Disable window background object

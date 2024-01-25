@@ -37,6 +37,12 @@ public class CharacterManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private StatusUI enemyStatusUI = null;
+    /// <summary>
+    /// Enemy damage particle
+    /// </summary>
+    [SerializeField]
+    private ParticleSystem enemyDamageParticle = null;
+
     #endregion SerializeField
 
     #region Public Variables
@@ -157,6 +163,8 @@ public class CharacterManager : MonoBehaviour
         else
         {
             Debug.Log($"enemyStatusUI.SetHPView({nowHP[charaID]}, {maxHP[charaID]});");
+            // Play particle
+            if (value < 0) enemyDamageParticle.Play();
             enemyStatusUI.SetHPView(nowHP[charaID], maxHP[charaID]);
             // (Enemy only) Damage direction
             DirectEnemy(value);
