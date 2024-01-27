@@ -36,6 +36,18 @@ public class StageSO : ScriptableObject
     public int bonusGold;
     [Header("戦闘報酬：体力回復量(固定)")]
     public int bonusHeal;
+
+    [Space(10)]
+    [Header("無限ステージモード")]
+    public bool infinityMode;
+    [Header("無限ステージ用：出現ザコ敵リスト")]
+    public List<EnemyStatusSO> infinityEnemyData;
+    [Header("無限ステージ用：出現ボス敵リスト")]
+    public List<EnemyStatusSO> infinityBossData;
+    [Header("無限ステージ用：ボス敵出現間隔")]
+    public int bossDistance;
+    [Header("無限ステージ用：敵HP増加量")]
+    public int enemyHPIncrease;
 }
 
 /// <summary>

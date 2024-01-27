@@ -66,6 +66,16 @@ public class FieldManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Text playerJobExplainText = null;
+    /// <summary>
+    /// Effect description management class
+    /// </summary>
+    [SerializeField]
+    private EffectExplainDisplay effectExplainDisplay = null;
+    /// <summary>
+    /// Deck replenishment button
+    /// </summary>
+    [SerializeField]
+    private Image replenishButtonImage = null;
 
     #endregion SerializeField
 
@@ -161,6 +171,10 @@ public class FieldManager : MonoBehaviour
         // Transparent display of the number of cards remaining in the deck
         deckNumText.color = Color.clear;
         SetJobUIs();
+        // Initialize effect description management class
+        effectExplainDisplay.Init();
+        // Deck replenishment button direction
+        InitDeckReplenishmentButton();
         // Debug draw process (delayed execution)
         //DOVirtual.DelayedCall(
         //    1.0f,   // 1.0 second delay
@@ -201,6 +215,10 @@ public class FieldManager : MonoBehaviour
         if (isDrawing) return;
         // If the effect of the card is being executed, return
         if (isCardPlaying) return;
+        // Display a description of the effect of the operation card
+        effectExplainDisplay.ShowExplains(dragCard.effects, dragCard.controllerCharaID);
+        // If it's an enemy card, it's over
+        if (dragCard.controllerCharaID == Card.CharaIDEnemy) return;
         // Memorize the card to be operated
         draggingCard = dragCard;
         // Putting the card object first among siblings before any other card object (frontmost display)
@@ -211,6 +229,8 @@ public class FieldManager : MonoBehaviour
     /// </summary>
     public void EndDragging()
     {
+        // Hide effect description of operation card
+        effectExplainDisplay.HideExplains();
         // Exit if the card is not in operation
         if (draggingCard == null) return;
         // Get all information on overlapping objects
@@ -351,6 +371,9 @@ public class FieldManager : MonoBehaviour
         // Draw process
         DrawCardsUntilNum(nextHandCardsNum);
         reserveHandAlign = true;
+        // Show/hide deck replenishment button
+        if (playerDeckData.Count > 0) replenishButtonImage.gameObject.SetActive(false);
+        else replenishButtonImage.gameObject.SetActive(true);
         // Enable card execution button
         cardPlayButton.interactable = true;
         // Place enemy cards
@@ -390,6 +413,33 @@ public class FieldManager : MonoBehaviour
         }
         // Execute the effect of each card
         battleManager.playBoardManager.BoardCardsPlay(boardCards);
+        // Deletion of cards in the trash zone
+        DeleteCardsOnTrashArea();
+    }
+    /// <summary>
+    /// Processing when the deck replenishment button is pressed
+    /// </summary>
+    public void ReplenishButton()
+    {
+        // Not processed if card effect is in progress
+        if (battleManager.playBoardManager.IsPlayingCards()) return;
+        // If the card is being dragged, it will not be processed
+        if (draggingCard != null) return;
+        // Replenish deck
+        int backUpDeckNum = playerDeckDataBackup.Count;
+        for (int i = 0; i < backUpDeckNum; i++) playerDeckData.Add(playerDeckDataBackup[i]);
+        // Execute the effect of each card
+        CardPlayButton();
+        // Display of the number of cards remaining in the deck
+        PrintPlayerDeckNum();
+        // HP reduction by half
+        battleManager.characterManager.ChangeStatusNowHP
+        (
+            Card.CharaIDPlayer,
+            -battleManager.characterManager.nowHP[Card.CharaIDPlayer] / 2
+        );
+        // Hide button
+        replenishButtonImage.gameObject.SetActive(false);
     }
 
     #endregion Game progression
@@ -645,6 +695,43 @@ public class FieldManager : MonoBehaviour
             playerJobNameText.text = jobData.nameEN;
             playerJobExplainText.text = jobData.explainEN;
         }
+    }
+    /// <summary>
+    /// All cards in the trash zone are moved off the screen and erased
+    /// </summary>
+    private void DeleteCardsOnTrashArea()
+    {
+        // Sequence for eviction/erasure direction
+        var deleteSequence = DOTween.Sequence();
+        // List of cards to be deleted
+        var trashCard = new List<Card>();
+        // Create a list of cards in the trash zone
+        foreach (var instance in cardInstances)
+            // add cards in the trash zone to the list
+            if (instance.nowZone == CardZone.ZoneType.Trash) trashCard.Add(instance);
+        // Sort the list of cards to be deleted by the order in which they appear in the scene
+        trashCard.Sort((a, b) => b.transform.GetSiblingIndex() - a.transform.GetSiblingIndex());
+        // Cards in the trash zone are sequentially moved off the screen
+        foreach (var card in trashCard)
+        {
+            deleteSequence.AppendCallback(card.HideMoveTween);
+            deleteSequence.AppendInterval(0.4f);
+        }
+        // Delete cards in the trash zone
+        deleteSequence.OnComplete(() =>
+        {
+            foreach (var card in trashCard) DestroyCardObject(card);
+        });
+    }
+    /// <summary>
+    /// Initialize Deck Replenishment Button
+    /// </summary>
+    private void InitDeckReplenishmentButton()
+    {
+        replenishButtonImage
+            .DOFade(1.0f, 0.8f)
+            .SetLoops(-1, LoopType.Yoyo);
+        replenishButtonImage.gameObject.SetActive(false);
     }
 
     #endregion Private Methods

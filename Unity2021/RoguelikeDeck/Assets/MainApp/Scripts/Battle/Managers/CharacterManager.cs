@@ -218,10 +218,14 @@ public class CharacterManager : MonoBehaviour
     /// Appearance and display of enemies
     /// </summary>
     /// <param name="spawnEnemyData">Appearance Enemy Data</param>
-    public void SpawnEnemy(EnemyStatusSO spawnEnemyData)
+    /// /// <param name="hpIncrease">Maximum HP increase</param>
+    public void SpawnEnemy(EnemyStatusSO spawnEnemyData, int hpIncrease = 0)
     {
         // Get enemy data
         enemyData = spawnEnemyData;
+        // Initialize enemy status
+        nowHP[Card.CharaIDEnemy] = enemyData.maxHP + hpIncrease;
+        maxHP[Card.CharaIDEnemy] = enemyData.maxHP + hpIncrease;
         // Initialize enemy status
         nowHP[Card.CharaIDEnemy] = enemyData.maxHP;
         maxHP[Card.CharaIDEnemy] = enemyData.maxHP;

@@ -276,6 +276,16 @@ public class PlayBoardManager : MonoBehaviour
         // Initialize the number of times HP is recovered
         healCount = new int[Card.CharaNum];
     }
+    /// <summary>
+    /// Returns true if the effect of the card is being executed
+    /// </summary>
+    /// <returns></returns>
+    public bool IsPlayingCards()
+    {
+        if (playSequence != null) return playSequence.IsPlaying();
+        return false;
+    }
+
     #endregion Public Methods
 
     #region Private Methods
@@ -612,15 +622,6 @@ public class PlayBoardManager : MonoBehaviour
                 characterManager.ChangeStatusNowHP(useCharaID, damagePoint);
         }
         return true;
-    }
-    /// <summary>
-    /// Returns true if the effect of the card is being executed
-    /// </summary>
-    /// <returns></returns>
-    private bool IsPlayingCards()
-    {
-        if (playSequence != null) return playSequence.IsPlaying();
-        return false;
     }
     /// <summary>
     /// Get the start position of the frame object

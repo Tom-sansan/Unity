@@ -132,6 +132,10 @@ public class BattleManager : MonoBehaviour
     /// Variable for displaying Text of gold coins in possession
     /// </summary>
     private int playerGoldDisp;
+    /// <summary>
+    /// Infinite stage mode
+    /// </summary>
+    private bool isInfinity;
 
     #endregion Private Variables
 
@@ -146,6 +150,9 @@ public class BattleManager : MonoBehaviour
         stageSO = Data.instance.stageSOs[Data.instance.nowStageID];
         // progression initialization
         nowProgress = -1;
+        // Set infinity stage mode
+        isInfinity = stageSO.infinityMode;
+        SetInfinityStageMode(isInfinity);
         // Get progression where stage boss appears
         battleNum = stageSO.appearEnemyTables.Count;
         // Managers initialization
@@ -181,6 +188,9 @@ public class BattleManager : MonoBehaviour
         // For debug
         // if (Input.GetKeyDown(KeyCode.Space))
         //    characterManager.ChangeStatusNowHP(Card.CharaIDPlayer, -5);
+#if UNITY_EDITOR
+        ProcessDebug();
+#endif
     }
     #endregion Unity Methods
 
@@ -219,19 +229,46 @@ public class BattleManager : MonoBehaviour
         if (nowProgress >= stageSO.appearEnemyTables.Count)
         {
             // Victory in battle against all enemies
-            // Start stage clear animation
-            stageClear.StartAnimation();
+            if (!isInfinity)
+            {
+                // Normal stage
+                // Start stage clear animation
+                stageClear.StartAnimation();
+            }
         }
         // Process appearance of enemy characters
-        // Determines which enemies will appear
-        var appearEnemyTable = stageSO.appearEnemyTables[nowProgress].appearEnemies;
-        int rand = Random.Range(0, appearEnemyTable.Count);
-        characterManager.SpawnEnemy(appearEnemyTable[rand]);
-        // If there is only one type of enemy that appears, then the direction for the boss
-        if (appearEnemyTable.Count == 1) bossIncoming.StartAnimation();
+        if (!isInfinity)
+        {
+            // Normal stage
+            // Determines which enemies appear
+            var appearEnemyTable = stageSO.appearEnemyTables[nowProgress].appearEnemies;
+            int rand = Random.Range(0, appearEnemyTable.Count);
+            characterManager.SpawnEnemy(appearEnemyTable[rand]);
+            // If there is only one type of enemy that appears, then the direction for the boss
+            if (appearEnemyTable.Count == 1) bossIncoming.StartAnimation();
+        }
+        else
+        {
+            // Infinity stage
+            // Determines which enemies appear
+            var appearEnemyTable = stageSO.infinityEnemyData;
+            // HP Increase
+            int hpIncrease = nowProgress * stageSO.enemyHPIncrease;
+            // During boss battles, determined by the boss enemy group
+            if (nowProgress % battleNum == battleNum - 1)
+            {
+                // During a boss battle
+                appearEnemyTable = stageSO.infinityBossData;
+                bossIncoming.StartAnimation();
+            }
+            // Enemy appearance
+            int randEnemyID = Random.Range(0, appearEnemyTable.Count);
+            characterManager.SpawnEnemy(appearEnemyTable[randEnemyID], hpIncrease);
+        }
         // Start battle(delayed execution)
         DOVirtual.DelayedCall(
-            1.0f,
+            // TODO 1.0f??
+            0.5f,
             () =>
             {
                 // Processing at the start of combat on the FieldManager side
@@ -399,8 +436,19 @@ public class BattleManager : MonoBehaviour
     /// Display stage progress gauge
     /// </summary>
     /// <param name="ratio">Progression rate (0.0f-1.0f)</param>
-    private void ShowProgressGage(float ratio) =>
+    private void ShowProgressGage(float ratio)
+    {
         progressGageImage.DOFillAmount(ratio, GageAnimationTime);
+        // (For infinite stages) Display the number of floors at the end of the stage name
+        if (isInfinity)
+        {
+            int floorNum = nowProgress + 1;
+            if (Data.nowLanguage == SystemLanguage.Japanese)
+                stageNameText.text = stageSO.nameJP + " " + floorNum + "階";
+            else if (Data.nowLanguage == SystemLanguage.English)
+                stageNameText.text = stageSO.nameEN + " " + floorNum + "F";
+        }
+    }
     /// <summary>
     /// Get bonus value
     /// </summary>
@@ -409,6 +457,38 @@ public class BattleManager : MonoBehaviour
     private int GetBonusValue(int value) =>
         // Random width application
         (int)(value * Random.Range(BonusRandomMultiMin, BonusRandomMultiMax));
+    /// <summary>
+    /// Set infinity stage mode
+    /// </summary>
+    /// <param name="isInfinity"></param>
+    private void SetInfinityStageMode(bool isInfinity) =>
+        battleNum = isInfinity ?
+            stageSO.bossDistance + 1 :          // Infinity state
+            stageSO.appearEnemyTables.Count;    // Normal state
+
+    #region For Debug
+
+    /// <summary>
+    /// For debug
+    /// </summary>
+    private void ProcessDebug()
+    {
+        if (Input.GetKeyDown(KeyCode.T)) Time.timeScale = 8.0f;
+        else if (Input.GetKeyUp(KeyCode.T)) Time.timeScale = 1.0f;
+        else if (Input.GetKeyUp(KeyCode.Y)) DebugDefeatProcess();
+    }
+    /// <summary>
+    /// Enemy destruction for DEBUG
+    /// </summary>
+    private void DebugDefeatProcess()
+    {
+        characterManager.ChangeStatusMaxHP(Card.CharaIDPlayer, 99);
+        characterManager.ChangeStatusNowHP(Card.CharaIDPlayer, 99);
+        characterManager.ChangeStatusNowHP(Card.CharaIDEnemy, -9999);
+        fieldManager.CardPlayButton();
+    }
+
+    #endregion For Debug
 
     #endregion Private Methods
 
