@@ -1,4 +1,4 @@
-using Mono.Cecil;
+﻿using Mono.Cecil;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -77,6 +77,55 @@ public class Data : MonoBehaviour
 
     #region Private Variables
 
+    #region Key definitions for PlayerPrefs
+
+    /// <summary>
+    /// Initialization Flag
+    /// </summary>
+    private const string KeyInit = "Init";
+    /// <summary>
+    /// Player's job during selection
+    /// プレイヤー選択中職業
+    /// </summary>
+    private const string KeyPlayerJob = "PlayerJob";
+    /// <summary>
+    /// List of released jobs (add numbers after constants)
+    /// 解放済み職業リスト(定数の後に数字を追加)
+    /// </summary>
+    private const string KeyUnlockJob_ = "UnlockJob_";
+    /// <summary>
+    /// Amount of gold coins in one's possession
+    /// 所持金貨量
+    /// </summary>
+    private const string KeyPlayerGold = "PlayerGold";
+    /// <summary>
+    /// Amount of experience in possession
+    /// 所持経験値量
+    /// </summary>
+    private const string Key_Player_EXP = "PlayerEXP";
+    /// <summary>
+    /// Player's maximum HP
+    /// プレイヤーの最大HP
+    /// </summary>
+    private const string Key_Player_MaxHP = "PlayerMaxHP";
+    /// <summary>
+    /// Number of cards in player's hand for each turn
+    /// プレイヤーの各ターンの手札枚数
+    /// </summary>
+    private const string Key_Player_HandNum = "PlayerHandNum";
+    /// <summary>
+    /// Number of cards in storage (add each serial number after the constant)
+    /// 保管中カード枚数(定数の後に各通し番号を追加)
+    /// </summary>
+    public const string KeyStorageCards = "StorageCards_";
+    /// <summary>
+    /// Number of cards in deck (add each serial number after the constant)
+    /// デッキ内カード枚数(定数の後に各通し番号を追加)
+    /// </summary>
+    public const string KeyDeckCards = "DeckCards_";
+
+    #endregion Key definitions for PlayerPrefs
+
     #endregion Private Variables
 
     #endregion Variables
@@ -151,6 +200,49 @@ public class Data : MonoBehaviour
     #endregion Various player data change processes
 
     #endregion Public Methods
+
+    /// <summary>
+    /// Initialization and loading of all game data
+    /// </summary>
+    public void InitialiseAllGameData()
+    {
+        if (PlayerPrefs.GetInt(KeyInit, 0) == 0)
+        {
+            // Initialization
+            // Initialization completion flag
+            PlayerPrefs.SetInt(KeyInit, 1);
+            PlayerPrefs.Save();
+            // Player's job during selection
+            playerJob = JobDataDefine.JobType.None;
+            // Job release status
+            jobUnlocks = new List<bool>();
+            for (int i = 0; i < (int)JobDataDefine.JobType._Max; i++)
+                jobUnlocks.Add(false);
+            // Initial job release
+            UnlockJob((int)JobDataDefine.JobType.None);
+            // Gold coins in player's possession
+            playerGold = 0;
+            // Earned Experience
+            playerEXP = 0;
+            // Player's maximum HP
+            playerMaxHP = 20;
+            // Number of cards in the player's hand for each turn
+            playerHandNum = TrainingWindow.InitPlayerHandNum;
+            // Initialization of player's card data
+            playerDeckData.InitializeData();
+        }
+        else
+        {
+            // Data loading
+            // Player's job during selection
+            playerJob = JobDataDefine.GetJobTypeByInt(PlayerPrefs.GetInt(KeyPlayerJob, (int)JobDataDefine.JobType.None));
+            // Job release status
+            for (int i = 0; i < (int)JobDataDefine.JobType._Max; i++)
+            {
+
+            }
+        }
+    }
 
     #region Private Methods
 
