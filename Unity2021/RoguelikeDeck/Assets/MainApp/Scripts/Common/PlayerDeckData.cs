@@ -87,24 +87,39 @@ public class PlayerDeckData : MonoBehaviour
         storageCardList = new Dictionary<int, int>();
         foreach (var playerCard in allPlayerCardsList) storageCardList.Add(playerCard.serialNum, 0);
         // (for debugging) Add all cards one by one to the in storage list
+        /*
         List<int> keys = storageCardList.Keys.ToList();
         for (int i = 0; i < storageCardList.Count; i++)
             // Add 1 to each of the Values corresponding to all the Keys in the Dictionary
             storageCardList[keys[i]] += 1;
+        */
     }
     /// <summary>
-    /// Remove a card from the deck
+    /// Set the possession card information when starting the game for the second time or later
     /// </summary>
-    /// <param name="cardSerialNum">Serial number of card</param>
-    public static void RemoveCardFromDeck(int cardSerialNum) =>
-        deckCardList.Remove(cardSerialNum);
-    /// <summary>
-    /// Change the quantity of cards in storage
-    /// </summary>
-    /// <param name="cardSerialNum">Serial number of the card</param>
-    /// <param name="amount">Change amount (+ to add)</param>
-    public static void ChangeStorageCardNum(int cardSerialNum, int amount) =>
-        storageCardList[cardSerialNum] += amount;
+    public void LoadData()
+    {
+        // Number of all player card types
+        int playerCardListNum = allPlayerCardsList.Count;
+        // Deck card info
+        deckCardList = new List<int>();
+        foreach (var playerCard in allPlayerCardsList)
+        {
+            // Get the number of cards with the corresponding number
+            int num = PlayerPrefs.GetInt(Data.KeyDeckCards + playerCard.serialNum, 0);
+            // Add the number of cards to the list of cards in the deck
+            for (int i = 0; i < num; i++) deckCardList.Add(playerCard.serialNum);
+        }
+        // Card information in storage
+        storageCardList = new Dictionary<int, int>();
+        foreach (var playerCard in allPlayerCardsList)
+        {
+            // Get the number of cards with the corresponding number
+            int num = PlayerPrefs.GetInt(Data.KeyStorageCards + playerCard.serialNum, 0);
+            // Number of cards in storage information setting
+            storageCardList.Add(playerCard.serialNum, num);
+        }
+    }
     /// <summary>
     /// Add a card to the deck
     /// </summary>
@@ -113,6 +128,29 @@ public class PlayerDeckData : MonoBehaviour
     {
         deckCardList.Add(cardSerialNum);
         deckCardList.Sort();
+        PlayerPrefs.SetInt(Data.KeyDeckCards + cardSerialNum, deckCardList.FindAll(n => n == cardSerialNum).Count);
+        PlayerPrefs.Save();
+    }
+    /// <summary>
+    /// Remove a card from the deck
+    /// </summary>
+    /// <param name="cardSerialNum">Serial number of card</param>
+    public static void RemoveCardFromDeck(int cardSerialNum)
+    {
+        deckCardList.Remove(cardSerialNum);
+        PlayerPrefs.SetInt(Data.KeyDeckCards + cardSerialNum, deckCardList.FindAll(n => n == cardSerialNum).Count);
+        PlayerPrefs.Save();
+    }
+    /// <summary>
+    /// Change the quantity of cards in storage
+    /// </summary>
+    /// <param name="cardSerialNum">Serial number of the card</param>
+    /// <param name="amount">Change amount (+ to add)</param>
+    public static void ChangeStorageCardNum(int cardSerialNum, int amount)
+    {
+        storageCardList[cardSerialNum] += amount;
+        PlayerPrefs.SetInt(Data.KeyStorageCards + cardSerialNum, storageCardList[cardSerialNum]);
+        PlayerPrefs.Save();
     }
 
     #endregion Public Methods

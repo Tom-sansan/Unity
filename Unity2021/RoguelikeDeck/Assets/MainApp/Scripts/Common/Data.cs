@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
+using System.Security.Cryptography;
 using UnityEngine;
 
 /// <summary>
@@ -102,17 +103,17 @@ public class Data : MonoBehaviour
     /// Amount of experience in possession
     /// 所持経験値量
     /// </summary>
-    private const string Key_Player_EXP = "PlayerEXP";
+    private const string KeyPlayerEXP = "PlayerEXP";
     /// <summary>
     /// Player's maximum HP
     /// プレイヤーの最大HP
     /// </summary>
-    private const string Key_Player_MaxHP = "PlayerMaxHP";
+    private const string KeyPlayerMaxHP = "PlayerMaxHP";
     /// <summary>
     /// Number of cards in player's hand for each turn
     /// プレイヤーの各ターンの手札枚数
     /// </summary>
-    private const string Key_Player_HandNum = "PlayerHandNum";
+    private const string KeyPlayerHandNum = "PlayerHandNum";
     /// <summary>
     /// Number of cards in storage (add each serial number after the constant)
     /// 保管中カード枚数(定数の後に各通し番号を追加)
@@ -164,38 +165,62 @@ public class Data : MonoBehaviour
     /// Change the amount of gold coins player has
     /// </summary>
     /// <param name="value">Amount of change (+ for increase)</param>
-    public void ChangePlayerGold(int value) =>
+    public void ChangePlayerGold(int value)
+    { 
         playerGold += value;
+        PlayerPrefs.SetInt(KeyPlayerGold, playerGold);
+        PlayerPrefs.Save();
+    }
     /// <summary>
     /// Change the amount of player experience
     /// </summary>
     /// <param name="value">Amount of change (+ for increase)</param>
-    public void ChangePlayerEXP(int value) =>
+    public void ChangePlayerEXP(int value)
+    {
         playerEXP += value;
+        PlayerPrefs.SetInt(KeyPlayerEXP, playerEXP);
+        PlayerPrefs.Save();
+    }
     /// <summary>
     /// Change the maximum HP of player
     /// </summary>
     /// <param name="value">Amount of change (+ for increase)</param>
-    public void ChangePlayerMaxHP(int value) =>
+    public void ChangePlayerMaxHP(int value)
+    {
         playerMaxHP += value;
+        PlayerPrefs.SetInt(KeyPlayerMaxHP, playerMaxHP);
+        PlayerPrefs.Save();
+    }
     /// <summary>
     /// Change number of cards in player's hand each turn
     /// </summary>
     /// <param name="value">Amount of change (+ for increase)</param>
-    public void ChangePlayerHandNum(int value) =>
+    public void ChangePlayerHandNum(int value)
+    {
         playerHandNum += value;
+        PlayerPrefs.SetInt(KeyPlayerHandNum, playerHandNum);
+        PlayerPrefs.Save();
+    }
     /// <summary>
     /// Change player's job
     /// </summary>
     /// <param name="jobID">Number in the Enum of job to be changed</param>
-    public void SetPlayerJob(int jobID) =>
+    public void SetPlayerJob(int jobID)
+    {
         playerJob = JobDataDefine.GetJobTypeByInt(jobID);
+        PlayerPrefs.SetInt(KeyPlayerJob, jobID);
+        PlayerPrefs.Save();
+    }
     /// <summary>
     /// Release job
     /// </summary>
-    /// <param name="jobTypeID">Job type id</param>
-    public void UnlockJob(int jobTypeID) =>
+    /// <param name="jobTypeID">Job type ID</param>
+    public void UnlockJob(int jobTypeID)
+    {
         jobUnlocks[jobTypeID] = true;
+        PlayerPrefs.SetInt(KeyUnlockJob_ + jobTypeID, 1);
+        PlayerPrefs.Save();
+    }
 
     #endregion Various player data change processes
 
@@ -237,10 +262,29 @@ public class Data : MonoBehaviour
             // Player's job during selection
             playerJob = JobDataDefine.GetJobTypeByInt(PlayerPrefs.GetInt(KeyPlayerJob, (int)JobDataDefine.JobType.None));
             // Job release status
+            jobUnlocks = new List<bool>();
             for (int i = 0; i < (int)JobDataDefine.JobType._Max; i++)
             {
-
+                // Get release status
+                int unlockValue = PlayerPrefs.GetInt(KeyUnlockJob_ + i, 0);
+                // Reflect release status
+                if (unlockValue == 0) jobUnlocks.Add(false);
+                else jobUnlocks.Add(true);
             }
+            // Initial job release
+            UnlockJob((int)JobDataDefine.JobType.None);
+            // Gold coins in player's possession
+            playerGold = PlayerPrefs.GetInt(KeyPlayerGold, 0);
+            // Earned Experience
+            playerEXP = PlayerPrefs.GetInt(KeyPlayerEXP, 0);
+            // Player's maximum HP
+            playerMaxHP = PlayerPrefs.GetInt(KeyPlayerMaxHP);
+            // Number of cards in the player's hand for each turn
+            playerHandNum = PlayerPrefs.GetInt(KeyPlayerHandNum, TrainingWindow.InitPlayerHandNum);
+            // Initialization of player's card data
+            playerDeckData.InitializeData();
+            // Loading of player's card data
+            playerDeckData.LoadData();
         }
     }
 
@@ -257,6 +301,10 @@ public class Data : MonoBehaviour
         nowLanguage = GetLanguageData(); // SystemLanguage.English;
         // Player deck data initialization
         playerDeckData.Init();
+        // Various data initialization (initial startup or data loading)
+        InitialiseAllGameData();
+
+        /*
         // Initialization of player's card data (called at another time after the save function is implemented)
         playerDeckData.InitializeData();
         // Initialize job data
@@ -268,6 +316,7 @@ public class Data : MonoBehaviour
         for (int i = 0; i < length; i++) jobUnlocks.Add(false);
         // Initial job release
         UnlockJob((int)JobDataDefine.JobType.None);
+        */
     }
     /// <summary>
     /// Retrieve and return the language settings of the execution environment
