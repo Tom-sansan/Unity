@@ -148,6 +148,8 @@ public class StageSelectWindow : MonoBehaviour
         ShowStageData();
         // Initialize job selection UI
         RefreshUnlockJobsList();
+        // Play SE
+        PlaySEDecideA();
     }
     /// <summary>
     /// Hide window
@@ -159,6 +161,8 @@ public class StageSelectWindow : MonoBehaviour
         windowTween = windowRectTransform.DOScale(0.0f, WindowAnimTime).SetEase(Ease.InBack);
         // Disable window background panel
         titleManager.SetWindowBackPanelActive(false);
+        // Play SE
+        PlaySEDecideB();
     }
     /// <summary>
     /// Button to switch to the stage one left (minus direction)
@@ -170,6 +174,8 @@ public class StageSelectWindow : MonoBehaviour
         if (selectStageID < 0) selectStageID = stageListNum - 1;
         // Show selected stage information
         ShowStageData();
+        // Play SE
+        PlaySEDecideB();
     }
     /// <summary>
     /// Button to switch to one stage to the right (positive direction)
@@ -181,6 +187,8 @@ public class StageSelectWindow : MonoBehaviour
         if (selectStageID >= stageListNum) selectStageID = 0;
         // Show selected stage information
         ShowStageData();
+        // Play SE
+        PlaySEDecideB();
     }
     /// <summary>
     /// Stage start button
@@ -192,6 +200,8 @@ public class StageSelectWindow : MonoBehaviour
         Data.instance.nowStageID = selectStageID;
         // Scene switching
         SceneManager.LoadScene("BattleScene");
+        // Play SE
+        PlaySEDecideA();
     }
     /// <summary>
     /// Retrieve list of jobs being released and reflect it in the UI
@@ -239,6 +249,8 @@ public class StageSelectWindow : MonoBehaviour
         // Job switchover reflection
         Data.instance.SetPlayerJob(unlockJobsIDList[prevID]);
         ShowJobs();
+        // Play SE
+        PlaySEDecideB();
     }
     /// <summary>
     /// Switch to one next job
@@ -252,6 +264,8 @@ public class StageSelectWindow : MonoBehaviour
         // Job switchover reflection
         Data.instance.SetPlayerJob(unlockJobsIDList[nextID]);
         ShowJobs();
+        // Play SE
+        PlaySEDecideB();
     }
 
     #endregion Public Methods
@@ -292,6 +306,16 @@ public class StageSelectWindow : MonoBehaviour
             else stageOrderImages[i].transform.localScale = new Vector2(0.4f, 0.4f);
         }
     }
+    /// <summary>
+    /// Play SE by DecideA
+    /// </summary>
+    private void PlaySEDecideA() =>
+        SEManager.instance.PlaySE(SEManager.SEName.DecideA);
+    /// <summary>
+    /// Play SE by DecideB
+    /// </summary>
+    private void PlaySEDecideB() =>
+        SEManager.instance.PlaySE(SEManager.SEName.DecideB);
 
     #endregion Private Methods
 

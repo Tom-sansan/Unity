@@ -182,6 +182,8 @@ public class BattleManager : MonoBehaviour
         //    nameText = string.Format(nameText, cardEffect.value);
         //    Debug.Log(nameText);
         //}
+
+        PlayStageBGM();
     }
     void Update()
     {
@@ -465,7 +467,15 @@ public class BattleManager : MonoBehaviour
         battleNum = isInfinity ?
             stageSO.bossDistance + 1 :          // Infinity state
             stageSO.appearEnemyTables.Count;    // Normal state
-
+    /// <summary>
+    /// Play stage BGM
+    /// </summary>
+    private void PlayStageBGM()
+    {
+        var audioSource = GetComponent<AudioSource>();
+        audioSource.clip = stageSO.stageBGMClip;
+        audioSource.Play();
+    }
     #region For Debug
 
     /// <summary>

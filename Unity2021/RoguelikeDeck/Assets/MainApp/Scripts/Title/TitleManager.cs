@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -91,7 +92,9 @@ public class TitleManager : MonoBehaviour
     }
     void Update()
     {
-
+#if UNITY_EDITOR
+        DebugForEditor();
+#endif
     }
     #endregion Unity Methods
 
@@ -156,7 +159,18 @@ public class TitleManager : MonoBehaviour
             );
         }
     }
-
+    /// <summary>
+    /// For debug
+    /// </summary>
+    private void DebugForEditor()
+    {
+        if (Input.GetKey(KeyCode.C))
+        {
+            Data.instance.ChangePlayerEXP(200000);
+            Data.instance.ChangePlayerGold(200000);
+            SceneManager.LoadScene("Title");
+        }
+    }
     #endregion Private Methods
 
     #endregion Methods

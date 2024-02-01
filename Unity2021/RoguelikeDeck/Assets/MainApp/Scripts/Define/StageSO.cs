@@ -24,6 +24,8 @@ public class StageSO : ScriptableObject
     public Sprite stageIcon;
     [Header("ステージ背景画像")]
     public Sprite stagePicture;
+    [Header("ステージBGM")]
+    public AudioClip stageBGMClip;
 
     [Space(10)]
     [Header("各進行度別の敵の出現テーブル")]

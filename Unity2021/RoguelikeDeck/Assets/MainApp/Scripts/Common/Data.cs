@@ -278,11 +278,9 @@ public class Data : MonoBehaviour
             // Earned Experience
             playerEXP = PlayerPrefs.GetInt(KeyPlayerEXP, 0);
             // Player's maximum HP
-            playerMaxHP = PlayerPrefs.GetInt(KeyPlayerMaxHP);
+            playerMaxHP = PlayerPrefs.GetInt(KeyPlayerMaxHP, 20);
             // Number of cards in the player's hand for each turn
             playerHandNum = PlayerPrefs.GetInt(KeyPlayerHandNum, TrainingWindow.InitPlayerHandNum);
-            // Initialization of player's card data
-            playerDeckData.InitializeData();
             // Loading of player's card data
             playerDeckData.LoadData();
         }

@@ -621,6 +621,12 @@ public class PlayBoardManager : MonoBehaviour
             if (isAbsorption)
                 characterManager.ChangeStatusNowHP(useCharaID, damagePoint);
         }
+
+        if (damagePoint > 0 || burnPoint > 0)
+            if (useCharaID == Card.CharaIDPlayer)
+                SEManager.instance.PlaySE(SEManager.SEName.DamageToEnemy);
+            else SEManager.instance.PlaySE(SEManager.SEName.DamageToPlayer);
+
         return true;
     }
     /// <summary>
