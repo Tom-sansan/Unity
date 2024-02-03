@@ -114,11 +114,6 @@ public class ShoppingWindow : MonoBehaviour
         this.titleManager = titleManager;
         windowRectTransform = GetComponent<RectTransform>();
         shoppingItemInstances = new List<ShoppingItem>();
-#if UNITY_EDITOR
-        // TODO: For UNITY EDITOR Only
-        // Add gold coins
-        Data.instance.ChangePlayerGold(100000);
-#endif
         // Create product item
         for (int i = 0; i < cardPackSOs.Count; i++)
         {

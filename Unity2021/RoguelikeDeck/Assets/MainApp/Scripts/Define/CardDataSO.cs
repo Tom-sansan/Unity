@@ -40,6 +40,9 @@ public class CardDataSO : ScriptableObject
     [Header("強度")]
     public int force;
 
+    [HideInInspector]
+    public int totalEffectValue;
+
     #endregion Public Variables
 
     #region Private Variables

@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -15,8 +14,8 @@ public class SEManager : MonoBehaviour
     /// </summary>
     public enum SEName
     {
-        DecideA,            // Button sound A
-        DecideB,            // Button sound B
+        DecideA,            // Button sound A - crystal sound
+        DecideB,            // Button sound B - click sound
         DamageToEnemy,      // Damage to enemy
         DamageToPlayer,     // Damage to player
     }
@@ -81,10 +80,6 @@ public class SEManager : MonoBehaviour
         audioSource.PlayOneShot(seClips[(int)seName]);
 
     #endregion Public Methods
-
-    #region Private Methods
-
-    #endregion Private Methods
 
     #endregion Methods
 }

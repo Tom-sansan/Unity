@@ -74,6 +74,13 @@ public class PlayerDeckData : MonoBehaviour
         CardDataBySerialNum = new Dictionary<int, CardDataSO>();
         foreach (var item in allPlayerCardsList)
             CardDataBySerialNum.Add(item.serialNum, item);
+        // Record the total effect amount of all cards on the player's side
+        foreach (var item in allPlayerCardsList)
+        {
+            int value = 0;
+            foreach (var effect in item.effectList) value += effect.value;
+            item.totalEffectValue = value;
+        }
     }
     /// <summary>
     /// Set the initial deck when the game is launched for the first time

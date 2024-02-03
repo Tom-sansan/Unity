@@ -112,10 +112,6 @@ public class TrainingWindow : MonoBehaviour
     /// <param name="titleManager"></param>
     public void Init(TitleManager titleManager)
     {
-#if UNITY_EDITOR
-        // TODO: For UNITY EDITOR Only
-        Data.instance.ChangePlayerEXP(100000);
-#endif
         this.titleManager = titleManager;
         windowRectTransform = GetComponent<RectTransform>();
         trainingItemInstances = new List<TrainingItem>();

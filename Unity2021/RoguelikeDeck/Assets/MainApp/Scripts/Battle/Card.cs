@@ -481,7 +481,15 @@ public class Card : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
     /// <param name="mode"></param>
     public void SetCardHighlight(bool mode) =>
         cardUI.SetHighlightImage(mode);
-
+    /// <summary>
+    /// Reset display of icons and effects
+    /// </summary>
+    public void ClearIconsAndEffects()
+    {
+        iconSprites.Clear();
+        effects.Clear();
+        cardUI.ClearIconsAndEffects();
+    }
     #endregion Get/Set
 
     #endregion Public Methods

@@ -10,6 +10,17 @@ public class DeckEditWindow : MonoBehaviour
 {
     #region Enum
 
+    /// <summary>
+    /// 保管中カードの整列方法
+    /// </summary>
+    private enum StorageSortType
+    {
+        CardID,     // Card ID (serial number)
+        CardPower,  // Total effect amount
+        Force,      // Intensity
+        _Max,
+    }
+
     #endregion Enum
 
     #region Variables
@@ -46,6 +57,21 @@ public class DeckEditWindow : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Transform deckAreaTransform = null;
+    /// <summary>
+    /// Card effect description display class
+    /// </summary>
+    [SerializeField]
+    private EffectExplainDisplay effectExplainDisplay = null;
+    /// <summary>
+    /// Background object when displaying card effect description
+    /// </summary>
+    [SerializeField]
+    private GameObject effectExplainBackGroundObject = null;
+    /// <summary>
+    /// How to align the list of cards in storageText
+    /// </summary>
+    [SerializeField]
+    private Text sortTypeText = null;
 
     #endregion SerializeField
 
@@ -88,6 +114,10 @@ public class DeckEditWindow : MonoBehaviour
     /// Selecting card information
     /// </summary>
     private Card selectCard;
+    /// <summary>
+    /// Alignment method under selection
+    /// </summary>
+    private StorageSortType nowSortType;
 
     #endregion Private Variables
 
@@ -102,7 +132,7 @@ public class DeckEditWindow : MonoBehaviour
     }
     void Update()
     {
-
+        HideCardEffectExplain();
     }
     #endregion Unity Methods
 
@@ -118,8 +148,13 @@ public class DeckEditWindow : MonoBehaviour
         dicDeckCardObjectByCard = new Dictionary<GameObject, Card>();
         storageCardObjects = new List<GameObject>();
         dicStorageCardObjectByCard = new Dictionary<GameObject, Card>();
+        nowSortType = StorageSortType.CardID;
         // UI initialization
         gameObject.SetActive(false);
+        effectExplainDisplay.Init();
+        effectExplainBackGroundObject.SetActive(false);
+        // Show current alignment method
+        ShowNowSortType();
     }
     /// <summary>
     /// Show window
@@ -178,12 +213,76 @@ public class DeckEditWindow : MonoBehaviour
     /// </summary>
     public void AlignStorageList()
     {
-        // Align list of objects
-        storageCardObjects.Sort((a, b) =>
-            dicStorageCardObjectByCard[a].baseCardData.serialNum - dicStorageCardObjectByCard[b].baseCardData.serialNum);
+        // Align a list of objects according to a condition
+        switch (nowSortType)
+        {
+            case StorageSortType.CardID:
+                // Card ID (serial number) / Ascending
+                storageCardObjects.Sort((a, b) =>
+                    dicStorageCardObjectByCard[a].baseCardData.serialNum - dicStorageCardObjectByCard[b].baseCardData.serialNum);
+                break;
+            case StorageSortType.CardPower:
+                // Total effect amount / Descending
+                storageCardObjects.Sort((a, b) =>
+                    dicStorageCardObjectByCard[b].baseCardData.totalEffectValue - dicStorageCardObjectByCard[a].baseCardData.totalEffectValue);
+                break;
+            case StorageSortType.Force:
+                // Force / Descending
+                storageCardObjects.Sort((a, b) =>
+                    dicStorageCardObjectByCard[b].baseCardData.force - dicStorageCardObjectByCard[a].baseCardData.force);
+                break;
+        }
         // Transform sibling relationships are also aligned based on the sorted list
         int length = storageCardObjects.Count;
         for (int i = 0; i < length; i++) storageCardObjects[i].transform.SetAsLastSibling();
+    }
+    /// <summary>
+    /// Change the alignment method of the cards-in-storage list
+    /// </summary>
+    public void ChangeSortType()
+    {
+        // Change the alignment method
+        nowSortType++;
+        if (nowSortType >= StorageSortType._Max)
+            nowSortType = StorageSortType.CardID;
+        // Apply alignment method
+        AlignStorageList();
+        // Display current alignment method
+        ShowNowSortType();
+        // Play SE
+        SEManager.instance.PlaySE(SEManager.SEName.DecideB);
+    }
+    /// <summary>
+    /// Show how the current list of cards in storage is aligned
+    /// </summary>
+    public void ShowNowSortType()
+    {
+        string mesJP = string.Empty;
+        string mesEN = string.Empty;
+        // Set display text
+        switch (nowSortType)
+        {
+            case StorageSortType.CardID:
+                // Card ID (serial number)
+                mesJP = "カードID";
+                mesEN = "Card ID";
+                break;
+            case StorageSortType.CardPower:
+                // Total effect amount
+                mesJP = "効果量";
+                mesEN = "Effect";
+                break;
+            case StorageSortType.Force:
+                // Force
+                mesJP = "強度";
+                mesEN = "Force";
+                break;
+        }
+        // Display text
+        if (Data.nowLanguage == SystemLanguage.Japanese)
+            sortTypeText.text = mesJP;
+        else if (Data.nowLanguage == SystemLanguage.English)
+            sortTypeText.text = mesEN;
     }
     /// <summary>
     /// Tap destination card selection process
@@ -314,6 +413,18 @@ public class DeckEditWindow : MonoBehaviour
         // Deck card list alignment
         AlignDeckList();
     }
+    /// <summary>
+    /// Detail button
+    /// </summary>
+    public void ButtonCardDetail()
+    {
+        if (selectCard == null) return;
+        // Display card effect explanation
+        effectExplainDisplay.ShowExplains(selectCard.baseCardData, Card.CharaIDPlayer);
+        effectExplainBackGroundObject.SetActive(true);
+        // Play SE
+        SEManager.instance.PlaySE(SEManager.SEName.DecideA);
+    }
 
     #endregion processing when a button is pressed
 
@@ -386,6 +497,18 @@ public class DeckEditWindow : MonoBehaviour
             deckLogoText.text = deckLogoText.text.Insert(0, "デッキ");
         else if (Data.nowLanguage == SystemLanguage.English)
             deckLogoText.text = deckLogoText.text.Insert(0, "Deck");
+    }
+    /// <summary>
+    /// Hide card effect explain
+    /// </summary>
+    private void HideCardEffectExplain()
+    {
+        // Tap to hide card effect description
+        if (Input.GetMouseButtonDown(0))
+        {
+            effectExplainDisplay.HideExplains();
+            effectExplainBackGroundObject.SetActive(false);
+        }
     }
     #endregion Private Methods
 

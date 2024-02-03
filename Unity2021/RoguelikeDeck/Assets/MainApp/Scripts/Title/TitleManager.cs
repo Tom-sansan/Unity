@@ -93,7 +93,7 @@ public class TitleManager : MonoBehaviour
     void Update()
     {
 #if UNITY_EDITOR
-        DebugForEditor();
+        AddEXPGold();
 #endif
     }
     #endregion Unity Methods
@@ -162,13 +162,13 @@ public class TitleManager : MonoBehaviour
     /// <summary>
     /// For debug
     /// </summary>
-    private void DebugForEditor()
+    private void AddEXPGold()
     {
         if (Input.GetKey(KeyCode.C))
         {
             Data.instance.ChangePlayerEXP(200000);
             Data.instance.ChangePlayerGold(200000);
-            SceneManager.LoadScene("Title");
+            SceneManager.LoadScene("TitleScene");
         }
     }
     #endregion Private Methods

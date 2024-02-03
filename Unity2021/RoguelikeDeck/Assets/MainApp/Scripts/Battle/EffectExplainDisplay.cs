@@ -29,6 +29,11 @@ public class EffectExplainDisplay : MonoBehaviour
     /// </summary>
     [SerializeField]
     private PlayBoardManager playBoardManager = null;
+    /// <summary>
+    /// Cards to be displayed when explaining details (For deck edit screen) 
+    /// </summary>
+    [SerializeField]
+    private Card detailExplainCard = null;
 
     #endregion SerializeField
 
@@ -66,6 +71,12 @@ public class EffectExplainDisplay : MonoBehaviour
         foreach (var explainPart in partsList) explainPart.Init(this);
         // If the object is inactive, make it active
         gameObject.SetActive(true);
+        // Initialize card for detail display
+        if (detailExplainCard != null)
+        {
+            detailExplainCard.Init(null, detailExplainCard.rectTransform.position);
+            detailExplainCard.gameObject.SetActive(false);
+        }
     }
     /// <summary>
     /// Show effect description
@@ -84,6 +95,24 @@ public class EffectExplainDisplay : MonoBehaviour
         }
     }
     /// <summary>
+    /// Display effect description (specify card data directly)
+    /// </summary>
+    /// <param name="cardDataSO"></param>
+    /// <param name="charaID"></param>
+    public void ShowExplains(CardDataSO cardDataSO, int charaID)
+    {
+        // Card setting for detailed time display
+        if (detailExplainCard != null)
+        {
+            detailExplainCard.ClearIconsAndEffects();
+            detailExplainCard.SetInitialCardData(cardDataSO, charaID);
+            detailExplainCard.gameObject.SetActive(true);
+        }
+        // Display explanation
+        ShowExplains(cardDataSO.effectList, charaID);
+
+    }
+    /// <summary>
     /// Hide effect description
     /// </summary>
     public void HideExplains()
@@ -91,6 +120,9 @@ public class EffectExplainDisplay : MonoBehaviour
         // Hide
         int listLength = partsList.Count;
         for (int i = 0; i < listLength; i++) partsList[i].HideExplain();
+        // Hide cards for display in detail
+        if (detailExplainCard != null)
+            detailExplainCard.gameObject.SetActive(false);
     }
     /// <summary>
     /// Return the number of weapon attacks if in combat. (If not in combat, return 0.)
