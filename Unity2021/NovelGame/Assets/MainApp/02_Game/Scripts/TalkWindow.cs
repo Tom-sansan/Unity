@@ -59,6 +59,11 @@ public class TalkWindow : MonoBehaviour
     /// </summary>
     [SerializeField]
     private List<StoryData> talks = new List<StoryData>();
+    /// <summary>
+    /// Talk transition
+    /// </summary>
+    [SerializeField]
+    private UITransition talkWindowTransition = null;
 
     #endregion SerializeField
 
@@ -92,9 +97,12 @@ public class TalkWindow : MonoBehaviour
     #region Methods
 
     #region Unity Methods
-    void Start()
+    async void Start()
     {
-        StartTalk(talks);
+        await Open();
+        await StartTalk(talks);
+        await Close();
+        Debug.Log("Test finished!!");
     }
     void Update()
     {
@@ -104,6 +112,29 @@ public class TalkWindow : MonoBehaviour
 
     #region Public Methods
 
+    /// <summary>
+    /// Open window
+    /// </summary>
+    /// <param name="initName"></param>
+    /// <param name="initText"></param>
+    /// <returns></returns>
+    public async UniTask Open(string initName = "", string initText = "")
+    {
+        nameText.text = initName;
+        talkText.text = initText;
+        nextArrow.gameObject.SetActive(false);
+        talkWindowTransition.gameObject.SetActive(true);
+        await talkWindowTransition.TransitionInWait();
+    }
+    /// <summary>
+    /// Close window
+    /// </summary>
+    /// <returns></returns>
+    public async UniTask Close()
+    {
+        await talkWindowTransition.TransitionOutWait();
+        talkWindowTransition.gameObject.SetActive(false);
+    }
     /// <summary>
     /// Start talk
     /// </summary>
