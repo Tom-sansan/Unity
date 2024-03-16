@@ -1,12 +1,11 @@
-using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 /// <summary>
-/// Game View class
+/// Story Data Class
 /// </summary>
-public class GameView : ViewBase
+[Serializable]
+public class StoryData
 {
     #region Class
 
@@ -27,6 +26,32 @@ public class GameView : ViewBase
     #endregion Protected Variables
 
     #region Public Variables
+
+    /// <summary>
+    /// Character
+    /// </summary>
+    public string Name = string.Empty;
+    /// <summary>
+    /// Conversation content
+    /// </summary>
+    [Multiline(3)]
+    public string Talk = string.Empty;
+    /// <summary>
+    /// Place, background
+    /// </summary>
+    public string Place = string.Empty;
+    /// <summary>
+    /// Left character
+    /// </summary>
+    public string Left = string.Empty;
+    /// <summary>
+    /// Center character
+    /// </summary>
+    public string Center = string.Empty;
+    /// <summary>
+    /// Right character
+    /// </summary>
+    public string Right = string.Empty;
 
     #endregion Public Variables
 
@@ -50,26 +75,6 @@ public class GameView : ViewBase
     #endregion Unity Methods
 
     #region Public Methods
-
-    /// <summary>
-    /// Call at view open
-    /// </summary>
-    public override void OnViewOpened()
-    {
-        base.OnViewOpened();
-    }
-    /// <summary>
-    /// Call at view close
-    /// </summary>
-    public override void OnViewClosed()
-    {
-        base.OnViewClosed();
-    }
-    /// <summary>
-    /// Back to home
-    /// </summary>
-    public void OnBackToHomeButtonClicked() =>
-        Scene.ChangeScene("01_Home").Forget();
 
     #endregion Public Methods
 
