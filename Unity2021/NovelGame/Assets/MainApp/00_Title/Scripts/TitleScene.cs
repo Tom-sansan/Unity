@@ -1,30 +1,19 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
+/// <summary>
+/// Title Scene Class
+/// </summary>
 public class TitleScene : SceneBase
 {
-    #region Class
-
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
 
+    /// <summary>
+    /// View list
+    /// </summary>
+    //[SerializeField]
+    //List<GameObject> viewList = new List<GameObject>();
+    
     #endregion SerializeField
-
-    #region Public Variables
-
-    #endregion Public Variables
-
-    #region Private Variables
-
-    #endregion Private Variables
 
     #endregion Variables
 
@@ -37,10 +26,7 @@ public class TitleScene : SceneBase
         //Test_ChangeView(0);
         //StartCoroutine(ChangeViewWaitForSeconds());
     }
-    void Update()
-    {
 
-    }
     #endregion Unity Methods
 
     #region Public Methods
