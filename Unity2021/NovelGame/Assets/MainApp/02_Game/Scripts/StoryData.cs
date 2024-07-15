@@ -2,35 +2,19 @@ using System;
 using UnityEngine;
 
 /// <summary>
-/// Story Data Class
+/// StoryData Class
 /// </summary>
 [Serializable]
 public class StoryData
 {
-    #region Class
-
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
-
-    #region SerializeField
-
-    #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
 
     #region Public Variables
 
     /// <summary>
-    /// Character
+    /// Character Number
     /// </summary>
-    public string Name = string.Empty;
+    public int CharacterNumber = 0;
     /// <summary>
     /// Conversation content
     /// </summary>
@@ -55,32 +39,5 @@ public class StoryData
 
     #endregion Public Variables
 
-    #region Private Variables
-
-    #endregion Private Variables
-
     #endregion Variables
-
-    #region Methods
-
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
-
-    #region Public Methods
-
-    #endregion Public Methods
-
-    #region Private Methods
-
-    #endregion Private Methods
-
-    #endregion Methods
 }

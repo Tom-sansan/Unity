@@ -4,9 +4,9 @@ using UnityEngine;
 
 public class GameScene : SceneBase
 {
-    #region Class
+    #region Nested Class
 
-    #endregion Class
+    #endregion Nested Class
 
     #region Enum
 

@@ -8,7 +8,7 @@ using UnityEngine.Events;
 [RequireComponent(typeof(CanvasGroup))]
 public class UITransition : MonoBehaviour
 {
-    #region Class
+    #region Nested Class
 
     /// <summary>
     /// Setting value
@@ -30,11 +30,7 @@ public class UITransition : MonoBehaviour
         public Vector2 Out = new Vector2(1f, 0);
     }
 
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
+    #endregion Nested Class
 
     #region Variables
 
@@ -45,6 +41,16 @@ public class UITransition : MonoBehaviour
     /// </summary>
     [SerializeField]
     private TransitionParam fade = new TransitionParam();
+    /// <summary>
+    /// Setting value of scale
+    /// </summary>
+    [SerializeField]
+    private TransitionParam scale = new TransitionParam()
+    {
+        IsActive = false,
+        In = Vector2.zero,
+        Out = Vector2.zero
+    };
     /// <summary>
     /// Transition duration
     /// </summary>
@@ -116,12 +122,7 @@ public class UITransition : MonoBehaviour
     void Start()
     {
         // Init();
-        // await TransitionInWait();
-        // Debug.Log("Transition has ended!");
-    }
-    void Update()
-    {
-
+        // TestTransitionInWait();
     }
     /// <summary>
     /// Callback when destroyed
@@ -138,6 +139,7 @@ public class UITransition : MonoBehaviour
 
     /// <summary>
     /// Transition in
+    /// *Processing of UI coming into the screen
     /// </summary>
     public void TransitionIn(UnityAction onCompleted = null)
     {
@@ -156,11 +158,22 @@ public class UITransition : MonoBehaviour
                       .SetLink(gameObject)
             );
         }
+        if (scale.IsActive)
+        {
+            var current = Rect.transform.localScale;
+            Rect.transform.localScale = new Vector3(scale.In.x, scale.In.y, current.z);
+            inSequence.Join
+            (
+                Rect.DOScale(current, duration)
+                    .SetLink(gameObject)
+            );
+        }
         inSequence.SetLink(gameObject)
                   .OnComplete(() => onCompleted?.Invoke());
     }
     /// <summary>
     /// Transition out
+    /// * Processing of UI going off-screen
     /// </summary>
     public void TransitionOut(UnityAction onCompleted = null)
     {
@@ -179,8 +192,21 @@ public class UITransition : MonoBehaviour
                       .SetLink(gameObject)
             );
         }
+        if (scale.IsActive)
+        {
+            if (Rect != null)
+            {
+                var current = Rect.transform.localScale;
+                outSequence.Join
+                (
+                    Rect.DOScale(new Vector3(scale.Out.x, scale.Out.y, current.z), duration)
+                        .SetLink(gameObject)
+                        .OnComplete(() => Rect.transform.localScale = current)
+                );
+            }
+        }
         outSequence.SetLink(gameObject)
-                   .OnComplete(() => onCompleted?.Invoke());
+                    .OnComplete(() => onCompleted?.Invoke());
     }
     /// <summary>
     /// Wait for transition-in termination
@@ -188,24 +214,28 @@ public class UITransition : MonoBehaviour
     /// <returns></returns>
     public async UniTask TransitionInWait()
     {
-        bool isDone = false;
-        if (inCancellation != null) inCancellation.Cancel();
-        inCancellation = new CancellationTokenSource();
-        TransitionIn(() => { isDone = true; });
         try
         {
+            bool isDone = false;
+            if (inCancellation != null) inCancellation.Cancel();
+            inCancellation = new CancellationTokenSource();
+            TransitionIn(() => { isDone = true; });
+
             await UniTask.WaitUntil(() => isDone == true, PlayerLoopTiming.Update, inCancellation.Token);
         }
         catch(OperationCanceledException e)
         {
             Debug.Log("Cancelled: " + e);
+            throw e;
         }
     }
+    /// <summary>
     /// Wait for transition-out termination
     /// </summary>
     /// <returns></returns>
     public async UniTask TransitionOutWait()
     {
+
         bool isDone = false;
         if (outCancellation != null) outCancellation.Cancel();
         outCancellation = new CancellationTokenSource();
@@ -214,9 +244,10 @@ public class UITransition : MonoBehaviour
         {
             await UniTask.WaitUntil(() => isDone == true, PlayerLoopTiming.Update, outCancellation.Token);
         }
-        catch (OperationCanceledException e)
+        catch (Exception e)
         {
-            Debug.Log("Cancelled: " + e);
+            Debug.Log("TransitionOutWait Exception: " + e);
+            // throw e;
         }
     }
 
@@ -239,6 +270,15 @@ public class UITransition : MonoBehaviour
     /// </summary>
     private void MoveSplashViewToRight() =>
         Rect.DOLocalMove(new Vector3(1000f, 0, 0), 3f);
+    /// <summary>
+    /// Test for TransitionInWait
+    /// </summary>
+    /// <returns></returns>
+    private async void TestTransitionInWait()
+    {
+        await TransitionInWait();
+        Debug.Log("Transition has ended!");
+    }
 
     #endregion Private Methods
 

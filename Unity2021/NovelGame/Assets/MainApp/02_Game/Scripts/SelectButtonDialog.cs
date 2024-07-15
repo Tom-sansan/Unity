@@ -1,21 +1,13 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Select Button Dialog Class
+/// SelectButtonDialog Class
 /// </summary>
 public class SelectButtonDialog : MonoBehaviour
 {
-    #region Class
-
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -38,14 +30,6 @@ public class SelectButtonDialog : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #endregion Public Variables
-
     #region Private Variables
 
     /// <summary>
@@ -63,36 +47,80 @@ public class SelectButtonDialog : MonoBehaviour
 
     #region Methods
 
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
-
     #region Public Methods
 
     /// <summary>
     /// Button creation
     /// </summary>
-    /// <param name="bgOpen"></param>
-    /// <param name="selectParams"></param>
+    /// <param name="bgOpen">Bool if background is open or not</param>
+    /// <param name="selectParams">Parameters of button text</param>
     /// <returns></returns>
     public async UniTask<int> CreateButtons(bool bgOpen, string[] selectParams)
     {
-        var res = response;
-        // Close
-        // await Close();
-        return res;
+        if (selectParams == null || selectParams.Length == 0) return -1;
+        try
+        {
+            var tasks = new List<UniTask>();
+            int index = 0;
+            // Background setting
+            if (bgOpen)
+            {
+                bgTransition.gameObject.SetActive(true);
+                tasks.Add(bgTransition.TransitionInWait());
+            }
+            else bgTransition.gameObject.SetActive(false);
+            // Create buttons
+            foreach (var param in selectParams)
+            {
+                var button = Instantiate(buttonPrefab, buttonParent);
+                buttons.Add(button);
+                tasks.Add(button.OnCreated(param, index, OnAnyButtonClicked));
+                index++;
+            }
+            // Update canvas to reliably reflect layout groups
+            Canvas.ForceUpdateCanvases();
+            await UniTask.WhenAll(tasks);
+            // Wait until some button is pressed here
+            await UniTask.WaitUntil(() => response != -1, PlayerLoopTiming.Update, this.GetCancellationTokenOnDestroy());
+            var res = response;
+            // Close
+            await Close();
+            return res;
+        }
+        catch (OperationCanceledException e)
+        {
+            Debug.Log(nameof(CreateButtons) + " has been cancelled...");
+            throw e;
+        }
     }
-
+    /// <summary>
+    /// Close dialog
+    /// </summary>
+    /// <returns></returns>
+    public async UniTask Close()
+    {
+        // Close buttons
+        var tasks = new List<UniTask>();
+        foreach (var button in buttons) tasks.Add(button.Close());
+        // Close background
+        if (bgTransition.gameObject.activeSelf) tasks.Add(bgTransition.TransitionOutWait());
+        await UniTask.WhenAll(tasks);
+        bgTransition.gameObject.SetActive(false);
+        response = -1;
+    }
     #endregion Public Methods
 
     #region Private Methods
+
+    /// <summary>
+    /// Process when any of the buttons is pressed
+    /// </summary>
+    /// <param name="index"></param>
+    private void OnAnyButtonClicked(int index)
+    {
+        Debug.Log(index + " was clicked...");
+        response = index;
+    }
 
     #endregion Private Methods
 

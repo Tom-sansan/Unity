@@ -1,24 +1,22 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
+/// <summary>
+/// SelectButton Class
+/// </summary>
 public class SelectButton : MonoBehaviour
 {
-    #region Class
+    #region Nested Class
 
     /// <summary>
     /// Click Event Class
     /// </summary>
     public class ClickEvent : UnityEvent<int> { }
 
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
+    #endregion Nested Class
 
     #region Variables
 
@@ -37,10 +35,6 @@ public class SelectButton : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
     #region Public Variables
 
     /// <summary>
@@ -54,29 +48,11 @@ public class SelectButton : MonoBehaviour
 
     #endregion Public Variables
 
-    #region Private Variables
-
-    #endregion Private Variables
-
     #endregion Variables
 
     #region Methods
 
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
-
     #region Public Methods
-
-    #endregion Public Methods
-
     /// <summary>
     /// Call at creation
     /// </summary>
@@ -98,18 +74,24 @@ public class SelectButton : MonoBehaviour
     /// <returns></returns>
     public async UniTask Close()
     {
-        await transition.TransitionOutWait();
-        Destroy(gameObject);
+        try
+        {
+            await transition.TransitionOutWait();
+            Destroy(gameObject);
+        }
+        catch (Exception e)
+        {
+            Debug.Log("Close Exception:" + e);
+        }
     }
-
+    /// <summary>
+    /// Button click call back
+    /// </summary>
     public void OnButtonClicked()
     {
         OnClicked.Invoke(buttonIndex);
     }
-
-    #region Private Methods
-
-    #endregion Private Methods
+    #endregion Public Methods
 
     #endregion Methods
 }

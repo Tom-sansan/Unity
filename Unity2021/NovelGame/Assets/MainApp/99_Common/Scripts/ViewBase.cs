@@ -5,19 +5,7 @@ using UnityEngine;
 /// </summary>
 public class ViewBase : MonoBehaviour
 {
-    #region Class
-
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
-
-    #region SerializeField
-
-    #endregion SerializeField
 
     #region Public Variables
 
@@ -50,17 +38,6 @@ public class ViewBase : MonoBehaviour
 
     #region Methods
 
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
-
     #region Public Methods
 
     /// <summary>
@@ -79,10 +56,6 @@ public class ViewBase : MonoBehaviour
     }
 
     #endregion Public Methods
-
-    #region Private Methods
-
-    #endregion Private Methods
 
     #endregion Methods
 }

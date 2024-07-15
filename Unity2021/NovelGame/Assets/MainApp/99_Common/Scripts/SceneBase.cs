@@ -1,5 +1,4 @@
 using Cysharp.Threading.Tasks;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -9,14 +8,6 @@ using UnityEngine.SceneManagement;
 /// </summary>
 public class SceneBase : MonoBehaviour
 {
-    #region Class
-
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -47,14 +38,6 @@ public class SceneBase : MonoBehaviour
     protected ViewBase currentView = null;
 
     #endregion Protected Variables
-
-    #region Public Variables
-
-    #endregion Public Variables
-
-    #region Private Variables
-
-    #endregion Private Variables
 
     #endregion Variables
 
@@ -93,6 +76,7 @@ public class SceneBase : MonoBehaviour
                 view.gameObject.SetActive(true);
                 view.OnViewOpened();
                 if (view.Transition != null) await view.Transition.TransitionInWait();
+                currentView = view;
             }
             else view.gameObject.SetActive(false);
         }
@@ -118,7 +102,7 @@ public class SceneBase : MonoBehaviour
     #region Private Methods
 
     /// <summary>
-    /// Initialization
+    /// SceneBase initialization
     /// </summary>
     private void Init()
     {

@@ -8,7 +8,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "CharacterData", menuName = "ScriptableObjects/CharacterData")]
 public class CharacterData : ScriptableObject
 {
-    #region Class
+    #region Nested Class
 
     /// <summary>
     /// Character's parameter
@@ -56,7 +56,7 @@ public class CharacterData : ScriptableObject
         public Sprite Sprite = null;
     }
 
-    #endregion Class
+    #endregion Nested Class
 
     #region Enum
 
@@ -95,10 +95,6 @@ public class CharacterData : ScriptableObject
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
     #region Public Variables
 
     /// <summary>
@@ -108,24 +104,9 @@ public class CharacterData : ScriptableObject
 
     #endregion Public Variables
 
-    #region Private Variables
-
-    #endregion Private Variables
-
     #endregion Variables
 
     #region Methods
-
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
 
     #region Public Methods
 
@@ -134,9 +115,9 @@ public class CharacterData : ScriptableObject
     /// </summary>
     /// <param name="characterNumber"></param>
     /// <returns></returns>
-    public string GetCharacterName(string characterNumber)
+    public string GetCharacterName(int characterNumber)
     {
-        if (characterNumber == "1" || characterNumber == "2" || characterNumber == "3")
+        if (characterNumber == 1 || characterNumber == 2 || characterNumber == 3)
         {
             var param = GetParameterFromNumber(characterNumber);
             return param.DisplayName;
@@ -151,9 +132,10 @@ public class CharacterData : ScriptableObject
     public Sprite GetCharacterSprite(string dataString)
     {
         // Get first letter
-        var num = dataString.Substring(0, 1);
+        int.TryParse(dataString.Substring(0, 1), out var num);
+        // Get string except the first letter
         var emo = dataString.Substring(1);
-        if (num != "0" && num != "1" && num != "2" && num != "3")
+        if (num != 0 && num != 1 && num != 2 && num != 3)
         {
             Debug.Log("Incorrect data input: " + dataString);
             return null;
@@ -173,10 +155,10 @@ public class CharacterData : ScriptableObject
     /// </summary>
     /// <param name="characterNumber"></param>
     /// <returns></returns>
-    private Parameter GetParameterFromNumber(string characterNumber)
+    private Parameter GetParameterFromNumber(int characterNumber)
     {
         foreach (var param in Parameters)
-            if (((int)param.Character).ToString() == characterNumber) return param;
+            if (((int)param.Character) == characterNumber) return param;
         return null;
     }
     /// <summary>
