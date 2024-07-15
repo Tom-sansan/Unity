@@ -1,58 +1,36 @@
-using System.Collections;
-using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using UnityEngine;
 
+/// <summary>
+/// Home View Class
+/// </summary>
 public class HomeView : ViewBase
 {
-    #region Class
-
-    #endregion Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
 
+    /// <summary>
+    /// Button transition
+    /// </summary>
+    [SerializeField]
+    private UITransition buttonTransition = null;
+
     #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #endregion Public Variables
-
-    #region Private Variables
-
-    #endregion Private Variables
 
     #endregion Variables
 
     #region Methods
-
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
 
     #region Public Methods
 
     /// <summary>
     /// Call at view open
     /// </summary>
-    public override void OnViewOpened()
+    public override async void OnViewOpened()
     {
         base.OnViewOpened();
+        await Open();
     }
     /// <summary>
     /// Call at view close
@@ -66,10 +44,41 @@ public class HomeView : ViewBase
     /// </summary>
     public async void OnGameButtonClicked() =>
         await Scene.ChangeScene("02_Game");
+    /// <summary>
+    /// Reset saved data
+    /// </summary>
+    public void OnSaveDataResetButtonClicked()
+    {
+        var saveData = new SaveData();
+        var data = saveData.Load();
+        data.StoryNumber = 0;
+        data.TestString = string.Empty;
+        saveData.Save(data);
+    }
 
     #endregion Public Methods
 
     #region Private Methods
+
+    /// <summary>
+    /// Open window
+    /// </summary>
+    /// <returns></returns>
+    private async UniTask Open()
+    {
+        buttonTransition.Canvas.alpha = 0;
+        buttonTransition.gameObject.SetActive(true);
+        await buttonTransition.TransitionInWait();
+    }
+    /// <summary>
+    /// Close window
+    /// </summary>
+    /// <returns></returns>
+    private async UniTask Close()
+    {
+        await buttonTransition.TransitionOutWait();
+        buttonTransition.gameObject.SetActive(false);
+    }
 
     #endregion Private Methods
 
