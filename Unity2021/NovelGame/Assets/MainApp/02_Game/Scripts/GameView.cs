@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 /// <summary>
@@ -69,13 +70,13 @@ public class GameView : ViewBase
         // var data = talkWindow.Talks;
         var saveData = new SaveData();
         var loadedData = saveData.Load();
-        string _sheetId = "";
+        string _sheetId = "1ysWc8fYia9XN_lmjtA9SQkJVDTeBgoL104dM7RiKMnM";
         string _sheetName = string.Empty;
         try
         {
             if (loadedData.StoryNumber == 0)
             {
-                _sheetName = "";
+                _sheetName = "TalkData001";
                 var response = await LoadSpreadSheetData(_sheetId, _sheetName);
                 await talkWindow.Close();
 
@@ -99,7 +100,11 @@ public class GameView : ViewBase
         }
         catch (OperationCanceledException e)
         {
-            Debug.Log("Test conversation has been cancelled." + e);
+            Debug.Log($"OperationCanceledException: {e}");
+        }
+        catch (Exception e)
+        {
+            Debug.Log($"Exception: {e}");
         }
     }
     /// <summary>
@@ -110,7 +115,7 @@ public class GameView : ViewBase
         base.OnViewClosed();
     }
     /// <summary>
-    /// Back to home
+    /// Back to "01_Home" scene
     /// </summary>
     public void OnBackToHomeButtonClicked() =>
         Scene.ChangeScene("01_Home").Forget();

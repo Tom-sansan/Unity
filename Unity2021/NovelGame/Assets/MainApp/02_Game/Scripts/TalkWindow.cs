@@ -179,8 +179,15 @@ public class TalkWindow : MonoBehaviour
     /// <returns></returns>
     public async UniTask Close()
     {
-        await talkWindowTransition.TransitionOutWait();
-        talkWindowTransition.gameObject.SetActive(false);
+        try
+        {
+            await talkWindowTransition.TransitionOutWait();
+            talkWindowTransition.gameObject.SetActive(false);
+        }
+        catch (Exception e)
+        {
+            Debug.Log(e.Message);
+        }
     }
     /// <summary>
     /// Start talk
@@ -200,7 +207,7 @@ public class TalkWindow : MonoBehaviour
             {
                 // Set backgound image
                 if (!string.IsNullOrEmpty(talk.Place)) await SetBg(talk.Place, false);
-                // In case of selection(30)
+                // In case of selection button(30)
                 if (talk.CharacterNumber.Equals(30))
                 {
                     goToNextPage = false;
@@ -213,6 +220,14 @@ public class TalkWindow : MonoBehaviour
                     Debug.Log("Response = " + res);
                     responseList.Add(res);
                     goToNextPage = true;
+                }
+                // In case of 31, Game clear
+                else if (talk.CharacterNumber.Equals(99))
+                {
+                    // Clear data
+                    new HomeView().ResetData();
+                    // Go to Title Page
+                    GameObject.Find("GameView").GetComponent<GameView>().OnBackToHomeButtonClicked();
                 }
                 // In case of Character process
                 else
@@ -349,12 +364,12 @@ public class TalkWindow : MonoBehaviour
         bool hideRight = false;
         try
         {
-            // Set left character
-            SetCharacterData(leftCharacterImageTransition, leftCharacterImage, storyData.Left, ref currentLeft, ref hideLeft);
-            // Set center character
-            SetCharacterData(centerCharacterImageTransition, centerCharacterImage, storyData.Center, ref currentCenter, ref hideCenter);
-            // Set left character
-            SetCharacterData(rightCharacterImageTransition, rightCharacterImage, storyData.Right, ref currentRight, ref hideRight);
+            // Set left character image
+            SetCharacterImage(leftCharacterImageTransition, leftCharacterImage, storyData.Left, ref currentLeft, ref hideLeft);
+            // Set center character image
+            SetCharacterImage(centerCharacterImageTransition, centerCharacterImage, storyData.Center, ref currentCenter, ref hideCenter);
+            // Set left character image
+            SetCharacterImage(rightCharacterImageTransition, rightCharacterImage, storyData.Right, ref currentRight, ref hideRight);
 
             #region Character settings (Deleted)
 /*
@@ -418,19 +433,22 @@ public class TalkWindow : MonoBehaviour
             throw e;
         }
 
-        // Set character data
-        void SetCharacterData (UITransition uITransition, Image charaImg, string direction, ref string currentDirection, ref bool hideDirection)
+        // Set character image
+        void SetCharacterImage (UITransition uITransition, Image charaImg, string direction, ref string currentDirection, ref bool hideDirection)
         {
             if (string.IsNullOrEmpty(direction))
             {
                 tasks.Add(uITransition.TransitionOutWait());
                 hideDirection = true;
+                currentDirection = string.Empty;
             }
             else if (currentDirection != direction)
             {
                 var img = characterData.GetCharacterSprite(direction);
                 charaImg.sprite = img;
                 charaImg.gameObject.SetActive(true);
+                // Set native size of Image
+                charaImg.SetNativeSize();
                 tasks.Add(uITransition.TransitionInWait());
                 currentDirection = direction;
             }

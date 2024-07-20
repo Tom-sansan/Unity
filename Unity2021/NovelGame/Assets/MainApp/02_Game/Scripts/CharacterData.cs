@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -68,7 +69,9 @@ public class CharacterData : ScriptableObject
         None = 0,
         Kitakuchan = 1,
         Orekun = 2,
-        Sensei = 3
+        Sensei = 3,
+        Ghost = 4,
+        _MAX
     }
     /// <summary>
     /// Facial Expression Definition for Images
@@ -117,7 +120,7 @@ public class CharacterData : ScriptableObject
     /// <returns></returns>
     public string GetCharacterName(int characterNumber)
     {
-        if (characterNumber == 1 || characterNumber == 2 || characterNumber == 3)
+        if (IsValidCharacterNumber(characterNumber))
         {
             var param = GetParameterFromNumber(characterNumber);
             return param.DisplayName;
@@ -135,11 +138,16 @@ public class CharacterData : ScriptableObject
         int.TryParse(dataString.Substring(0, 1), out var num);
         // Get string except the first letter
         var emo = dataString.Substring(1);
-        if (num != 0 && num != 1 && num != 2 && num != 3)
+        if (!IsValidCharacterNumber(num))
         {
             Debug.Log("Incorrect data input: " + dataString);
             return null;
         }
+        //if (num != 0 && num != 1 && num != 2 && num != 3)
+        //{
+        //    Debug.Log("Incorrect data input: " + dataString);
+        //    return null;
+        //}
         var param = GetParameterFromNumber(num);
         var emotion = GetEmotionType(emo);
         var sprite = param.GetEmotionSprite(emotion);
@@ -180,8 +188,14 @@ public class CharacterData : ScriptableObject
                 return EmotionType.None;
         }
     }
+    /// <summary>
+    /// Check whether the character number is valid or not.
+    /// </summary>
+    /// <param name="num"></param>
+    /// <returns></returns>
+    private bool IsValidCharacterNumber(int num) =>
+        num > (int)Type.None && num < (int)Type._MAX;
 
     #endregion Private Methods
-
     #endregion Methods
 }

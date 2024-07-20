@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -25,10 +24,6 @@ public class BackgroundData : ScriptableObject
 
     #endregion Nested Class
 
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -41,10 +36,6 @@ public class BackgroundData : ScriptableObject
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
     #region Public Variables
 
     /// <summary>
@@ -54,24 +45,9 @@ public class BackgroundData : ScriptableObject
 
     #endregion Public Variables
 
-    #region Private Variables
-
-    #endregion Private Variables
-
     #endregion Variables
 
     #region Methods
-
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
 
     #region Public Methods
 
@@ -88,10 +64,6 @@ public class BackgroundData : ScriptableObject
     }
 
     #endregion Public Methods
-
-    #region Private Methods
-
-    #endregion Private Methods
 
     #endregion Methods
 }
