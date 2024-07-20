@@ -70,7 +70,7 @@ public class GameView : ViewBase
         // var data = talkWindow.Talks;
         var saveData = new SaveData();
         var loadedData = saveData.Load();
-        string _sheetId = "1ysWc8fYia9XN_lmjtA9SQkJVDTeBgoL104dM7RiKMnM";
+        string _sheetId = "";
         string _sheetName = string.Empty;
         try
         {
