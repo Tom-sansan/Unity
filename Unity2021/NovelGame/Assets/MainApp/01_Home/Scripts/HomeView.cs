@@ -2,7 +2,7 @@ using Cysharp.Threading.Tasks;
 using UnityEngine;
 
 /// <summary>
-/// Home View Class
+/// HomeView Class
 /// </summary>
 public class HomeView : ViewBase
 {
@@ -48,6 +48,11 @@ public class HomeView : ViewBase
     /// Reset saved data
     /// </summary>
     public void OnSaveDataResetButtonClicked()
+    {
+        ResetData();
+    }
+
+    public void ResetData()
     {
         var saveData = new SaveData();
         var data = saveData.Load();
