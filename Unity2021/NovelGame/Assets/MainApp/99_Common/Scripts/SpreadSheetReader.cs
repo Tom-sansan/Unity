@@ -16,7 +16,7 @@ public class SpreadSheetReader : MonoBehaviour
     /// <summary>
     /// Google docs link
     /// </summary>
-    private string link = "https://docs.google.com/spreadsheets/d/{0}/gviz/tq?tqx=out:csv&sheet={1}";
+    private string link = "";
 
     #endregion Private Variables
 
@@ -144,7 +144,7 @@ public class SpreadSheetReader : MonoBehaviour
     private void ExecTestCall()
     {
         string _sheetId = "";
-        string _sheetName = "";
+        string _sheetName = "TalkData001";
         LoadSpreadSheet(_sheetId, _sheetName).Forget();
     }
 

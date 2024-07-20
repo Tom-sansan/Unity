@@ -1,7 +1,7 @@
 using UnityEngine;
 
 /// <summary>
-/// View Base class
+/// ViewBase class
 /// </summary>
 public class ViewBase : MonoBehaviour
 {

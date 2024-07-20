@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using UnityEngine;
@@ -9,50 +7,19 @@ using UnityEngine;
 /// </summary>
 public class SaveData
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
-    #region SerializeField
-
-    #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
-
     #region Public Variables
-
-    #endregion Public Variables
 
     public int StoryNumber = 0;
 
     public string TestString = "Test..";
 
-    #region Private Variables
-
-    #endregion Private Variables
+    #endregion Public Variables
 
     #endregion Variables
 
     #region Methods
-
-    #region Unity Methods
-    void Start()
-    {
-
-    }
-    void Update()
-    {
-
-    }
-    #endregion Unity Methods
 
     #region Public Methods
 
