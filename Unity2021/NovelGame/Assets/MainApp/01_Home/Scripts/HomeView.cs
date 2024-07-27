@@ -43,7 +43,7 @@ public class HomeView : ViewBase
     /// Change to title scene
     /// </summary>
     public async void OnGameButtonClicked() =>
-        await Scene.ChangeScene("02_Game");
+        await Scene.ChangeScene(SingletonData.Instance.Data.S02_Game);
     /// <summary>
     /// Reset saved data
     /// </summary>

@@ -16,7 +16,7 @@ public class SpreadSheetReader : MonoBehaviour
     /// <summary>
     /// Google docs link
     /// </summary>
-    private string link = "";
+    private string link = string.Empty;
 
     #endregion Private Variables
 
@@ -26,6 +26,10 @@ public class SpreadSheetReader : MonoBehaviour
 
     #region Unity Methods
 
+    private void Awake()
+    {
+        link = SingletonData.Instance.Data.Link;
+    }
     void Start()
     {
         // ExecTestCall();
@@ -143,7 +147,7 @@ public class SpreadSheetReader : MonoBehaviour
     /// </summary>
     private void ExecTestCall()
     {
-        string _sheetId = "";
+        string _sheetId = SingletonData.Instance.Data.SheetId;
         string _sheetName = "TalkData001";
         LoadSpreadSheet(_sheetId, _sheetName).Forget();
     }

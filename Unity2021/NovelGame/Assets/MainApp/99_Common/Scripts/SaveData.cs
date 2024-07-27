@@ -3,7 +3,7 @@ using System.Text;
 using UnityEngine;
 
 /// <summary>
-/// Save Data Class
+/// SaveData Class
 /// </summary>
 public class SaveData
 {

@@ -262,8 +262,7 @@ public class TalkWindow : MonoBehaviour
                         if (!isInTag && !isCloseTag && !string.IsNullOrEmpty(tagStrings))
                         {
                             // Ex; <color=#0800FF>今
-                            var _word = tagStrings + word;
-                            talkText.text += _word;
+                            talkText.text += tagStrings + word;
                             tagStrings = string.Empty;
                         }
                         else if (isInTag || isCloseTag)

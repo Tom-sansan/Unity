@@ -1,31 +1,16 @@
 using Cysharp.Threading.Tasks;
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 /// <summary>
-/// Game View class
+/// GameView class
 /// </summary>
 public class GameView : ViewBase
 {
     #region Nested Class
 
     #endregion Nested Class
-
-    #region Enum
-
-    /// <summary>
-    /// TakDataType in spreadsheet
-    /// </summary>
-    public enum TalkDataType
-    {
-        TalkData002_0,
-        TalkData002_1,
-        TalkData002_2
-    }
-
-    #endregion Enum
 
     #region Variables
 
@@ -70,30 +55,35 @@ public class GameView : ViewBase
         // var data = talkWindow.Talks;
         var saveData = new SaveData();
         var loadedData = saveData.Load();
-        string _sheetId = "";
+        var storyDataList = new List<StoryData>();
+        var responseList = new List<int>();
+        string _sheetId = SingletonData.Instance.Data.SheetId;
         string _sheetName = string.Empty;
         try
         {
             if (loadedData.StoryNumber == 0)
             {
-                _sheetName = "TalkData001";
-                var response = await LoadSpreadSheetData(_sheetId, _sheetName);
+                _sheetName = SingletonData.Instance.Data.TalkData001;
+                storyDataList = await LoadSpreadSheetData(_sheetId, _sheetName);
+                responseList = await StartTalk(storyDataList);
                 await talkWindow.Close();
 
                 // Save game result
                 loadedData.StoryNumber = 1;
-                loadedData.TestString = response[0].ToString();
+                loadedData.TestString = responseList[0].ToString();
                 saveData.Save(loadedData);
 
-                _sheetName = GetTalkData002SheetName(response[0]);
-                await LoadSpreadSheetData(_sheetId, _sheetName);
+                _sheetName = GetTalkData002SheetName(responseList[0]);
+                storyDataList = await LoadSpreadSheetData(_sheetId, _sheetName);
+                await StartTalk(storyDataList);
                 await talkWindow.Close();
             }
             else if (loadedData.StoryNumber == 1)
             {
                 var num = Convert.ToInt32(loadedData.TestString);
                 _sheetName = GetTalkData002SheetName(num);
-                await LoadSpreadSheetData(_sheetId, _sheetName);
+                storyDataList = await LoadSpreadSheetData(_sheetId, _sheetName);
+                await StartTalk(storyDataList);
                 await talkWindow.Close();
             }
             else Debug.Log("Error number: " + saveData.StoryNumber);
@@ -118,7 +108,7 @@ public class GameView : ViewBase
     /// Back to "01_Home" scene
     /// </summary>
     public void OnBackToHomeButtonClicked() =>
-        Scene.ChangeScene("01_Home").Forget();
+        Scene.ChangeScene(SingletonData.Instance.Data.S01_Home).Forget();
 
     #endregion Public Methods
 
@@ -129,9 +119,16 @@ public class GameView : ViewBase
     /// </summary>
     /// <param name="sheedId"></param>
     /// <param name="sheetName"></param>
-    private async UniTask<List<int>> LoadSpreadSheetData(string sheedId, string sheetName)
+    /// <returns></returns>
+    private async UniTask<List<StoryData>> LoadSpreadSheetData(string sheedId, string sheetName) =>
+        await spreadSheetReader.LoadSpreadSheet(sheedId, sheetName);
+    /// <summary>
+    /// Start talk to open talk window
+    /// </summary>
+    /// <param name="data"></param>
+    /// <returns></returns>
+    private async UniTask<List<int>> StartTalk(List<StoryData> data)
     {
-        var data = await spreadSheetReader.LoadSpreadSheet(sheedId, sheetName);
         await talkWindow.SetBg(data[0].Place, true);
         await talkWindow.Open();
         return await talkWindow.StartTalk(data);
@@ -147,13 +144,13 @@ public class GameView : ViewBase
         switch (number)
         {
             case 0:
-                talkData002SheetName = nameof(TalkDataType.TalkData002_0);
+                talkData002SheetName = SingletonData.Instance.Data.TalkData002_0;
                 break;
             case 1:
-                talkData002SheetName = nameof(TalkDataType.TalkData002_1);
+                talkData002SheetName = SingletonData.Instance.Data.TalkData002_1;
                 break;
             case 2:
-                talkData002SheetName = nameof(TalkDataType.TalkData002_2);
+                talkData002SheetName = SingletonData.Instance.Data.TalkData002_2;
                 break;
         }
         return talkData002SheetName;
