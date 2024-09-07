@@ -76,7 +76,7 @@ public class MainCamera : MonoBehaviour
     private void Init()
     {
         // Initialise targetObjectPosition position
-        // targetObjectPositionの位置を初期化
+        // targetObjectPosition の位置を初期化
         targetObjectPosition = targetObject.transform.position;
     }
     /// <summary>
@@ -86,7 +86,7 @@ public class MainCamera : MonoBehaviour
     {
         // The camera also moves by the amount the target moves
         // targetの移動量分、カメラも移動する
-        transform.position = targetObject.transform.position - targetObjectPosition;
+        transform.position += targetObject.transform.position - targetObjectPosition;
         targetObjectPosition = targetObject.transform.position;
         // カメラが対象オブジェクトへ向く
         // Camera facing the target object
