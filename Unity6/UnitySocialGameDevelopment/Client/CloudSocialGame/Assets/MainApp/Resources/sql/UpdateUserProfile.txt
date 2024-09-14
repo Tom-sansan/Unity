@@ -1,0 +1,5 @@
+UPDATE UserProfile SET
+    {0}
+WHERE
+    UserId = @userId
+;

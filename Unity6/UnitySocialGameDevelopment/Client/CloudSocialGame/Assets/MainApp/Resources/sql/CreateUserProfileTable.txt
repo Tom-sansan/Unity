@@ -1,0 +1,8 @@
+CREATE TABLE IF NOT EXISTS UserProfile (
+    UserId TEXT PRIMARY KEY,
+    UserName TEXT,
+    Crystal INTEGER,
+    CrystalFree INTEGER,
+    FriendCoin INTEGER,
+    TutorialProgress INTEGER
+);

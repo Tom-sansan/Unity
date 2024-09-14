@@ -1,0 +1,12 @@
+{
+  "DBDir": "db",
+  "ServiceDb": "Service.db",
+  "CheckTableExistence": "sql/CheckTableExistence",
+  "CreateUserProfileTable": "sql/CreateUserProfileTable",
+  "SelectUserProfile": "sql/SelectUserProfile",
+  "InsertUserProfile": "sql/InsertUserProfile",
+  "UpdateUserProfile": "sql/UpdateUserProfile",
+  "HttpGetUserProfile": "https://localhost:7138/api/UserProfile/GetUserProfile/{0}",
+  "LogDBDirCreated": "db directory has been created under {0}.",
+  "LogDBCreated": "{0} has been created."
+}

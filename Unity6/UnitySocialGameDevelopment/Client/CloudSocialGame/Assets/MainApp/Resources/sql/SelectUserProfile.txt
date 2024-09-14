@@ -1,0 +1,10 @@
+SELECT
+    UserId
+    ,UserName
+    ,Crystal
+    ,CrystalFree
+    ,FriendCoin
+    ,TutorialProgress
+FROM
+    UserProfile
+;

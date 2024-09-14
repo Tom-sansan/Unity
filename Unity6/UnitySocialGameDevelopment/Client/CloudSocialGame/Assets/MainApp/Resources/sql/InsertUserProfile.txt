@@ -1,0 +1,18 @@
+INSERT INTO UserProfile
+(
+    UserId,
+    UserName,
+    Crystal,
+    CrystalFree,
+    FriendCoin,
+    TutorialProgress
+)
+VALUES
+(
+    @userId,
+    @userName,
+    @crystal,
+    @crystalFree,
+    @friendCoin,
+    @tutorialProgress
+);

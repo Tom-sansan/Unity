@@ -1,0 +1,8 @@
+SELECT
+  NAME
+FROM
+  SQLITE_MASTER
+WHERE
+  TYPE = 'table'
+  AND NAME = @TableName
+;
