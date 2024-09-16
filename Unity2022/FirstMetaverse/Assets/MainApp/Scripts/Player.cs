@@ -1,9 +1,10 @@
-﻿using UnityEngine;
+﻿using Fusion;
+using UnityEngine;
 
 /// <summary>
 /// Player Class
 /// </summary>
-public class Player : MonoBehaviour
+public class Player : NetworkBehaviour
 {
     #region Nested Class
 
@@ -17,6 +18,47 @@ public class Player : MonoBehaviour
 
     #region SerializeField
 
+    /// <summary>
+    /// Camera on Scene
+    /// </summary>
+    [SerializeField]
+    private GameObject mainCamera;
+    /// <summary>
+    /// CameraScript camera target object variable
+    /// </summary>
+    [SerializeField]
+    private GameObject cameraTargetObject;
+    /// <summary>
+    /// Animator
+    /// </summary>
+    [SerializeField]
+    private Animator animator;
+    /// <summary>
+    /// Control of physical collisions and movement of characters
+    /// </summary>
+    [SerializeField]
+    private CharacterController characterController;
+    /// <summary>
+    /// Player movement speed
+    /// </summary>
+    [SerializeField]
+    private float playerSpeed = 5.0f;
+    /// <summary>
+    /// Player directional speed
+    /// </summary>
+    [SerializeField]
+    private float rotationSpeed = 10f;
+    /// <summary>
+    /// Player's jumping ability
+    /// </summary>
+    [SerializeField]
+    private float jumpForce = 7f;
+    /// <summary>
+    /// Strength of gravity(Gravity at the Earth's surface is about -9.81 m/s^2)
+    /// </summary>
+    [SerializeField]
+    private float gravityValue = -9.81f;
+
     #endregion SerializeField
 
     #region Protected Variables
@@ -24,31 +66,6 @@ public class Player : MonoBehaviour
     #endregion Protected Variables
 
     #region Public Variables
-
-    /// <summary>
-    /// Camera on Scene
-    /// </summary>
-    public GameObject mainCamera;
-    /// <summary>
-    /// Animator
-    /// </summary>
-    public Animator animator;
-    /// <summary>
-    /// Player movement speed
-    /// </summary>
-    public float playerSpeed = 5.0f;
-    /// <summary>
-    /// Player directional speed
-    /// </summary>
-    public float rotationSpeed = 10f;
-    /// <summary>
-    /// Player's jumping ability
-    /// </summary>
-    public float jumpForce = 7f;
-    /// <summary>
-    /// Strength of gravity(Gravity at the Earth's surface is about -9.81 m/s^2)
-    /// </summary>
-    public float gravityValue = -9.81f;
 
     #endregion Public Variables
 
@@ -58,7 +75,9 @@ public class Player : MonoBehaviour
     /// IsWalking string
     /// </summary>
     private const string strIsWalking = "IsWalking";
-
+    /// <summary>
+    /// IsJumping string
+    /// </summary>
     private const string strIsJumping = "IsJumping";
     /// <summary>
     /// Jump string
@@ -72,10 +91,6 @@ public class Player : MonoBehaviour
     /// Vertical string
     /// </summary>
     private const string strVertical = "Vertical";
-    /// <summary>
-    /// Control of physical collisions and movement of characters
-    /// </summary>
-    private CharacterController characterController;
     /// <summary>
     /// Velocity vector of player
     /// </summary>
@@ -99,7 +114,7 @@ public class Player : MonoBehaviour
     void Start()
     {
         // Get CharacterController component
-        characterController = GetComponent<CharacterController>();
+        // characterController = GetComponent<CharacterController>();
     }
     void Update()
     {
@@ -110,6 +125,21 @@ public class Player : MonoBehaviour
     #endregion Unity Methods
 
     #region Public Methods
+
+    /// <summary>
+    /// Override methods from NetworkBehaviour, called when the player is created
+    /// </summary>
+    public override void Spawned()
+    {
+        // If it is its own local object with operating rights
+        if (HasStateAuthority)
+        {
+            // Get main Camera
+            mainCamera = Camera.main.gameObject;
+            mainCamera.GetComponent<MainCamera>().targetObject = cameraTargetObject;
+        }
+        base.Spawned();
+    }
 
     #endregion Public Methods
 

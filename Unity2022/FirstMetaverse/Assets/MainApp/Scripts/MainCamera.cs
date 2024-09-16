@@ -21,12 +21,6 @@ public class MainCamera : MonoBehaviour
     #region SerializeField
 
     /// <summary>
-    /// Target object to be followed by the camera
-    /// カメラが追従する対象オブジェクト（アバター）
-    /// </summary>
-    [SerializeField]
-    private GameObject targetObject;
-    /// <summary>
     /// Layers as obstacle
     /// </summary>
     [SerializeField]
@@ -84,6 +78,12 @@ public class MainCamera : MonoBehaviour
 
     #region Public Variables
 
+    /// <summary>
+    /// Target object to be followed by the camera
+    /// カメラが追従する対象オブジェクト（アバター）
+    /// </summary>
+    public GameObject targetObject;
+
     #endregion Public Variables
 
     #region Private Variables
@@ -102,6 +102,10 @@ public class MainCamera : MonoBehaviour
     /// Distance between camera and target object
     /// </summary>
     private float CameraTargetDistance;
+    /// <summary>
+    /// Flag of code called only once the first time
+    /// </summary>
+    private bool isFirstLateUpdate = true;
 
     #endregion Private Variables
 
@@ -112,13 +116,16 @@ public class MainCamera : MonoBehaviour
     #region Unity Methods
     void Start()
     { 
-        Init();
+        // Init();
     }
     /// <summary>
     /// Method called after Update()
     /// </summary>
     void LateUpdate()
     {
+        if (targetObject == null) return;
+        // Only called in the first time
+        if (isFirstLateUpdate) Init();
         MoveCamera();
         ZoomInOut();
         RotateAroundAvatarByCamera();
@@ -139,7 +146,9 @@ public class MainCamera : MonoBehaviour
     {
         // Initialise targetObjectPosition position
         // targetObjectPosition の位置を初期化
+        // Get the coordinates of the player's appearance
         targetObjectPosition = targetObject.transform.position;
+        isFirstLateUpdate = false;
     }
     /// <summary>
     /// Move camera
