@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Fusion;
 
@@ -30,8 +28,6 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
     /// </summary>
     [SerializeField]
     private Transform spawnPoint;
-
-
 
     #endregion SerializeField
 
@@ -77,7 +73,6 @@ public class PlayerSpawner : SimulationBehaviour, IPlayerJoined
             // Generate PlayerPrefab at the specified position with default rotation(Quaternion.identity:No rotation)
             Runner.Spawn(playerPrefab, spawnPoint.position, Quaternion.identity);
         }
-        throw new System.NotImplementedException();
     }
 
     #endregion Public Methods
