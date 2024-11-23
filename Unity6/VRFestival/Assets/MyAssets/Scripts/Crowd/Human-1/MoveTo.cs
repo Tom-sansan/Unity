@@ -261,9 +261,10 @@ public class MoveTo : MonoBehaviour
             animator.SetTrigger(strWalk);
             // designate a new destination to navMeshAgent
             navMeshAgent.destination = destination.transform.position;
-            // 
+            // Unpause
             navMeshAgent.isStopped = false;
         }
+        else Destroy(this.gameObject);
     }
     /// <summary>
     /// Get next destination

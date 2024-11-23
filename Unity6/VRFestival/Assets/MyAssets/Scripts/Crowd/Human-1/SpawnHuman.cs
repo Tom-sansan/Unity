@@ -83,7 +83,7 @@ public class SpawnHuman : MonoBehaviour
     /// <summary>
     /// Spaw worshipper
     /// </summary>
-    private void SpawnWorshipper(bool isInit)
+    private void SpawnWorshipper()
     {
         InstantiateWorshipperPrefab();
         InvokeSpawnWorshipper();
