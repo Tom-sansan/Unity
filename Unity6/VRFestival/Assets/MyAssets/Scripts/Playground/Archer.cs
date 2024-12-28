@@ -81,6 +81,7 @@ public class Archer : MonoBehaviour
     /// </summary>
     public void SetArrowTail(Transform arrowTail)
     {
+        if (pullPoseDriver == null) return;
         // Reset pullPoint position to initial position
         pullPoseDriver.ResetPosition();
         this.arrowTail = arrowTail;
