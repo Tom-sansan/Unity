@@ -1,15 +1,10 @@
 ﻿using UnityEngine;
 
+/// <summary>
+/// Archer Class
+/// </summary>
 public class Archer : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -22,14 +17,6 @@ public class Archer : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #endregion Public Variables
-
     #region Private Variables
 
     /// <summary>
@@ -39,7 +26,7 @@ public class Archer : MonoBehaviour
     private const float hitRadius = 0.05f;
     /// <summary>
     /// Arrow tail
-    /// 弓の尾
+    /// 矢の尾
     /// </summary>
     private Transform arrowTail;
     /// <summary>
@@ -48,16 +35,17 @@ public class Archer : MonoBehaviour
     /// </summary>
     private PullPoseDriver pullPoseDriver;
     /// <summary>
+    /// Direction of launch
+    /// 発射方向を保存する変数
+    /// </summary>
+    private Vector3 shootDirection;
+    /// <summary>
     /// Whether in tow or not
     /// 牽引中かどうか
     /// </summary>
     private bool isTracking = false;
 
     #endregion Private Variables
-
-    #region Properties
-
-    #endregion Properties
 
     #endregion Variables
 
@@ -99,10 +87,10 @@ public class Archer : MonoBehaviour
     {
         if (isTracking)
         {
+            Shoot();
             // Return the pullPoint to its initial position and note the tow
             pullPoseDriver.ResetPosition();
             isTracking = false;
-            Shoot();
         }
         arrowTail = null;
     }
@@ -125,7 +113,11 @@ public class Archer : MonoBehaviour
     {
         // If no bow tails are set, do nothing and return
         // 弓の尾が設定されていなければ何もしないで戻る
-        if (arrowTail == null) return;
+        if (arrowTail == null)
+        {
+            return;
+        }
+
         // Decide whether to tow if not in tow with bow tail
         // 弓の尾で牽引中でなければ牽引するかどうかを決定する
         if (!isTracking)
@@ -150,6 +142,8 @@ public class Archer : MonoBehaviour
                 pullPoseDriver.ResetPosition();
                 isTracking = false;
             }
+            // Keep the launch direction
+            shootDirection = arrowTail.forward;
         }
     }
     /// <summary>
@@ -181,20 +175,11 @@ public class Archer : MonoBehaviour
         body.gameObject.transform.position += arrowTail.forward * 1.0f;
         // Giving arrows the power to strike
         // 矢に撃力を与える
-        body.AddForce(arrowTail.forward * power * momentum, ForceMode.Impulse);
+        // body.AddForce(arrowTail.forward * power * momentum, ForceMode.Impulse);
+        body.AddForce(shootDirection * power * momentum, ForceMode.Impulse);
     }
 
     #endregion Private Methods
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
-
-
 }

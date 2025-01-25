@@ -5,31 +5,7 @@
 /// </summary>
 public class ArrowStopper : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
-
-    #region SerializeField
-
-    #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #region Public Properties
-
-    #endregion Public Properties
-
-    #endregion Public Variables
 
     #region Private Variables
 
@@ -50,15 +26,6 @@ public class ArrowStopper : MonoBehaviour
     #region Methods
 
     #region Unity Methods
-    void Start()
-    {
-        Init();
-    }
-    void Update()
-    {
-
-    }
-
     /// <summary>
     /// Trigger when the arrow hits the stopper
     /// </summary>
@@ -96,25 +63,5 @@ public class ArrowStopper : MonoBehaviour
 
     #endregion Public Methods
 
-        #region Private Methods
-
-        /// <summary>
-        /// Initialize this class
-        /// </summary>
-    private void Init()
-    {
-
-    }
-
-    #endregion Private Methods
-
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }

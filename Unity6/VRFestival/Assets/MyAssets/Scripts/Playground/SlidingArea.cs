@@ -5,23 +5,7 @@
 /// </summary>
 public class SlidingArea : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
-
-    #region SerializeField
-
-    #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
 
     #region Public Variables
 
@@ -30,34 +14,14 @@ public class SlidingArea : MonoBehaviour
     /// 滑走（追跡）動作提供者
     /// </summary>
     public SlideProvider slideProvider;
-    
-    #region Public Properties
-
-    #endregion Public Properties
 
     #endregion Public Variables
-
-    #region Private Variables
-
-    #region Private Properties
-
-    #endregion Private Properties
-
-    #endregion Private Variables
 
     #endregion Variables
 
     #region Methods
 
     #region Unity Methods
-    void Start()
-    {
-        Init();
-    }
-    void Update()
-    {
-
-    }
     /// <summary>
     /// Process when Collider is touched
     /// Colliderに触れた時の処理
@@ -74,29 +38,5 @@ public class SlidingArea : MonoBehaviour
     }
     #endregion Unity Methods
 
-    #region Public Methods
-
-    #endregion Public Methods
-
-    #region Private Methods
-
-    /// <summary>
-    /// Initialize this class
-    /// </summary>
-    private void Init()
-    {
-
-    }
-
-    #endregion Private Methods
-
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }

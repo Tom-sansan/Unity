@@ -9,17 +9,6 @@ using UnityEngine;
 /// </summary>
 public class LostShrineMaterialSetter : EditorWindow
 {
-    #region Variables
-
-    #region Private Variables
-
-    private int selectBeforeShaderIndex;
-    private int selectAfterShaderIndex;
-
-    #endregion Private Variables
-
-    #endregion Variables
-
     #region Methods
 
     #region Private Methods

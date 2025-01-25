@@ -5,14 +5,6 @@
 /// </summary>
 public class Fire : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -25,28 +17,12 @@ public class Fire : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #region Public Properties
-
-    #endregion Public Properties
-
-    #endregion Public Variables
-
     #region Private Variables
 
     /// <summary>
     /// Firework sound
     /// </summary>
     private AudioSource explosionSound;
-
-    #region Private Properties
-
-    #endregion Private Properties
 
     #endregion Private Variables
 
@@ -59,11 +35,6 @@ public class Fire : MonoBehaviour
     {
         Init();
     }
-    void Update()
-    {
-
-    }
-
     /// <summary>
     /// Fireworks are set off when the arrow hits the target
     /// 矢が当たった時にも花火を打ち上げる
@@ -75,10 +46,6 @@ public class Fire : MonoBehaviour
     }
 
     #endregion Unity Methods
-
-    #region Public Methods
-
-    #endregion Public Methods
 
     #region Private Methods
 
@@ -107,12 +74,4 @@ public class Fire : MonoBehaviour
     }
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }

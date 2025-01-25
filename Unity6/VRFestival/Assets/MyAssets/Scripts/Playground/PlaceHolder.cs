@@ -5,13 +5,6 @@
 /// </summary>
 public class PlaceHolder : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
 
     #region Variables
 
@@ -26,26 +19,6 @@ public class PlaceHolder : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #region Public Properties
-
-    #endregion Public Properties
-
-    #endregion Public Variables
-
-    #region Private Variables
-
-    #region Private Properties
-
-    #endregion Private Properties
-
-    #endregion Private Variables
-
     #endregion Variables
 
     #region Methods
@@ -55,14 +28,9 @@ public class PlaceHolder : MonoBehaviour
     {
         Init();
     }
-    void Update()
-    {
-
-    }
     #endregion Unity Methods
 
     #region Public Methods
-
     /// <summary>
     /// Move GameObject specified by target to its own position
     /// target で指定される GameObject を自分の位置に移動させる
@@ -91,12 +59,4 @@ public class PlaceHolder : MonoBehaviour
     #endregion Private Methods
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }

@@ -5,25 +5,19 @@
 /// </summary>
 public class PullPoseDriver : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
 
     /// <summary>
     /// Pull point of bow
+    /// 引き手位置
     /// </summary>
     [SerializeField]
     public Transform pullPoint;
     /// <summary>
     /// Position of the Bone that moves the bowstring
+    /// 弓の弦を動かす Bone 位置
     /// </summary>
     [SerializeField]
     private Transform stringPullPoint;
@@ -48,10 +42,6 @@ public class PullPoseDriver : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
     #region Public Variables
 
     #region Property
@@ -69,6 +59,7 @@ public class PullPoseDriver : MonoBehaviour
 
     /// <summary>
     /// Initial position of pull point of bow
+    /// 引き手の初期位置（Yumi GameObject のローカル座標）
     /// </summary>
     private Vector3 origin;
     /// <summary>
@@ -77,10 +68,6 @@ public class PullPoseDriver : MonoBehaviour
     private Vector3 stringPullPointOrigin;
 
     #endregion Private Variables
-
-    #region Properties
-
-    #endregion Properties
 
     #endregion Variables
 
@@ -126,6 +113,7 @@ public class PullPoseDriver : MonoBehaviour
             // 正しく引けるので pullPoint の位置調整
             pullPoint.position = position;
             canAdjustPullPoint = true;
+            return;
         }
         canAdjustPullPoint = false;
     }
@@ -151,6 +139,7 @@ public class PullPoseDriver : MonoBehaviour
         // Get initial position of PullPoint
         var traction = CalculateVectorTractionDirection(pullPoint.position);
         // Calculate traction
+        // 牽引力を計算
         var power = CalculateTraction(traction);
         stringPullPoint.position = power < tolerancePower || ValidTraction(traction) ?
                                    pullPoint.position :
@@ -158,6 +147,7 @@ public class PullPoseDriver : MonoBehaviour
     }
     /// <summary>
     /// Calculate the vector in the pulling direction
+    /// 牽引方向ベクトル計算 Traction()
     /// </summary>
     /// <param name="position"></param>
     /// <returns></returns>
@@ -166,6 +156,7 @@ public class PullPoseDriver : MonoBehaviour
         transform.InverseTransformPoint(position) - origin;
     /// <summary>
     /// Calculate traction
+    /// 牽引力計算 PowerOf()
     /// </summary>
     /// <param name="traction"></param>
     /// <returns></returns>
@@ -173,28 +164,19 @@ public class PullPoseDriver : MonoBehaviour
         traction.magnitude / maxDistance;
     /// <summary>
     /// Return false if not pulled in the ideal direction
+    /// 理想方向に牽引出来ていなければ false を返す
     /// </summary>
     /// <param name="traction"></param>
     /// <returns></returns>
     private bool ValidTraction(Vector3 traction)
     {
         // Calculate the angle between two vectors
+        // 2つのベクトルのなす角を計算
         var angle = Vector3.Angle(traction, -Vector3.right);
         return angle < maxTractionAngle;
     }
 
     #endregion Private Methods
 
-
-
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
-
 }

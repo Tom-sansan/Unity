@@ -6,14 +6,6 @@ using UnityEngine;
 /// </summary>
 public class SpawnHuman : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -31,22 +23,6 @@ public class SpawnHuman : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #endregion Public Variables
-
-    #region Private Variables
-
-    #endregion Private Variables
-
-    #region Properties
-
-    #endregion Properties
-
     #endregion Variables
 
     #region Methods
@@ -56,19 +32,7 @@ public class SpawnHuman : MonoBehaviour
     {
         Init();
     }
-    void Update()
-    {
-
-    }
     #endregion Unity Methods
-
-    #region Public Methods
-
-    #endregion Public Methods
-
-    #region Private Methods
-
-    #endregion Private Methods
 
     /// <summary>
     /// Initialize this class
@@ -100,14 +64,4 @@ public class SpawnHuman : MonoBehaviour
         Invoke(nameof(SpawnWorshipper), Random.Range(3, 5));
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
-
-
 }

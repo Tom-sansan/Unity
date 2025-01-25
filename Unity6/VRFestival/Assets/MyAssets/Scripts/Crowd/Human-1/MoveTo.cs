@@ -10,14 +10,6 @@ using UnityEngine.AI;
 /// </summary>
 public class MoveTo : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -44,14 +36,6 @@ public class MoveTo : MonoBehaviour
     private int maxDestinations = 2;
 
     #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #endregion Public Variables
 
     #region Private Variables
 
@@ -122,10 +106,6 @@ public class MoveTo : MonoBehaviour
 
     #endregion Private Variables
 
-    #region Properties
-
-    #endregion Properties
-
     #endregion Variables
 
     #region Methods
@@ -143,10 +123,6 @@ public class MoveTo : MonoBehaviour
         if (IsArrived()) ProcessOnArrival();
     }
     #endregion Unity Methods
-
-    #region Public Methods
-
-    #endregion Public Methods
 
     #region Private Methods
 
@@ -186,11 +162,9 @@ public class MoveTo : MonoBehaviour
         list.Add(mainShrinePoint);
         // 屋台を最小で0から、maxStallVisits を超えない数だけ無作為に取り出して追加する
         var c = UnityEngine.Random.Range(1, Math.Min(stallPoints.Length + 1, maxStallVisits));
-        Debug.Log($"The number of stall points:{c}");
         list.AddRange(stallPoints.OrderBy(i => Guid.NewGuid()).Take(c));
         // 散策目標を最小で0から、maxDestinations を超えない数だけ無作為に取り出して追加する
         c = UnityEngine.Random.Range(1, Math.Min(destPoints.Length + 1, maxDestinations));
-        Debug.Log($"The number of destination points:{c}");
         list.AddRange(destPoints.OrderBy(i => Guid.NewGuid()).Take(c));
         // 出来上がった中間目標群を無作為に並べ直したものを destination に持たせる
         destinations = new Stack<GameObject>(list.OrderBy(i => Guid.NewGuid()).ToArray());
@@ -284,14 +258,4 @@ public class MoveTo : MonoBehaviour
     #endregion Private Methods
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
-
-
 }

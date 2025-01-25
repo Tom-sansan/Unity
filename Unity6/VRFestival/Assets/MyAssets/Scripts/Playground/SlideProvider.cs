@@ -1,5 +1,5 @@
-﻿using UnityEngine;
-using UnityEngine.XR.Interaction.Toolkit;
+﻿using Unity.XR.CoreUtils;
+using UnityEngine;
 using UnityEngine.XR.Interaction.Toolkit.Interactables;
 using UnityEngine.XR.Interaction.Toolkit.Locomotion;
 
@@ -8,34 +8,18 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion;
 /// </summary>
 public class SlideProvider : LocomotionProvider
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
-
-    #region SerializeField
-
-    #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #region Property
-
-    #endregion Property
-
-    #endregion Public Variables
 
     #region Private Variables
 
+    /// <summary>
+    /// ログのプレフィックスを定義
+    /// </summary>
+    private const string LOG_PREFIX = nameof(DebugInVR);
+    /// <summary>
+    /// XROrigin
+    /// </summary>
+    private XROrigin xrOrigin;
     /// <summary>
     /// Target to track
     /// </summary>
@@ -50,13 +34,7 @@ public class SlideProvider : LocomotionProvider
     /// </summary>
     private bool isSliding = false;
 
-    // private XRBaseLocomotionProvider locomotionProvider;
-
     #endregion Private Variables
-
-    #region Properties
-
-    #endregion Properties
 
     #endregion Variables
 
@@ -65,7 +43,7 @@ public class SlideProvider : LocomotionProvider
     #region Unity Methods
     void Start()
     {
-        // Init();
+        Init();
     }
 
     [System.Obsolete]
@@ -86,30 +64,45 @@ public class SlideProvider : LocomotionProvider
     /// <param name="target">Transform of target</param>
     public void StartSliding(Transform target)
     {
-        var xrOrigin = system.xrOrigin;
-        if (xrOrigin == null) return;
-        // Set target
+        if (xrOrigin == null || target == null) return;
+        // If Locomotion is already active, do nothing
+        // 既にLocomotionがアクティブの場合は何もしない
+        if (isLocomotionActive) return;
         this.target = target;
         isSliding = true;
         // Store offset from sliding (tracking) to xrOrigin
         // 滑走（追跡）相手から xrOrigin までのオフセットを保存
         offset = xrOrigin.transform.position - target.position;
-        // Release grip of sliding (tracking)
-        // 滑走（追跡）相手の掴みを解除する
         var interactable = target.GetComponent<XRBaseInteractable>();
-        interactable.interactionManager.CancelInteractableSelection(interactable as IXRSelectInteractable);
-        // If the activity phase is not the move phase, make the activity phase the move start phase
-        // 活動段階を移動段階でないなら、活動段階を移動開始段階にする
-        if (locomotionPhase != LocomotionPhase.Moving)
-            locomotionPhase = LocomotionPhase.Started;
-        //  SetLocomotionState(LocomotionState.Preparing);
+        //var selectInteractable = interactable as IXRSelectInteractable;
+        //interactable.interactionManager?.CancelInteractableSelection(selectInteractable);
+        if (interactable is IXRSelectInteractable selectInteractable)
+        {
+            var interactionManager = interactable.interactionManager;
+            if (interactionManager != null)
+            {
+                // Release grip of sliding (tracking)
+                // 滑走（追跡）相手の掴みを解除する
+                interactionManager.CancelInteractableSelection(selectInteractable);
+            }
+        }
+        // Locomotionを開始
+        if (!TryPrepareLocomotion())
+        {
+            isSliding = false;
+            return;
+        }
     }
     /// <summary>
     /// Stop sliding (tracking)
     /// 滑走（追跡）を停止する
     /// </summary>
-    public void StopSliding() =>
+    public void StopSliding()
+    {
+        // Debug.Log($"{LOG_PREFIX} Start StopSliding");
         isSliding = false;
+        if (isLocomotionActive) TryEndLocomotion();
+    }
 
     #endregion Public Methods
 
@@ -118,94 +111,45 @@ public class SlideProvider : LocomotionProvider
     /// <summary>
     /// Initialize this class
     /// </summary>
-    //private void Init()
-    //{
-
-    //}
-
-    /// <summary>
-    /// Update locomotionPhase depending on locomotionPhase
-    /// </summary>
-    [System.Obsolete]
-    private void UpdateLocomotionPhase()
+    private void Init()
     {
-        // When the activity phase reaches the completion phase, make the activity phase the waiting phase
-        // 活動段階が完了段階になったら、活動段階を待ち段階にする
-        if (locomotionPhase == LocomotionPhase.Done)
+        // Get XROrigin in the scene
+        // シーン内の XR Origin を取得
+        xrOrigin = FindFirstObjectByType<XROrigin>();
+        if (xrOrigin == null)
         {
-            locomotionPhase = LocomotionPhase.Idle;
-            // SetLocomotionState(LocomotionState.Idle);
+            // Disable this script
+            enabled = false;
             return;
         }
-        // During sliding
-        if (isSliding)
-        {
-            // If the activity phase is not in the move phase, try to see if it can be moved to the move phase.
-            // 活動段階が移動段階でないなら、移動段階に移行できないか試す
-            if (locomotionPhase != LocomotionPhase.Moving)
-            {
-                // Confirm that it's allowed to manage own activities
-                // If can't get permission, wait until the next time
-                // 自分が活動を管理していいかを確認
-                // 許可がおりないなら次の機会まで待つ
-                if (!BeginLocomotion()) return;
-                // If allowed, move the activity phase to the moving phase
-                //  許可されたので活動段階を移動段階に移行する。
-                locomotionPhase = LocomotionPhase.Moving;
-            }
-            // 滑走（追跡）処理を実行
-            // Execute sliding (tracking) process
-            StepSliding();
-        }
-        else if (locomotionPhase != LocomotionPhase.Idle)
-        {
-            // 滑走（追跡）中でないのに、活動段階が待ち段階でないので完了段階に移行する
-            // If not sliding (tracking), move the activity phase to the completion phase as the activity phase is not the waiting phase
-            EndLocomotion();
-            locomotionPhase = LocomotionPhase.Done;
-        }
+    }
+    /// <summary>
+    /// Update locomotionPhase
+    /// </summary>
+    private void UpdateLocomotionPhase()
+    {
+        if (isLocomotionActive && isSliding) StepSliding();
     }
     /// <summary>
     /// Process sliding
     /// Move XR Origin from the target position to the offset position
     /// XR Origin を、target の位置から offset の位置に移動させる
     /// </summary>
-    [System.Obsolete]
     private void StepSliding()
     {
         // XR Origin が見つからなければ何もしない
         // If XR Origin is not found, do nothing
-        var xrOrigin = system.xrOrigin;
         if (xrOrigin == null) return;
         // Move XR Origin from the target position to the offset position
         // XR Origin を、target の位置から offset の位置に移動させる
-        var rigTransform = xrOrigin.transform;
-        rigTransform.position = target.position + offset;
+        // var rigTransform = xrOrigin.transform;
+        xrOrigin.transform.position = target.position + offset;
         // After reaching the ground, the sliding (tracking) process is terminated
         // 地面に到達後、滑走（追跡）処理を終了
-        if (rigTransform.position.y < 0.1) StopSliding();
-    }
-
-    /// <summary>
-    /// Set locomotion state
-    /// * Include this method instead of using obsolete locomotionPhase property
-    /// </summary>
-    /// <param name="state"></param>
-    private void SetLocomotionState(LocomotionState state)
-    {
-        typeof(LocomotionProvider).GetProperty("locomotionState", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).SetValue(this, state);
+        if (xrOrigin.transform.position.y < 0.1) StopSliding();
     }
 
     #endregion Private Methods
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
-
 }

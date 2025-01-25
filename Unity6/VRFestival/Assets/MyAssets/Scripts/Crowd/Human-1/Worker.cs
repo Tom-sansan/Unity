@@ -5,10 +5,6 @@
 /// </summary>
 public class Worker : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
     #region Enum
 
     /// <summary>
@@ -26,22 +22,6 @@ public class Worker : MonoBehaviour
 
     #region Variables
 
-    #region SerializeField
-
-    #endregion SerializeField
-
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #region Public Properties
-
-    #endregion Public Properties
-
-    #endregion Public Variables
-
     #region Private Variables
 
     /// <summary>
@@ -53,10 +33,6 @@ public class Worker : MonoBehaviour
     /// </summary>
     private ActionState nextActionState = ActionState.SitIdle;
 
-    #region Private Properties
-
-    #endregion Private Properties
-
     #endregion Private Variables
 
     #endregion Variables
@@ -67,10 +43,6 @@ public class Worker : MonoBehaviour
     void Start()
     {
         Init();
-    }
-    void Update()
-    {
-
     }
     #endregion Unity Methods
 

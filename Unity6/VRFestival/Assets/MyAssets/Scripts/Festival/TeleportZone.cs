@@ -7,14 +7,6 @@ using UnityEngine.XR.Interaction.Toolkit.Locomotion.Climbing;
 /// </summary>
 public class TeleportZone : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -37,40 +29,15 @@ public class TeleportZone : MonoBehaviour
 
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
-    #region Public Variables
-
-    #region Public Properties
-
-    #endregion Public Properties
-
-    #endregion Public Variables
-
-    #region Private Variables
-
-    #region Private Properties
-
-    #endregion Private Properties
-
-    #endregion Private Variables
-
     #endregion Variables
 
     #region Methods
 
     #region Unity Methods
-    void Start()
-    {
-        Init();
-    }
-    void Update()
-    {
-
-    }
-
+    /// <summary>
+    /// OnTriggerEnter event
+    /// </summary>
+    /// <param name="other"></param>
     private void OnTriggerEnter(Collider other)
     {
         // Skip processing of OnTriggerEnter event when the Ladder Game Object has already touched TeleportZoneIn at app startup
@@ -91,29 +58,5 @@ public class TeleportZone : MonoBehaviour
 
     #endregion Unity Methods
 
-    #region Public Methods
-
-    #endregion Public Methods
-
-    #region Private Methods
-
-    /// <summary>
-    /// Initialize this class
-    /// </summary>
-    private void Init()
-    {
-
-    }
-
-    #endregion Private Methods
-
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }
