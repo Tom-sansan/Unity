@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -12,7 +13,25 @@ public class Character : MonoBehaviour
     #endregion Nested Class
 
     #region Enum
-
+    /// <summary>
+    /// Character attribute
+    /// キャラクター属性
+    /// </summary>
+    public enum Attribute
+    {
+        // Fire
+        // 火
+        Fire,
+        // Water
+        // 水
+        Water,
+        // Wind
+        // 風
+        Wind,
+        // Soil
+        // 土
+        Soil
+    }
     #endregion Enum
 
     #region Variables
@@ -30,6 +49,48 @@ public class Character : MonoBehaviour
     [Header("Initial Z Position(-4～4)")]
     [SerializeField]
     private int initPosZ;
+    /// <summary>
+    /// Enemy flag (ON to treat as enemy character).
+    /// 敵フラグ(ONで敵キャラとして扱う)
+    /// </summary>
+    [Header("Enemy flag")]
+    [SerializeField]
+    private bool isEnemy;
+    /// <summary>
+    /// Character name
+    /// キャラクター名
+    /// </summary>
+    [Header("Character name")]
+    [SerializeField]
+    private string charaName;
+    /// <summary>
+    /// Maximum HP (initial HP)
+    /// 最大HP(初期HP)
+    /// </summary>
+    [Header("Maximum HP (initial HP)")]
+    [SerializeField]
+    private int maxHP;
+    /// <summary>
+    /// Attack power
+    /// 攻撃力
+    /// </summary>
+    [Header("Attack power")]
+    [SerializeField]
+    private int attack;
+    /// <summary>
+    /// Defense power
+    /// 防御力
+    /// </summary>
+    [Header("Defense power")]
+    [SerializeField]
+    private int defense;
+    /// <summary>
+    /// Attribute
+    /// 属性
+    /// </summary>
+    [Header("Attribute")]
+    [SerializeField]
+    private Attribute attribute;
     #endregion SerializeField
 
     #region Protected Variables

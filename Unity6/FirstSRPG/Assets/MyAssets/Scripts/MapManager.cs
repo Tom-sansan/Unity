@@ -91,7 +91,7 @@ public class MapManager : MonoBehaviour
     {
         for (int i = 0; i < MAP_WIDTH; i++)
             for (int j = 0; j < MAP_HEIGHT; j++)
-                mapBlocks[i, j].SetSelectionMode(false);
+                mapBlocks[i, j].SetSelectionMode(MapBlock.Highlight.Off);
     }
     /// <summary>
     /// Returns a list of blocks where the character can be reached from the passed position

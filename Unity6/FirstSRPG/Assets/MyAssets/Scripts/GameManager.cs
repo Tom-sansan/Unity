@@ -213,7 +213,7 @@ public class GameManager : MonoBehaviour
         mapManager.ResetAllSelectionMode();
         // Display the block in a selected state
         // ブロックを選択状態の表示にする
-        targetBlock.SetSelectionMode(true);
+        targetBlock.SetSelectionMode(MapBlock.Highlight.Select);
     }
     /// <summary>
     /// Get data on the character at the selected position
@@ -232,6 +232,10 @@ public class GameManager : MonoBehaviour
             // Get a list of blocks that the selected character can move to
             // 選択中のキャラクターが移動可能なブロックリストを取得
             reachableBlocks = mapManager.SearchReachableBlocks(targetBlock.posX, targetBlock.posZ);
+            // Display the list of movable places
+            // 移動可能な場所リストを表示する
+            foreach (MapBlock mapBlock in reachableBlocks)
+                mapBlock.SetSelectionMode(MapBlock.Highlight.Reachable);
             // 進行モードを進める: 移動先選択中
             ChangePhase(Phase.CharaMoving);
         }
