@@ -57,40 +57,12 @@ public class Character : MonoBehaviour
     [SerializeField]
     private bool isEnemy;
     /// <summary>
-    /// Character name
-    /// キャラクター名
-    /// </summary>
-    [Header("Character name")]
-    [SerializeField]
-    private string charaName;
-    /// <summary>
-    /// Maximum HP (initial HP)
-    /// 最大HP(初期HP)
-    /// </summary>
-    [Header("Maximum HP (initial HP)")]
-    [SerializeField]
-    private int maxHP;
-    /// <summary>
-    /// Attack power
-    /// 攻撃力
-    /// </summary>
-    [Header("Attack power")]
-    [SerializeField]
-    private int attack;
-    /// <summary>
-    /// Defense power
-    /// 防御力
-    /// </summary>
-    [Header("Defense power")]
-    [SerializeField]
-    private int defense;
-    /// <summary>
     /// Attribute
     /// 属性
     /// </summary>
     [Header("Attribute")]
     [SerializeField]
-    private Attribute attribute;
+    public Attribute attribute;
     #endregion SerializeField
 
     #region Protected Variables
@@ -99,7 +71,31 @@ public class Character : MonoBehaviour
 
     #region Public Variables
     /// <summary>
+    /// Character name
+    /// キャラクター名
+    /// </summary>
+    [Header("Character name")]
+    public string CharaName;
+    /// <summary>
+    /// Maximum HP (initial HP)
+    /// 最大HP(初期HP)
+    /// </summary>
+    [Header("Maximum HP (initial HP)")]
+    public int MaxHP;
+    /// <summary>
     /// Character data changing during the game
+    /// <summary>
+    /// Attack power
+    /// 攻撃力
+    /// </summary>
+    [Header("Attack power")]
+    public int Attack;
+    /// <summary>
+    /// Defence power
+    /// 防御力
+    /// </summary>
+    [Header("Defence power")]
+    public int Defence;
     /// ゲーム中に変化するキャラクターデータ
     /// Current x-coordinate
     /// 現在のx座標
@@ -113,7 +109,13 @@ public class Character : MonoBehaviour
     /// 現在のz座標
     /// </summary>
     [HideInInspector]
-    public int currentPosZ;
+    public int CurrentPosZ;
+    /// <summary>
+    /// Current HP
+    /// 現在のHP
+    /// </summary>
+    [HideInInspector]
+    public int NowHP;
     #region Public Properties
 
     #endregion Public Properties
@@ -166,14 +168,14 @@ public class Character : MonoBehaviour
         // movePos.y = 1.0f;
         // Relative distance in the z direction
         // z方向の相対距離
-        movePos.z = targetPosZ - currentPosZ;
+        movePos.z = targetPosZ - CurrentPosZ;
         // Character movement process
         // キャラクターの移動処理
         transform.position += movePos;
         // Set the character's current position
         // キャラクターの現在位置を設定
         currentPosX = targetPosX;
-        currentPosZ = targetPosZ;
+        CurrentPosZ = targetPosZ;
     }
     #endregion Public Methods
 
@@ -204,7 +206,8 @@ public class Character : MonoBehaviour
         // Set the initial position of the character
         // キャラクターの初期位置を設定
         currentPosX = initPosX;
-        currentPosZ = initPosZ;
+        CurrentPosZ = initPosZ;
+        NowHP = MaxHP;
     }
 
     #endregion Private Methods

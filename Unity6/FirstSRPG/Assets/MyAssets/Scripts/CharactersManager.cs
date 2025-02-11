@@ -82,10 +82,18 @@ public class CharactersManager : MonoBehaviour
         foreach (Character character in characters)
             // Check if the character's position matches the specified position
             // キャラクターの位置が指定された位置と一致しているかチェック
-            if (character.currentPosX == xPos && character.currentPosZ == zPos) return character;
+            if (character.currentPosX == xPos && character.CurrentPosZ == zPos) return character;
         // If the data is not found, return null
         // データが見つからなければnullを返す
         return null;
+    }
+
+    public void DeleteCharacter(Character character)
+    {
+        // Remove the specified character data from the list
+        characters.Remove(character);
+        // Destroy the specified character object
+        Destroy(character.gameObject);
     }
     #endregion Public Methods
 

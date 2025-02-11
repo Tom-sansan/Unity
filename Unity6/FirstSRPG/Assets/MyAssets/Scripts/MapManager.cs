@@ -94,8 +94,8 @@ public class MapManager : MonoBehaviour
                 mapBlocks[i, j].SetSelectionMode(MapBlock.Highlight.Off);
     }
     /// <summary>
-    /// Returns a list of blocks where the character can be reached from the passed position
-    /// 渡された位置からキャラクターが到達できる場所のブロックをリストにして返す
+    /// Returns a list of map blocks where the character can be reached from the passed position
+    /// 渡された位置からキャラクターが到達できる場所のマップブロックをリストにして返す
     /// </summary>
     /// <param name="posX">基点x位置</param>
     /// <param name="posZ">基点z位置</param>
@@ -109,26 +109,27 @@ public class MapManager : MonoBehaviour
         // 基点となるブロックの配列内番号( index )を検索
         // Initialize the base block position
         // 配列内番号
-        int baseX = -1, baseZ = -1;
-        for (int i = 0; i < MAP_WIDTH; i++)
-        {
-            for (int j = 0; j < MAP_HEIGHT; j++)
-            {
-                if (mapBlocks[i, j].posX == posX && mapBlocks[i, j].posZ == posZ)
-                {
-                    // Find map blocks matching the specified coordinates.
-                    // Get the array number and end the loop
-                    // 指定された座標に一致するマップブロックを発見
-                    // 配列内番号を取得してループを終了
-                    baseX = i;
-                    baseZ = j;
-                    break;
-                }
-            }
-            // If the base block is found, end the loop
-            // 既に基点ブロックが見つかっていればループを終了
-            if (baseX != -1) break;
-        }
+        (int baseX, int baseZ) = SearchIndexesInMapBlocks(posX, posZ);
+        // int baseX = -1, baseZ = -1;
+        //for (int i = 0; i < MAP_WIDTH; i++)
+        //{
+        //    for (int j = 0; j < MAP_HEIGHT; j++)
+        //    {
+        //        if (mapBlocks[i, j].posX == posX && mapBlocks[i, j].posZ == posZ)
+        //        {
+        //            // Find map blocks matching the specified coordinates.
+        //            // Get the array number and end the loop
+        //            // 指定された座標に一致するマップブロックを発見
+        //            // 配列内番号を取得してループを終了
+        //            baseX = i;
+        //            baseZ = j;
+        //            break;
+        //        }
+        //    }
+        //    // If the base block is found, end the loop
+        //    // 既に基点ブロックが見つかっていればループを終了
+        //    if (baseX != -1) break;
+        //}
 
         // Get and add to the list the block data up to the dead end in each direction in turn
         // それぞれの方向に向かって行き止まりまでのブロックデータを順番に取得・リストに追加する
@@ -151,6 +152,74 @@ public class MapManager : MonoBehaviour
         // Foot blocks
         // 足元のブロック
         results.Add(mapBlocks[baseX, baseZ]);
+        return results;
+    }
+    /// <summary>
+    /// Returns a list of map blocks where the character can attack from the passed position
+    /// 渡された位置からキャラクターが攻撃できる場所のマップブロックをリストにして返す
+    /// </summary>
+    /// <param name="posX">基点x位置</param>
+    /// <param name="posZ">基点z位置</param>
+    /// <returns>条件を満たすマップブロックのリスト</returns>
+    public List<MapBlock> SearchAttackableBlocks(int posX, int posZ)
+    {
+        // List of blocks that satisfy the condition
+        // 条件を満たすブロックのリスト
+        var results = new List<MapBlock>();
+        // Search for the number ( index ) in the array of the base block
+        // 基点となるブロックの配列内番号( index )を検索
+        (int baseX, int baseZ) = SearchIndexesInMapBlocks(posX, posZ);
+        // Initialize the base block position
+        // 配列内番号
+        //int baseX = -1, baseZ = -1;
+        //for (int i = 0; i < MAP_WIDTH; i++)
+        //{
+        //    for (int j = 0; j < MAP_HEIGHT; j++)
+        //    {
+        //        if (mapBlocks[i, j].posX == posX && mapBlocks[i, j].posZ == posZ)
+        //        {
+        //            // Find map blocks matching the specified coordinates.
+        //            // Get the array number and end the loop
+        //            // 指定された座標に一致するマップブロックを発見
+        //            // 配列内番号を取得してループを終了
+        //            baseX = i;
+        //            baseZ = j;
+        //            break;
+        //        }
+        //    }
+        //    // If the base block is found, end the loop
+        //    // 既に基点ブロックが見つかっていればループを終了
+        //    if (baseX != -1) break;
+        //}
+
+        // Set each block at a position one square ahead in each of the four directions
+        // 4方向に1マス進んだ位置のブロックをそれぞれセット
+        // X+ direction
+        // X+方向
+        AddAttackableList(results, baseX + 1, baseZ);
+        // X- direction
+        // X-方向
+        AddAttackableList(results, baseX - 1, baseZ);
+        // Z+ direction
+        // Z+方向
+        AddAttackableList(results, baseX, baseZ + 1);
+        // Z- direction
+        // Z-方向
+        AddAttackableList(results, baseX, baseZ - 1);
+        // Set blocks of four diagonal squares
+        // 斜め4マスのブロックをセット
+        // X+ Z+ direction
+        // X+ Z+ 方向
+        AddAttackableList(results, baseX + 1, baseZ + 1);
+        // X- Z+ direction
+        // X- Z+ 方向
+        AddAttackableList(results, baseX - 1, baseZ + 1);
+        // X+ Z- direction
+        // X+ Z- 方向
+        AddAttackableList(results, baseX + 1, baseZ - 1);
+        // X- Z- direction
+        // X- Z- 方向
+        AddAttackableList(results, baseX -1, baseZ - 1);
         return results;
     }
     #endregion Public Methods
@@ -211,6 +280,33 @@ public class MapManager : MonoBehaviour
     /// <param name="reachableList">到達可能ブロックリスト(reachable block list)</param>
     /// <param name="targetBlock">対象ブロック(target block)</param>
     /// <returns>行き止まりフラグ(行き止まりならtrueが返る)</returns>
+    
+    private (int baseX, int baseZ) SearchIndexesInMapBlocks(int posX, int posZ)
+    {
+        // Initialize the base block position
+        // 配列内番号
+        int baseX = -1, baseZ = -1;
+        for (int i = 0; i < MAP_WIDTH; i++)
+        {
+            for (int j = 0; j < MAP_HEIGHT; j++)
+            {
+                if (mapBlocks[i, j].posX == posX && mapBlocks[i, j].posZ == posZ)
+                {
+                    // Find map blocks matching the specified coordinates.
+                    // Get the array number and end the loop
+                    // 指定された座標に一致するマップブロックを発見
+                    // 配列内番号を取得してループを終了
+                    baseX = i;
+                    baseZ = j;
+                    break;
+                }
+            }
+            // If the base block is found, end the loop
+            // 既に基点ブロックが見つかっていればループを終了
+            if (baseX != -1) break;
+        }
+        return (baseX, baseZ);
+    }
     private bool AddReachableList(List<MapBlock> reachableList, MapBlock targetBlock)
     {
         // If the target block is impassable, it ends as a dead end.
@@ -224,6 +320,20 @@ public class MapManager : MonoBehaviour
         // 到達可能ブロックリストに追加する
         reachableList.Add(targetBlock);
         return false;
+    }
+    /// <summary>
+    /// (キャラクター攻撃可能ブロック検索処理用)
+    /// マップデータの指定された配列内番号に対するブロックを攻撃可能ブロックリストに追加する
+    /// </summary>
+    /// <param name="attackableList">攻撃可能ブロックリスト</param>
+    /// <param name="indexX">X方向の配列内番号</param>
+    /// <param name="indexZ">Y方向の配列内番号</param>
+    private void AddAttackableList(List<MapBlock> attackableList, int indexX, int indexZ)
+    {
+        // 指定された番号が配列の外に出ていたら追加せず終了
+        if (indexX < 0 || indexX >= MAP_WIDTH || indexZ < 0 || indexZ >= MAP_HEIGHT) return;
+        // 到達可能ブロックリストに追加する
+        attackableList.Add(mapBlocks[indexX, indexZ]);
     }
     #endregion Private Methods
 
