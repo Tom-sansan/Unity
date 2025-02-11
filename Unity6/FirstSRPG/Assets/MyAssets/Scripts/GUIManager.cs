@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -78,6 +79,7 @@ public class GUIManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private GameObject commandButtons;
+
     #endregion SerializeField
 
     #region Protected Variables
@@ -89,6 +91,16 @@ public class GUIManager : MonoBehaviour
     /// BattleWindowUI gameObject
     /// </summary>
     public BattleWindowUI battleWindowUI;
+    /// <summary>
+    /// PlayerTurnImage
+    /// プレイヤーターン開始画像
+    /// </summary>
+    public Image playerTurnImage;
+    /// <summary>
+    /// PlayerTurnImage
+    /// 敵ターン開始画像
+    /// </summary>
+    public Image enemyTurnImage;
     #region Public Properties
 
     #endregion Public Properties
@@ -179,6 +191,16 @@ public class GUIManager : MonoBehaviour
     /// </summary>
     public void HideCommandButtons() =>
         commandButtons.SetActive(false);
+    /// <summary>
+    /// Show PlayerTurnImage / EnemyTurnImage
+    /// </summary>
+    public void ShowLogoTurnImage(Image targetTurnImage)
+    {
+        targetTurnImage
+            .DOFade(1.0f, 1.0f)             // 指定数値まで画像のalpha値を変化、アニメーション時間（秒）
+            .SetEase(Ease.OutCubic)         // イージングの種類 Ease.OutCubic：終了時に速度が遅くなる
+            .SetLoops(2, LoopType.Yoyo);    // ループ回数とループの種類を設定 LoopType.Yoyo：逆再生
+    }
     #endregion Public Methods
 
     #region Private Methods

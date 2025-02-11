@@ -38,6 +38,11 @@ public class MapManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private MapBlock[,] mapBlocks;
+    /// <summary>
+    /// 草ブロックが生成される確率
+    /// </summary>
+    [SerializeField]
+    private int generateRatioGrass = 90;
     #endregion SerializeField
 
     #region Protected Variables
@@ -61,10 +66,6 @@ public class MapManager : MonoBehaviour
     /// マップの縦幅
     /// </summary>
     private const int MAP_HEIGHT = 9;
-    /// <summary>
-    /// 草ブロックが生成される確率
-    /// </summary>
-    private const int GENERATE_RATIO_GRASS = 90;
     #region Private Properties
 
     #endregion Private Properties
@@ -254,7 +255,7 @@ public class MapManager : MonoBehaviour
                 // 草ブロック生成フラグ
                 var isGrass = false;
                 // 乱数値が草ブロック確率値より小さければ草ブロックを生成する
-                if (rand < GENERATE_RATIO_GRASS) isGrass = true;
+                if (rand < generateRatioGrass) isGrass = true;
                 GameObject obj;
                 if (isGrass) obj = Instantiate(blockPrefabGrass, blockParent);
                 else obj = Instantiate(blockPrefabWater, blockParent);

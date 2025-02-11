@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -50,13 +51,6 @@ public class Character : MonoBehaviour
     [SerializeField]
     private int initPosZ;
     /// <summary>
-    /// Enemy flag (ON to treat as enemy character).
-    /// 敵フラグ(ONで敵キャラとして扱う)
-    /// </summary>
-    [Header("Enemy flag")]
-    [SerializeField]
-    private bool isEnemy;
-    /// <summary>
     /// Attribute
     /// 属性
     /// </summary>
@@ -70,6 +64,12 @@ public class Character : MonoBehaviour
     #endregion Protected Variables
 
     #region Public Variables
+    /// <summary>
+    /// Enemy flag (ON to treat as enemy character).
+    /// 敵フラグ(ONで敵キャラとして扱う)
+    /// </summary>
+    [Header("Enemy flag")]
+    public bool IsEnemy;
     /// <summary>
     /// Character name
     /// キャラクター名
@@ -171,11 +171,35 @@ public class Character : MonoBehaviour
         movePos.z = targetPosZ - CurrentPosZ;
         // Character movement process
         // キャラクターの移動処理
-        transform.position += movePos;
+        //transform.position += movePos;
+        // Gradually change the position
+        // 徐々に位置が変化するするアニメーション
+        transform.DOMove(movePos, 0.5f)
+            .SetEase(Ease.OutCubic)   // 変化の度合いを設定(Linear:等速, OutCubic:徐々に減速)
+            .SetRelative();         // パラメーターを相対指定にする
         // Set the character's current position
         // キャラクターの現在位置を設定
         currentPosX = targetPosX;
         CurrentPosZ = targetPosZ;
+    }
+    /// <summary>
+    /// Charact close attack animation
+    /// キャラクターの近接攻撃アニメーション
+    /// </summary>
+    /// <param name="targetChara">相手キャラクター</param>
+    public void AnimateAttack(Character targetChara)
+    {
+        // Jump to the position of the opponent character and return to the original position with the same movement
+        // 相手キャラクターの位置へジャンプで近づき、同じ動きで元の位置に戻る
+        transform.DOJump
+        (
+            targetChara.transform.position, // 指定位置までジャンプしながら移動する
+            1.0f,                           // ジャンプの高さ
+            1,                              // ジャンプ回数
+            0.5f                            // アニメーション時間（秒）
+        )
+        .SetEase(Ease.Linear)               // 変化の度合いを設定(Linear:等速)
+        .SetLoops(2, LoopType.Yoyo);        // ループ回数とループの種類を設定
     }
     #endregion Public Methods
 

@@ -1,8 +1,10 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 /// <summary>
 /// GameManager Class
@@ -163,18 +165,25 @@ public class GameManager : MonoBehaviour
         // 開始時の進行モード
         nowPhase = Phase.CharaStart;
     }
-
+    /// <summary>
+    /// Update Input Processing
+    /// </summary>
     private void UpdateInput()
     {
-        if (Input.GetMouseButtonDown(0))
+        // タップ検出処理
+        // IsPointerOverGameObject:UIへのタップを検出する
+        // オブジェクトとUIへの同時タップ判定を防ぐ
+        if (Input.GetMouseButtonDown(0) &&
+            !EventSystem.current.IsPointerOverGameObject())
         {
+            // UIでない部分でタップが行われた場合の処理
             // バトル結果表示ウィンドウが出ているときの処理
             if (guiManager.battleWindowUI.gameObject.activeInHierarchy)
             {
                 // バトル結果表示ウィンドウを閉じる
                 guiManager.battleWindowUI.HideWindow();
                 // 進行モードを進める（デバック用）
-                ChangePhase(Phase.CharaStart);
+                // ChangePhase(Phase.CharaStart);
                 return;
             }
             // Get the block at the tap destination and start the selection process
@@ -312,6 +321,43 @@ public class GameManager : MonoBehaviour
     {
         // モード変更を保存
         nowPhase = newPhase;
+        // Processing of the timing of the switch to a specific mode
+        // 特定のモードに切り替わったタイミングの処理
+        switch (nowPhase)
+        {
+            case Phase.CharaStart:
+                // My character's turn: start
+                // 自分のターン：開始時
+                guiManager.ShowLogoTurnImage(guiManager.playerTurnImage);
+                break;
+            case Phase.CharaMoving:
+                // My character's turn: moving
+                // 自分のターン：移動先選択中
+                break;
+            case Phase.CharaCommand:
+                // My character's turn: selecting a command after moving
+                // 自分のターン：移動後のコマンド選択中
+                break;
+            case Phase.CharaTargeting:
+                // My character's turn: selecting an attack target
+                // 自分のターン：攻撃の対象を選択中
+                break;
+            case Phase.CharaResult:
+                // My character's turn: displaying the action result
+                // 自分のターン：行動結果表示中
+                break;
+            case Phase.EnemyStart:
+                // Enemy's turn: start
+                // 敵のターン：開始時
+                StartEnemyTurn();
+                break;
+            case Phase.EnemyResult:
+                // Enemy's turn: displaying the action result
+                // 敵のターン：行動結果表示中
+                break;
+            default:
+                break;
+        }
     }
     /// <summary>
     /// Move the character
@@ -324,6 +370,7 @@ public class GameManager : MonoBehaviour
         if (!reachableBlocks.Contains(targetBlock)) return;
         // Move the character to the destination block
         // 移動先のブロックにキャラクターを移動
+        // TODO:移動先のブロックにキャラクターの足ともを選択しない
         selectingCharacter.MovePosition(targetBlock.posX, targetBlock.posZ);
         // Clear the list of reachable blocks
         // 移動可能なブロックリストをクリア
@@ -331,12 +378,17 @@ public class GameManager : MonoBehaviour
         // Release the selection status of all blocks
         // 全ブロックの選択状態を解除
         mapManager.ResetAllSelectionMode();
-        // Show command buttons
-        // コマンドボタンを表示する
-        guiManager.ShowCommandButtons();
-        // Advance mode of progression: during post-movement command selection
-        // 進行モードを進める: 移動後のコマンド選択中
-        ChangePhase(Phase.CharaCommand);
+        // Execute the process after a specified number of seconds
+        // 指定秒数経過後に処理を実行する
+        DOVirtual.DelayedCall(1.0f, () =>
+        {
+            // Show command buttons
+            // コマンドボタンを表示する
+            guiManager.ShowCommandButtons();
+            // Advance mode of progression: during post-movement command selection
+            // 進行モードを進める: 移動後のコマンド選択中
+            ChangePhase(Phase.CharaCommand);
+        });
     }
     /// <summary>
     /// Selecting command after moving
@@ -412,6 +464,9 @@ public class GameManager : MonoBehaviour
         // ダメージ = 攻撃力 - 防御力
         int damageValue = attackChara.Attack - defenceChara.Defence;
         if (damageValue < 0) damageValue = 0;
+        // Show the character's attack animation
+        // キャラクター攻撃アニメーション
+        attackChara.AnimateAttack(defenceChara);
         // Display settings for the battle result display window(To be done before HP changes)
         // バトル結果表示ウィンドウの表示設定（HPの変更前に行う）
         guiManager.battleWindowUI.ShowWindow(defenceChara, damageValue);
@@ -429,6 +484,141 @@ public class GameManager : MonoBehaviour
             // キャラクターを削除
             charactersManager.DeleteCharacter(defenceChara);
         }
+        // turn switching process
+        // ターン切替処理
+        DOVirtual.DelayedCall(2.0f, () =>
+        {
+            // Hide the battle result display window
+            // バトル結果表示ウィンドウを非表示
+            guiManager.battleWindowUI.HideWindow();
+            // Change the turn
+            // ターンの切替
+            if (nowPhase == Phase.CharaResult) ChangePhase(Phase.EnemyStart); // 敵のターンへ
+            else ChangePhase(Phase.CharaStart); // 自分のターンへ
+        });
+    }
+    /// <summary>
+    /// End the turn by having one of the enemy characters act (called out at the start of the enemy's turn)
+    /// 敵キャラクターのうちいずれか一体を行動させてターンを終了（敵のターン開始時に呼出）
+    /// </summary>
+    private void CommandEnemy()
+    {
+        // Get a list of enemy characters that are still alive
+        // 生存中の敵キャラクターのリスト作成
+        var enemyCharas = new List<Character>();
+        foreach (Character character in charactersManager.characters)
+        {
+            // Add characters with the enemy flag set to the list
+            // 全生存キャラクターから敵フラグの立っているキャラクターをリストに追加
+            if (character.IsEnemy) enemyCharas.Add(character);
+        }
+        // Randomly get one of the possible attack character-position combinations
+        // 攻撃可能なキャラクター・位置の組み合わせの内1つをランダムに取得
+        var actionPlan = TargetFinder.GetRandomActionPlan(mapManager, charactersManager, enemyCharas);
+        // If the data for the combination exists, the attack is launched
+        // 組み合わせのデータが存在すれば攻撃開始
+        if (actionPlan != null)
+        {
+            // Enemy characters start to move
+            // 敵キャラクター移動開始
+            actionPlan.CharaData.MovePosition(actionPlan.ToMoveBlock.posX, actionPlan.ToMoveBlock.posZ);
+            // Enemy character attack start
+            // 敵キャラクター攻撃開始
+            DOVirtual.DelayedCall(1.0f, () =>
+            {
+                CharacterAttack(actionPlan.CharaData, actionPlan.ToAttackChara);
+            });
+            // Advance progress mode (to action result display).
+            // 進行モードを進める（行動結果表示へ）
+            ChangePhase(Phase.EnemyResult);
+            return;
+        }
+        // Dealing with one attackable enemy character until it is found
+        // 攻撃可能な敵キャラクター1体を見つけるまで処理
+        foreach (Character enemyData in enemyCharas)
+        {
+            // Get a list of mobile locations
+            // 移動可能な場所リストを取得
+            reachableBlocks = mapManager.SearchReachableBlocks(enemyData.currentPosX, enemyData.CurrentPosZ);
+            // Processes for each mobile location
+            // それぞれの移動可能な場所ごとの処理
+            foreach (MapBlock mapBlock in reachableBlocks)
+            {
+                // Get a list of attackable locations
+                // 攻撃可能な場所リストを取得
+                attackableBlocks = mapManager.SearchAttackableBlocks(mapBlock.posX, mapBlock.posZ);
+                // Processes for each attackable location
+                // それぞれの攻撃可能な場所ごとの処理
+                foreach (MapBlock attackBlock in attackableBlocks)
+                {
+                    // Find an opponent character (on the player's side) who can attack
+                    // 攻撃できる相手キャラクター（プレイヤー側のキャラクター）を探す
+                    var targetCharacter = charactersManager.GetCharacterDataByPos(attackBlock.posX, attackBlock.posZ);
+                    if (targetCharacter != null && !targetCharacter.IsEnemy)
+                    {
+                        // Opponent character is present
+                        // 相手キャラクターがいる
+                        // Enemy character move processing
+                        // 敵キャラクター移動処理
+                        enemyData.MovePosition(mapBlock.posX, mapBlock.posZ);
+                        // Enemy character attack processing
+                        // 敵キャラクター攻撃処理
+                        DOVirtual.DelayedCall(1.0f, () =>
+                        {
+                            CharacterAttack(enemyData, targetCharacter);
+                        });
+                        // Clear list of movement and attack locations
+                        // 移動・攻撃場所リストをクリア
+                        reachableBlocks.Clear();
+                        attackableBlocks.Clear();
+                        // Advancing progression mode(Go to action result display)
+                        // 進行モードを進める（行動結果表示へ）
+                        ChangePhase(Phase.EnemyResult);
+                        return;
+                    }
+                }
+            }
+        }
+        // If no enemy character can attack, move one character at random
+        // 攻撃可能な相手が見つからなかったら移動させる1体をランダムに選ぶ
+        int randomIndex = UnityEngine.Random.Range(0, enemyCharas.Count);
+        Character targetEnemy = enemyCharas[randomIndex];
+        // Randomly select one location from the list of target moveable locations
+        // 対象の移動可能場所リストの中から1つの場所をランダムに選ぶ
+        reachableBlocks = mapManager.SearchReachableBlocks(targetEnemy.currentPosX, targetEnemy.CurrentPosZ);
+        if (reachableBlocks.Count > 0)
+        {
+            randomIndex = UnityEngine.Random.Range(0, reachableBlocks.Count);
+            MapBlock targetBlock = reachableBlocks[randomIndex];
+            // Move the enemy character to the destination block
+            // 移動先のブロックに敵キャラクターを移動
+            targetEnemy.MovePosition(targetBlock.posX, targetBlock.posZ);
+        }
+        // If there is no player character that can attack, the turn ends
+        // (攻撃可能な相手が見つからなかった場合何もせずターン終了)
+        // Clear list of movement and attack locations
+        // 移動・攻撃場所リストをクリア
+        reachableBlocks.Clear();
+        attackableBlocks.Clear();
+        // Advancing progression mode(Go to action result display)
+        // 進行モードを進める（行動結果表示へ）
+        DOVirtual.DelayedCall(1.0f, () =>
+        {
+            ChangePhase(Phase.CharaStart);
+        });
+    }
+    /// <summary>
+    /// Start the enemy's turn
+    /// </summary>
+    private void StartEnemyTurn()
+    {
+        guiManager.ShowLogoTurnImage(guiManager.enemyTurnImage);
+        DOVirtual.DelayedCall(1.0f, () =>
+        {
+            // End the turn by having one of the enemy characters act
+            // 敵キャラクターのうちいずれか一体を行動させてターンを終了
+            CommandEnemy();
+        });
     }
     #endregion Private Methods
 

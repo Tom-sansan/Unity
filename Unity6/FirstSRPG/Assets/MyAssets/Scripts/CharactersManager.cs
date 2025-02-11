@@ -1,3 +1,4 @@
+using DG.Tweening;
 using NUnit.Framework;
 using System.Collections.Generic;
 using Unity.VisualScripting;
@@ -93,7 +94,10 @@ public class CharactersManager : MonoBehaviour
         // Remove the specified character data from the list
         characters.Remove(character);
         // Destroy the specified character object
-        Destroy(character.gameObject);
+        DOVirtual.DelayedCall(0.5f, () =>
+        {
+            Destroy(character.gameObject);
+        });
     }
     #endregion Public Methods
 

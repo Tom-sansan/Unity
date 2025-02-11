@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -92,16 +93,39 @@ public class BattleWindowUI : MonoBehaviour
         // HP corrected to fall in the range of 0 to max
         // HPが0～最大値の範囲に収まるように補正
         nowHP = Mathf.Clamp(nowHP, 0, character.MaxHP);
+
         // Show HP gage
-        float ratio = (float)nowHP / character.MaxHP;
+        // float ratio = (float)nowHP / character.MaxHP;
         // Set the ratio of the current HP to the maximum value to the fillAmount of the gauge Image
         // 最大値に対する現在のHPの割合をゲージImageのfillAmountにセットする
-        hpGageImage.fillAmount = ratio;
+        // hpGageImage.fillAmount = ratio;
+
+        // FillAmount on display (initial value before HP reduction)
+        // 表示中のFillAmount(初期値はHP減少前のもの)
+        float amount = (float)character.NowHP / character.MaxHP;
+        // FillAmount after animation
+        // アニメーション後のFillAmount
+        float endAmount = (float)nowHP / character.MaxHP;
+        DOTween.To
+        (
+            () => amount,       // 現在のHPゲージの表示割合を取得する(getter)
+            (x) => amount = x,  // HPゲージの表示割合を更新する(setter)
+            endAmount,          // 変化先の数値(endValue)
+            1.0f                // アニメーション時間(duration)
+        )
+        // Process performed each time the animation is updated
+        // アニメーションが更新されるたびに実行される処理
+        .OnUpdate(() =>
+        {
+            // Update the display of the HP gauge
+            // HPゲージの表示を更新
+            hpGageImage.fillAmount = amount;
+        });
+
         // Show HP text
         hpText.text = nowHP + "/" + character.MaxHP;
         // Show damage text
         damageText.text = damageValue + " ダメージ！";
-
     }
     /// <summary>
     /// Hide BattleWindowUI
