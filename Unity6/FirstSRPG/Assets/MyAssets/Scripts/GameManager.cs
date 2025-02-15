@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.TextCore.Text;
 
 /// <summary>
 /// GameManager Class
@@ -50,7 +51,28 @@ public class GameManager : MonoBehaviour
     #region Variables
 
     #region SerializeField
-
+    /// <summary>
+    /// Damage ratio normal
+    /// </summary>
+    [SerializeField]
+    private float damageRatioNormal = 1.0f;
+    /// <summary>
+    /// 攻撃の相性が良い(攻撃側が有利)
+    /// Damage ratio high
+    /// </summary>
+    [SerializeField]
+    private float damageRatioHigh = 1.2f;
+    /// <summary>
+    /// 攻撃の相性が悪い(攻撃側が不利)
+    /// Damage ratio low
+    /// </summary>
+    [SerializeField]
+    private float damageRatioLow = 0.8f;
+    /// <summary>
+    /// AudioManager
+    /// </summary>
+    [SerializeField]
+    private AudioManager audioManager;
     #endregion SerializeField
 
     #region Protected Variables
@@ -317,7 +339,8 @@ public class GameManager : MonoBehaviour
     /// ターン進行モードを変更する
     /// </summary>
     /// <param name="newPhase">変更先モード(Next mode)</param>
-    private void ChangePhase(Phase newPhase)
+    /// <param name="noLogos">ロゴ非表示フラグ(省略可能・省略するとfalse)</param>
+    private void ChangePhase(Phase newPhase, bool noLogos = false)
     {
         // モード変更を保存
         nowPhase = newPhase;
@@ -328,7 +351,7 @@ public class GameManager : MonoBehaviour
             case Phase.CharaStart:
                 // My character's turn: start
                 // 自分のターン：開始時
-                guiManager.ShowLogoTurnImage(guiManager.playerTurnImage);
+                if (!noLogos) guiManager.ShowLogoTurnImage(guiManager.playerTurnImage);
                 break;
             case Phase.CharaMoving:
                 // My character's turn: moving
@@ -349,7 +372,7 @@ public class GameManager : MonoBehaviour
             case Phase.EnemyStart:
                 // Enemy's turn: start
                 // 敵のターン：開始時
-                StartEnemyTurn();
+                StartEnemyTurn(noLogos);
                 break;
             case Phase.EnemyResult:
                 // Enemy's turn: displaying the action result
@@ -463,10 +486,21 @@ public class GameManager : MonoBehaviour
         // Damage = Attack - Defence
         // ダメージ = 攻撃力 - 防御力
         int damageValue = attackChara.Attack - defenceChara.Defence;
+        // Calculate the damage multiplier based on compatibility
+        // 相性によるダメージ倍率を計算
+        // Get the damage multiplier
+        // ダメージ倍率を取得
+        float ratio = GetDamageRatioByAttribute(attackChara.attribute, defenceChara.attribute);
+        damageValue = (int)(damageValue * ratio);
+        // If the amount of damage is less than zero, set to zero
+        // ダメージ量が0未満なら0にする
         if (damageValue < 0) damageValue = 0;
         // Show the character's attack animation
         // キャラクター攻撃アニメーション
         attackChara.AnimateAttack(defenceChara);
+        // Play the SE at about the time the attack hits in the animation
+        // アニメーション内で攻撃が当たったくらいのタイミングでSEを再生
+        audioManager.PlayRandomAttackSE();
         // Display settings for the battle result display window(To be done before HP changes)
         // バトル結果表示ウィンドウの表示設定（HPの変更前に行う）
         guiManager.battleWindowUI.ShowWindow(defenceChara, damageValue);
@@ -610,15 +644,53 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Start the enemy's turn
     /// </summary>
-    private void StartEnemyTurn()
+    private void StartEnemyTurn(bool nologs)
     {
-        guiManager.ShowLogoTurnImage(guiManager.enemyTurnImage);
+        if (!nologs) guiManager.ShowLogoTurnImage(guiManager.enemyTurnImage);
         DOVirtual.DelayedCall(1.0f, () =>
         {
             // End the turn by having one of the enemy characters act
             // 敵キャラクターのうちいずれか一体を行動させてターンを終了
             CommandEnemy();
         });
+    }
+    /// <summary>
+    /// Return damage multipliers based on the compatibility of the attributes of the attacker and defender
+    /// 攻撃側・防御側の属性の相性によるダメージ倍率を返す
+    /// </summary>
+    /// <param name="attackAttribute">Attributes of attacker(攻撃側の属性)</param>
+    /// <param name="defenseAttribute">Attributes of defender(防御側の属性)</param>
+    /// <returns></returns>
+    private float GetDamageRatioByAttribute(Character.Attribute attackAttribute, Character.Attribute defenseAttribute)
+    {
+        // Compatibility determination process. Checks each attribute in order of good compatibility to bad compatibility and returns the normal multiplier if neither is applicable
+        // 相性決定処理。属性ごとに良相性→悪相性の順でチェックし、どちらにも当てはまらないなら通常倍率を返す
+        switch (attackAttribute)
+        {
+            case Character.Attribute.Fire:
+                // 火属性：風属性に強く水属性に弱い
+                return GetDamageRatio(Character.Attribute.Wind, Character.Attribute.Water);
+            case Character.Attribute.Water:
+                // 水属性：火属性に強く土属性に弱い
+                return GetDamageRatio(Character.Attribute.Fire, Character.Attribute.Soil);
+            case Character.Attribute.Wind:
+                // 風属性：土属性に強く火属性に弱い
+                return GetDamageRatio(Character.Attribute.Soil, Character.Attribute.Fire);
+            case Character.Attribute.Soil:
+                // 土属性：水属性に強く風属性に弱い
+                return GetDamageRatio(Character.Attribute.Water, Character.Attribute.Wind);
+            default:
+                return damageRatioNormal;
+        }
+
+        // Get the damage ratio based on the attributes of the attacker and defender
+        // 攻撃側と防御側の属性に基づいてダメージ倍率を取得
+        float GetDamageRatio(Character.Attribute attributeHigh, Character.Attribute attributeLow)
+        {
+            if (defenseAttribute == attributeHigh) return damageRatioHigh;
+            else if (defenseAttribute == attributeLow) return damageRatioLow;
+            else return damageRatioNormal;
+        }
     }
     #endregion Private Methods
 

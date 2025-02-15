@@ -132,24 +132,57 @@ public class MapManager : MonoBehaviour
         //    if (baseX != -1) break;
         //}
 
-        // Get and add to the list the block data up to the dead end in each direction in turn
-        // それぞれの方向に向かって行き止まりまでのブロックデータを順番に取得・リストに追加する
-        // X+ direction
-        // X+方向
-        for (int i = baseX + 1; i < MAP_WIDTH; i++)
-            if (AddReachableList(results, mapBlocks[i, baseZ])) break;
-        // X- direction
-        // X-方向 (i >= 0 は、マップ(mapBlocks)の範囲外にアクセスしないための条件)
-        for (int i = baseX - 1; i >= 0; i--)
-            if (AddReachableList(results, mapBlocks[i, baseZ])) break;
-        // Z+ direction
-        // Z+方向
-        for (int j = baseZ + 1; j < MAP_HEIGHT; j++)
-            if (AddReachableList(results, mapBlocks[baseX, j])) break;
-        // Z- direction
-        // Z-方向
-        for (int j = baseZ - 1; j >= 0; j--)
-            if (AddReachableList(results, mapBlocks[baseX, j])) break;
+        // Get the movement method of the moving character
+        // 移動するキャラクターの移動方法を取得
+        var moveType = Character.MoveType.Rook;
+        // Character who moves
+        // 移動するキャラクター
+        var moveChara = GetComponent<CharactersManager>().GetCharacterDataByPos(posX, posZ);
+        if (moveChara != null) moveType = moveChara.moveType;
+        // Get different block data according to the way the character moves
+        // キャラクターの移動方法に合わせて異なるブロックデータを取得していく
+        // 縦・横
+        if (moveType == Character.MoveType.Rook || moveType == Character.MoveType.Queen)
+        {
+            // Get and add to the list the block data up to the dead end in each direction in turn
+            // それぞれの方向に向かって行き止まりまでのブロックデータを順番に取得・リストに追加する
+            // X+ direction
+            // X+方向
+            for (int i = baseX + 1; i < MAP_WIDTH; i++)
+                if (AddReachableList(results, mapBlocks[i, baseZ])) break;
+            // X- direction
+            // X-方向 (i >= 0 は、マップ(mapBlocks)の範囲外にアクセスしないための条件)
+            for (int i = baseX - 1; i >= 0; i--)
+                if (AddReachableList(results, mapBlocks[i, baseZ])) break;
+            // Z+ direction
+            // Z+方向
+            for (int j = baseZ + 1; j < MAP_HEIGHT; j++)
+                if (AddReachableList(results, mapBlocks[baseX, j])) break;
+            // Z- direction
+            // Z-方向
+            for (int j = baseZ - 1; j >= 0; j--)
+                if (AddReachableList(results, mapBlocks[baseX, j])) break;
+        }
+        // 斜めへの移動
+        if (moveType == Character.MoveType.Bishop || moveType == Character.MoveType.Queen)
+        {
+            // X+Z direction
+            // X+Z 方向
+            for (int i = baseX + 1, j = baseZ + 1; i < MAP_WIDTH && j < MAP_HEIGHT; i++, j++)
+                if (AddReachableList(results, mapBlocks[i, j])) break;
+            // X-Z+ direction
+            // X-Z+ 方向 (i >= 0 は、マップ(mapBlocks)の範囲外にアクセスしないための条件)
+            for (int i = baseX - 1, j = baseZ + 1; i >= 0 && j < MAP_HEIGHT; i--, j++)
+                if (AddReachableList(results, mapBlocks[i, j])) break;
+            // X+Z- direction
+            // X+Z- 方向
+            for (int i = baseX + 1, j = baseZ - 1; i < MAP_WIDTH && j >= 0; i++, j--)
+                if (AddReachableList(results, mapBlocks[i, j])) break;
+            // X-Z- direction
+            // X-Z- 方向
+            for (int i = baseX - 1, j = baseZ - 1; i >= 0 && j >= 0; i--, j--)
+                if (AddReachableList(results, mapBlocks[i, j])) break;
+        }
         // Foot blocks
         // 足元のブロック
         results.Add(mapBlocks[baseX, baseZ]);

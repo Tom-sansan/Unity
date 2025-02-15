@@ -79,7 +79,11 @@ public class GUIManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private GameObject commandButtons;
-
+    /// <summary>
+    /// Move cancel button
+    /// </summary>
+    [SerializeField]
+    private GameObject moveCancelButton;
     #endregion SerializeField
 
     #region Protected Variables
@@ -192,6 +196,12 @@ public class GUIManager : MonoBehaviour
     public void HideCommandButtons() =>
         commandButtons.SetActive(false);
     /// <summary>
+    /// Show or Hide moveCancelButton
+    /// </summary>
+    /// <param name="isShow"></param>
+    public void ShowHideMoveCancelButton(bool isShow) =>
+        moveCancelButton.SetActive(isShow);
+    /// <summary>
     /// Show PlayerTurnImage / EnemyTurnImage
     /// </summary>
     public void ShowLogoTurnImage(Image targetTurnImage)
@@ -212,6 +222,7 @@ public class GUIManager : MonoBehaviour
     {
         HideStatusWindow();
         HideCommandButtons();
+        HideMoveCancelButton();
     }
     #endregion Private Methods
 

@@ -33,6 +33,18 @@ public class Character : MonoBehaviour
         // 土
         Soil
     }
+    /// <summary>
+    /// Character's movement type
+    /// </summary>
+    public enum MoveType
+    {
+        // 縦・横
+        Rook,
+        // 斜め
+        Bishop,
+        // 縦・横・斜め
+        Queen
+    }
     #endregion Enum
 
     #region Variables
@@ -50,13 +62,6 @@ public class Character : MonoBehaviour
     [Header("Initial Z Position(-4～4)")]
     [SerializeField]
     private int initPosZ;
-    /// <summary>
-    /// Attribute
-    /// 属性
-    /// </summary>
-    [Header("Attribute")]
-    [SerializeField]
-    public Attribute attribute;
     #endregion SerializeField
 
     #region Protected Variables
@@ -96,6 +101,17 @@ public class Character : MonoBehaviour
     /// </summary>
     [Header("Defence power")]
     public int Defence;
+    /// <summary>
+    /// Attribute
+    /// 属性
+    /// </summary>
+    [Header("Attribute")]
+    public Attribute attribute;
+    /// <summary>
+    /// Character's movement type
+    /// </summary>
+    [Header("Movement Type")]
+    public MoveType moveType;
     /// ゲーム中に変化するキャラクターデータ
     /// Current x-coordinate
     /// 現在のx座標
