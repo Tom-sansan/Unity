@@ -24,11 +24,17 @@ public class AudioManager : MonoBehaviour
     [SerializeField]
     private List<AudioClip> BGMClipList;
     /// <summary>
-    /// AudioClip List for SE
+    /// AudioClip List for Attack SE
     /// </summary>
-    [Header("SE")]
+    [Header("SE for Attack")]
     [SerializeField]
-    private List<AudioClip> SEClipList;
+    private List<AudioClip> SEAttackClipList;
+    /// <summary>
+    /// AudioClip List for Heal SE
+    /// </summary>
+    [Header("SE for Heal")]
+    [SerializeField]
+    private List<AudioClip> SEHealClipList;
     #endregion SerializeField
 
     #region Protected Variables
@@ -49,9 +55,13 @@ public class AudioManager : MonoBehaviour
     /// </summary>
     private AudioSource bgmSource;
     /// <summary>
-    /// AudioSource for SE
+    /// AudioSource for Attack SE
     /// </summary>
-    private AudioSource seSource;
+    private AudioSource seAttackSource;
+    /// <summary>
+    /// AudioSource for Heal SE
+    /// </summary>
+    private AudioSource seHealSource;
     #region Private Properties
 
     #endregion Private Properties
@@ -75,12 +85,20 @@ public class AudioManager : MonoBehaviour
 
     #region Public Methods
     /// <summary>
-    /// Play SE randomly
+    /// Play attack SE randomly
     /// </summary>
     public void PlayRandomAttackSE()
     {
-        if (SEClipList.Count == 0) return;
-        PlaySoundRandomly(seSource, SEClipList);
+        if (SEAttackClipList.Count == 0) return;
+        PlaySoundRandomly(seAttackSource, SEAttackClipList);
+    }
+    /// <summary>
+    /// Play heal SE randomly
+    /// </summary>
+    public void PlayHealSE()
+    {
+        if (SEHealClipList.Count == 0) return;
+        PlaySoundRandomly(seHealSource, SEHealClipList);
     }
     #endregion Public Methods
 
@@ -92,7 +110,8 @@ public class AudioManager : MonoBehaviour
     private void Init()
     {
         bgmSource = gameObject.AddComponent<AudioSource>();
-        seSource = gameObject.AddComponent<AudioSource>();
+        seAttackSource = gameObject.AddComponent<AudioSource>();
+        seHealSource = gameObject.AddComponent<AudioSource>();
         // Play BGM randomly
         PlayRandomBGM();
     }

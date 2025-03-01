@@ -84,6 +84,36 @@ public class GUIManager : MonoBehaviour
     /// </summary>
     [SerializeField]
     private GameObject moveCancelButton;
+    /// <summary>
+    /// Skill command button
+    /// </summary>
+    [SerializeField]
+    private Button skillCommandButtons;
+    /// <summary>
+    /// Info text for skill of sellected character
+    /// </summary>
+    [SerializeField]
+    private Text skillText;
+    /// <summary>
+    /// DecideButtons
+    /// </summary>
+    [SerializeField]
+    private GameObject decideButtons;
+    /// <summary>
+    /// Game clear image
+    /// </summary>
+    [SerializeField]
+    private Image gameClearImage;
+    /// <summary>
+    /// Game over image
+    /// </summary>
+    [SerializeField]
+    private Image gameOverImage;
+    /// <summary>
+    /// Fade in image
+    /// </summary>
+    [SerializeField]
+    private Image fadeInImage;
     #endregion SerializeField
 
     #region Protected Variables
@@ -127,10 +157,6 @@ public class GUIManager : MonoBehaviour
     void Start()
     {
         Init();
-    }
-    void Update()
-    {
-
     }
     #endregion Unity Methods
 
@@ -178,7 +204,9 @@ public class GUIManager : MonoBehaviour
         // Show Attack Text
         attackText.text = character.Attack.ToString();
         // Show Defence Text
-        defenceText.text = character.Defence.ToString();
+        defenceText.text = character.IsDefenceBreak ?
+                            "<color=red>0</color>"          // 防御力0化している場合
+                            : character.Defence.ToString(); // 防御力Text表示
     }
     /// <summary>
     /// Hide StatusWindow
@@ -186,21 +214,43 @@ public class GUIManager : MonoBehaviour
     public void HideStatusWindow() =>
         statusWindow.SetActive(false);
     /// <summary>
-    /// Show CommandButtons
+    /// Show or hide CommandButtons
     /// </summary>
-    public void ShowCommandButtons() =>
-        commandButtons.SetActive(true);
-    /// <summary>
-    /// Hide CommandButtons
-    /// </summary>
-    public void HideCommandButtons() =>
-        commandButtons.SetActive(false);
+    /// <param name="isShow">true if CommandButtons is shown</param>
+    /// <param name="selectChara">Character data of acting</param>
+    public void ShowHideCommandButtons(bool isShow, Character selectChara = null)
+    {
+        commandButtons.SetActive(isShow);
+        if (isShow)
+        {
+            // Disables pressing skill button if skill is disabled
+            // 特技使用不可状態の場合、特技ボタンを押せなくする
+            skillCommandButtons.interactable = !selectChara.IsSkillLock;
+            // 特技使用不可状態の場合、特技テキストは非表示
+            skillText.enabled = !selectChara.IsSkillLock;
+            if (skillText.enabled)
+            {
+                // Show selected character's skill
+                SkillDefine.Skill skill = selectChara.Skill;
+                string skillName = SkillDefine.dicSkillName[skill];
+                string skillInfo = SkillDefine.dicSkillInfo[skill];
+                // Show selected character's skill
+                skillText.text = $"<size=40>{skillName}</size>\n{skillInfo}";
+            }
+        }
+    }
     /// <summary>
     /// Show or Hide moveCancelButton
     /// </summary>
     /// <param name="isShow"></param>
     public void ShowHideMoveCancelButton(bool isShow) =>
         moveCancelButton.SetActive(isShow);
+    /// <summary>
+    /// Show or Hide decideButtons
+    /// </summary>
+    /// <param name="isShow"></param>
+    public void ShowHideDecideButtons(bool isShow) =>
+        decideButtons.SetActive(isShow);
     /// <summary>
     /// Show PlayerTurnImage / EnemyTurnImage
     /// </summary>
@@ -210,6 +260,39 @@ public class GUIManager : MonoBehaviour
             .DOFade(1.0f, 1.0f)             // 指定数値まで画像のalpha値を変化、アニメーション時間（秒）
             .SetEase(Ease.OutCubic)         // イージングの種類 Ease.OutCubic：終了時に速度が遅くなる
             .SetLoops(2, LoopType.Yoyo);    // ループ回数とループの種類を設定 LoopType.Yoyo：逆再生
+    }
+    /// <summary>
+    /// Show logo image for game clear
+    /// </summary>
+    public void ShowLogoGameClear()
+    {
+        // 徐々に表示するアニメーション
+        gameClearImage
+            .DOFade(1.0f, 1.0f)             // 指定数値まで画像のalpha値を変化、アニメーション時間（秒）
+            .SetEase(Ease.OutCubic)         // イージングの種類 Ease.OutCubic：終了時に速度が遅くなる
+            .SetLoops(2, LoopType.Yoyo);     // ループ回数とループの種類を設定 LoopType.Yoyo：逆再生
+        // 拡大->縮小を行うアニメーション
+        gameClearImage.transform
+            .DOScale(1.5f, 1.0f)            // 指定数値まで画像のalpha値を変化、アニメーション時間（秒）
+            .SetEase(Ease.OutCubic)         // イージングの種類 Ease.OutCubic：終了時に速度が遅くなる
+            .SetLoops(2, LoopType.Yoyo);    // ループ回数とループの種類を設定 LoopType.Yoyo：逆再生
+    }
+    /// <summary>
+    /// Show logo image for game over
+    /// </summary>
+    public void ShowLogoGameOver()
+    {
+        // 徐々に常時するアニメーション
+        gameOverImage
+            .DOFade(1.0f, 1.0f)             // 指定数値まで画像のalpha値を変化、アニメーション時間（秒）
+            .SetEase(Ease.OutCubic);        // イージングの種類 Ease.OutCubic：終了時に速度が遅くなる
+    }
+
+    public void StartFadeIn()
+    {
+        fadeInImage
+            .DOFade(1.0f, 5.5f)             // 指定数値まで画像のalpha値を変化、アニメーション時間（秒）
+            .SetEase(Ease.Linear);          // イージング(変化の度合)を設定
     }
     #endregion Public Methods
 
@@ -221,8 +304,9 @@ public class GUIManager : MonoBehaviour
     private void Init()
     {
         HideStatusWindow();
-        HideCommandButtons();
-        HideMoveCancelButton();
+        ShowHideCommandButtons(false);
+        ShowHideMoveCancelButton(false);
+        ShowHideDecideButtons(false);
     }
     #endregion Private Methods
 

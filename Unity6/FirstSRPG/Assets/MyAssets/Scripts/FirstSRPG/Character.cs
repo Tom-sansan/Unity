@@ -112,6 +112,11 @@ public class Character : MonoBehaviour
     /// </summary>
     [Header("Movement Type")]
     public MoveType moveType;
+    /// <summary>
+    /// Skill
+    /// </summary>
+    [Header("Skill")]
+    public SkillDefine.Skill Skill;
     /// ゲーム中に変化するキャラクターデータ
     /// Current x-coordinate
     /// 現在のx座標
@@ -132,6 +137,16 @@ public class Character : MonoBehaviour
     /// </summary>
     [HideInInspector]
     public int NowHP;
+    /// <summary>
+    /// Skill lock flag
+    /// 特技使用不可状態
+    /// </summary>
+    public bool IsSkillLock;
+    /// <summary>
+    /// Zero defense debuff
+    /// 防御力0化デバフ
+    /// </summary>
+    public bool IsDefenceBreak;
     #region Public Properties
 
     #endregion Public Properties
@@ -236,7 +251,7 @@ public class Character : MonoBehaviour
         pos.y = 1.0f;
         pos.z = initPosZ;
         transform.position = pos;
-        
+
         // オブジェクトを左右反転（ビルボード処理にて一度反転してしまうため）
         var scale = transform.localScale;
         // X方向の大きさを正負入れ替える

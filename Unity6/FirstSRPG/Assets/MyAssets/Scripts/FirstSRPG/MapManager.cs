@@ -1,5 +1,4 @@
-﻿using NUnit.Framework;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -253,8 +252,24 @@ public class MapManager : MonoBehaviour
         AddAttackableList(results, baseX + 1, baseZ - 1);
         // X- Z- direction
         // X- Z- 方向
-        AddAttackableList(results, baseX -1, baseZ - 1);
+        AddAttackableList(results, baseX - 1, baseZ - 1);
         return results;
+    }
+    /// <summary>
+    /// Return a map data array as a list
+    /// マップデータ配列をリストにして返す
+    /// </summary>
+    /// <returns>マップデータのリスト</returns>
+
+    public List<MapBlock> MapBlocksToList()
+    {
+        var resultList = new List<MapBlock>();
+        // Store the contents of the map data array in an ordered list
+        // マップデータ配列の中身を順番にリストに格納
+        for (int i = 0; i < MAP_WIDTH; i++)
+            for (int j = 0; j < MAP_HEIGHT; j++)
+                resultList.Add(mapBlocks[i, j]);
+        return resultList;
     }
     #endregion Public Methods
 
@@ -314,7 +329,7 @@ public class MapManager : MonoBehaviour
     /// <param name="reachableList">到達可能ブロックリスト(reachable block list)</param>
     /// <param name="targetBlock">対象ブロック(target block)</param>
     /// <returns>行き止まりフラグ(行き止まりならtrueが返る)</returns>
-    
+
     private (int baseX, int baseZ) SearchIndexesInMapBlocks(int posX, int posZ)
     {
         // Initialize the base block position

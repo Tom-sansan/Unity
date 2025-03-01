@@ -95,9 +95,12 @@ public class CharactersManager : MonoBehaviour
         characters.Remove(character);
         // Destroy the specified character object
         DOVirtual.DelayedCall(0.5f, () =>
-        {
-            Destroy(character.gameObject);
-        });
+            {
+                Destroy(character.gameObject);
+            });
+        // Make a decision to end the game
+        // ゲーム終了判定を行う
+        GetComponent<GameManager>().CheckGameSet();
     }
     #endregion Public Methods
 
@@ -120,6 +123,22 @@ public class CharactersManager : MonoBehaviour
         //    }
         //}
         characters = new List<Character>(charactersParent.GetComponentsInChildren<Character>());
+        Data data = GameObject.Find("DataManager").GetComponent<Data>();
+        // Apply status increase data
+        // ステータス上昇量データを適用する
+        foreach (Character charaData in characters)
+        {
+            // Not enhanced for enemy characters
+            // 敵キャラクターの場合は強化しない
+            if (charaData.IsEnemy) continue;
+            // Increases a character's ability
+            // キャラクターの能力を上昇させる
+            charaData.NowHP += data.AddHP;          // 現在HP
+            charaData.MaxHP += data.AddHP;          // 最大HP
+            charaData.Attack += data.AddAttack;     // 攻撃力
+            charaData.Defence += data.AddDefense;   //防御力
+        }
+
     }
 
     #endregion Private Methods

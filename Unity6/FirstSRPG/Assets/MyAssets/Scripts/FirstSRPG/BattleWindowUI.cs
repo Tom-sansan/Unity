@@ -107,25 +107,27 @@ public class BattleWindowUI : MonoBehaviour
         // アニメーション後のFillAmount
         float endAmount = (float)nowHP / character.MaxHP;
         DOTween.To
-        (
-            () => amount,       // 現在のHPゲージの表示割合を取得する(getter)
-            (x) => amount = x,  // HPゲージの表示割合を更新する(setter)
-            endAmount,          // 変化先の数値(endValue)
-            1.0f                // アニメーション時間(duration)
-        )
-        // Process performed each time the animation is updated
-        // アニメーションが更新されるたびに実行される処理
-        .OnUpdate(() =>
-        {
-            // Update the display of the HP gauge
-            // HPゲージの表示を更新
-            hpGageImage.fillAmount = amount;
-        });
+            (
+                () => amount,       // 現在のHPゲージの表示割合を取得する(getter)
+                (x) => amount = x,  // HPゲージの表示割合を更新する(setter)
+                endAmount,          // 変化先の数値(endValue)
+                1.0f                // アニメーション時間(duration)
+            )
+            // Process performed each time the animation is updated
+            // アニメーションが更新されるたびに実行される処理
+            .OnUpdate(() =>
+            {
+                // Update the display of the HP gauge
+                // HPゲージの表示を更新
+                hpGageImage.fillAmount = amount;
+            });
 
         // Show HP text
         hpText.text = nowHP + "/" + character.MaxHP;
         // Show damage text
-        damageText.text = damageValue + " ダメージ！";
+        damageText.text = damageValue >= 0 ?
+                            damageValue + " ダメージ！"
+                            : -damageValue + " 回復！";
     }
     /// <summary>
     /// Hide BattleWindowUI
