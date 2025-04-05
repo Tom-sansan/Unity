@@ -33,6 +33,9 @@ public class MovementController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private float maxVelocityChange;
+
+    [SerializeField]
+    private float tiltAmount = 10;
     #endregion SerializeField
 
     #region Protected Variables
@@ -63,7 +66,7 @@ public class MovementController : MonoBehaviour
     /// </summary>
     private Vector3 moveHorizontal;
     /// <summary>
-    /// 
+    /// Move Vertical Vector
     /// </summary>
     private Vector3 moveVertical;
     /// <summary>
@@ -110,6 +113,7 @@ public class MovementController : MonoBehaviour
     void Update()
     {
         InputJoystick();
+        TiltPlayer();
     }
     void FixedUpdate()
     {
@@ -196,6 +200,13 @@ public class MovementController : MonoBehaviour
             // 加速度モードを使用して、目標速度に達するために Rigidbody に力を加えます。
             rb.AddForce(velocityChange, ForceMode.Acceleration);
         }
+    }
+    /// <summary>
+    /// Tilt player
+    /// </summary>
+    private void TiltPlayer()
+    {
+        transform.rotation = Quaternion.Euler(joystick.Vertical * tiltAmount * speed, 0, -1 * joystick.Horizontal * tiltAmount * speed);
     }
     #endregion Private Methods
 
