@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Photon.Pun;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// LobbyManager Class
@@ -118,6 +119,14 @@ public class LobbyManager : MonoBehaviourPunCallbacks
         {
             Debug.Log("Player name is invalid or empty.");
         }
+    }
+    /// <summary>
+    /// OnQuickMatchButtonClicked
+    /// Load scene "Scene_Loading"
+    /// </summary>
+    public void OnQuickMatchButtonClicked()
+    {
+        SceneManager.LoadScene("Scene_Loading");
     }
     /// <summary>
     /// OnConnected
