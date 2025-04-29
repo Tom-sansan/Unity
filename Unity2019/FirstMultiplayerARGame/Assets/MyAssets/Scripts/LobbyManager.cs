@@ -155,10 +155,19 @@ public class LobbyManager : MonoBehaviourPunCallbacks
     /// </summary>
     private void Init()
     {
-        uI_LobbyGameObject.SetActive(false);
-        uI_3DGameObject.SetActive(false);
-        uI_ConnectionStatusGameObject.SetActive(false);
-        uI_LoginGameObject.SetActive(true);
+        if (PhotonNetwork.IsConnected)
+        {
+            // Activating only Lobby UI since already connected to Photon Server
+            uI_LobbyGameObject.SetActive(true);
+        }
+        else
+        {
+            // Activating only Login UI since not connected to Photon Server
+            uI_LobbyGameObject.SetActive(false);
+            uI_3DGameObject.SetActive(false);
+            uI_ConnectionStatusGameObject.SetActive(false);
+            uI_LoginGameObject.SetActive(true);
+        }
     }
     /// <summary>
     /// Update connectionStatus Text

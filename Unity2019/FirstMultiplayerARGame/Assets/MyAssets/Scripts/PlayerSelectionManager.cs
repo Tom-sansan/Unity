@@ -27,10 +27,21 @@ public class PlayerSelectionManager : MonoBehaviour
     [SerializeField]
     private GameObject[] spinnerTopModels;
     /// <summary>
+    /// Player selection number
+    /// </summary>
+    [SerializeField]
+    private int playerSelectionNumber = 0;
+    /// <summary>
     /// PlayerSwitcherTransform
     /// </summary>
     [SerializeField]
     private Transform playerSwitcherTransform;
+    /// <summary>
+    /// PlayerModelTypeText
+    /// </summary>
+    [Header("UI")]
+    [SerializeField]
+    private TextMeshProUGUI playerModelTypeText;
     /// <summary>
     /// NextButton
     /// </summary>
@@ -42,16 +53,15 @@ public class PlayerSelectionManager : MonoBehaviour
     [SerializeField]
     private Button previousButton;
     /// <summary>
-    /// PlayerModelTypeText
+    /// UISelection GameObject
     /// </summary>
-    [Header("UI")]
     [SerializeField]
-    private TextMeshProUGUI playerModelTypeText;
+    private GameObject uISelection;
     /// <summary>
-    /// Player selection number
+    /// UIAfterSelection GameObject
     /// </summary>
     [SerializeField]
-    private int playerSelectionNumber = 0;
+    private GameObject uIAfterSelection;
     #endregion SerializeField
 
     #region Protected Variables
@@ -123,6 +133,8 @@ public class PlayerSelectionManager : MonoBehaviour
     /// </summary>
     public void OnSelectButtonClicked()
     {
+        uISelection.SetActive(false);
+        uIAfterSelection.SetActive(true);
         var playerSelectionProp = new ExitGames.Client.Photon.Hashtable
         {
             {
@@ -130,20 +142,47 @@ public class PlayerSelectionManager : MonoBehaviour
             }
         };
         PhotonNetwork.LocalPlayer.SetCustomProperties(playerSelectionProp);
-        // SceneManager.LoadScene("Scene_Lobby");
+    }
+    /// <summary>
+    /// OnReSelectButtonClicked
+    /// </summary>
+    public void OnReSelectButtonClicked()
+    {
+        SetUISelection(true);
+    }
+    /// <summary>
+    /// OnBattleButtonClicked
+    /// </summary>
+    public void OnBattleButtonClicked()
+    {
+        SceneLoader.Instance.LoadScene("Scene_Gameplay");
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public void OnBackButtonClicked()
+    {
+        SceneLoader.Instance.LoadScene("Scene_Lobby");
     }
     #endregion Public Methods
 
     #region Private Methods
-
     /// <summary>
     /// Initialize this class
     /// </summary>
     private void Init()
     {
-
+        uISelection.SetActive(true);
+        uIAfterSelection.SetActive(false);
     }
-
+    /// <summary>
+    /// Rotate
+    /// </summary>
+    /// <param name="axis"></param>
+    /// <param name="transformToRotate"></param>
+    /// <param name="angle"></param>
+    /// <param name="duration"></param>
+    /// <returns></returns>
     private IEnumerator Rotate(Vector3 axis, Transform transformToRotate, float angle, float duration = 1f)
     {
         Quaternion originalRotation = transformToRotate.rotation;
@@ -167,15 +206,26 @@ public class PlayerSelectionManager : MonoBehaviour
         nextButton.enabled = isEnabled;
         previousButton.enabled = isEnabled;
     }
-
+    /// <summary>
+    /// Set player model type text
+    /// </summary>
     private void SetPlayerModelTypeText()
     {
         if (playerSelectionNumber == 0 || playerSelectionNumber == 1)
             // This means the player model type is Attack
-            playerModelTypeText.text = "Attack";
+            playerModelTypeText.text = "ATTACK";
         else
             // This means the player model type is Defend
-            playerModelTypeText.text = "Defend";
+            playerModelTypeText.text = "DEFEND";
+    }
+    /// <summary>
+    /// Set UI selection
+    /// </summary>
+    /// <param name="isUISelectionActive"></param>
+    private void SetUISelection(bool isUISelectionActive)
+    {
+        uISelection.SetActive(isUISelectionActive);
+        uIAfterSelection.SetActive(!isUISelectionActive);
     }
     #endregion Private Methods
 
