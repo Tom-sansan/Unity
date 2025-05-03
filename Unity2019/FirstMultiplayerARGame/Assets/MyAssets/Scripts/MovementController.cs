@@ -22,7 +22,7 @@ public class MovementController : MonoBehaviour
     /// Joystick class
     /// </summary>
     [SerializeField]
-    private Joystick joystick;
+    public Joystick Joystick;
     /// <summary>
     /// 
     /// </summary>
@@ -160,7 +160,7 @@ public class MovementController : MonoBehaviour
 
         // Calculate velocity vectors
         // 速度ベクトルを計算します。
-        moveDirection = new Vector3(joystick.Horizontal, 0f, joystick.Vertical);
+        moveDirection = new Vector3(Joystick.Horizontal, 0f, Joystick.Vertical);
         velocityVector = transform.TransformDirection(moveDirection.normalized) * speed;
         // Calls the Move method to set the target velocity.
         // Move メソッドを呼び出して目標速度を設定します。
@@ -206,7 +206,7 @@ public class MovementController : MonoBehaviour
     /// </summary>
     private void TiltPlayer()
     {
-        transform.rotation = Quaternion.Euler(joystick.Vertical * tiltAmount * speed, 0, -1 * joystick.Horizontal * tiltAmount * speed);
+        transform.rotation = Quaternion.Euler(Joystick.Vertical * tiltAmount * speed, 0, -1 * Joystick.Horizontal * tiltAmount * speed);
     }
     #endregion Private Methods
 

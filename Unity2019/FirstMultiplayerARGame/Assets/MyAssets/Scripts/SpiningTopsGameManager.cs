@@ -1,7 +1,7 @@
-﻿using Photon.Pun;
+﻿using System.Collections;
+using Photon.Pun;
 using Photon.Realtime;
-using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 /// <summary>
@@ -25,6 +25,22 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     [SerializeField]
     private int maxPlayers = 2;
+    /// <summary>
+    /// UIinformPanelGameObject
+    /// </summary>
+    [Header("UI")]
+    [SerializeField]
+    private GameObject UIInformPanelGameObject;
+    /// <summary>
+    /// UIinformText
+    /// </summary>
+    [SerializeField]
+    private TextMeshProUGUI UIInformText;
+    /// <summary>
+    /// SearchForGamesButtonGameObject
+    /// </summary>
+    [SerializeField]
+    private GameObject searchForGamesButtonGameObject;
     #endregion SerializeField
 
     #region Protected Variables
@@ -76,7 +92,9 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     /// </summary>
     public void JoinRandomRoom()
     {
+        UIInformText.text = "Searchning for available rooms...";
         PhotonNetwork.JoinRandomRoom();
+        searchForGamesButtonGameObject.SetActive(false);
     }
     /// <summary>
     /// PHOTON callback methods
@@ -85,6 +103,13 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         // base.OnJoinedRoom();
+        if (PhotonNetwork.CurrentRoom.PlayerCount == 1)
+            UIInformText.text = $"Joined to {PhotonNetwork.CurrentRoom.Name}. Waiting for other players...";
+        else
+        {
+            UIInformText.text = $"Joined to {PhotonNetwork.CurrentRoom.Name}";
+            StartCoroutine(DeactivateAfterSeconds(UIInformPanelGameObject, 2.0f));
+        }
         Debug.Log($"{PhotonNetwork.NickName} joined to {PhotonNetwork.CurrentRoom.Name}");
     }
     /// <summary>
@@ -97,6 +122,7 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     {
         // base.OnJoinRandomFailed(returnCode, message);
         Debug.Log(message);
+        UIInformText.text = message;
         CreateAndJoinRoom();
     }
     /// <summary>
@@ -107,20 +133,25 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     public override void OnPlayerEnteredRoom(Player newPlayer)
     {
         // base.OnPlayerEnteredRoom(newPlayer);
-        Debug.Log($"{newPlayer.NickName} entered to {PhotonNetwork.CurrentRoom.Name}/rPlayer count {PhotonNetwork.CurrentRoom.PlayerCount}");
+        string txt = $"{newPlayer.NickName} joined to {PhotonNetwork.CurrentRoom.Name}\nPlayer count {PhotonNetwork.CurrentRoom.PlayerCount}";
+        UIInformText.text = txt;
+        Debug.Log(txt);
+        StartCoroutine(DeactivateAfterSeconds(UIInformPanelGameObject, 2.0f));
     }
     #endregion Public Methods
 
     #region Private Methods
-
     /// <summary>
     /// Initialize this class
     /// </summary>
     private void Init()
     {
-
+        UIInformPanelGameObject.SetActive(true);
+        UIInformText.text = "Search For Games to BATTLE!";
     }
-
+    /// <summary>
+    /// Create and join room
+    /// </summary>
     private void CreateAndJoinRoom()
     {
         // Create a random room name
@@ -132,6 +163,17 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
         };
         // Create the room
         PhotonNetwork.CreateRoom(randomRoomName, roomOptions);
+    }
+    /// <summary>
+    /// Deactivate after seconds
+    /// </summary>
+    /// <param name="gameObject"></param>
+    /// <param name="seconds"></param>
+    /// <returns></returns>
+    private IEnumerator DeactivateAfterSeconds(GameObject gameObject, float seconds)
+    {
+        yield return new WaitForSeconds(seconds);
+        gameObject.SetActive(false);
     }
     #endregion Private Methods
 
