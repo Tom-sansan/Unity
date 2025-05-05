@@ -17,7 +17,26 @@ public class SynchronizationScript : MonoBehaviour, IPunObservable
     #region Variables
 
     #region SerializeField
-
+    /// <summary>
+    /// 
+    /// </summary>
+    [SerializeField]
+    private bool synchronizeVelocity = true;
+    /// <summary>
+    /// 
+    /// </summary>
+    [SerializeField]
+    private bool synchronizeAngularVelocity = true;
+    /// <summary>
+    /// 
+    /// </summary>
+    [SerializeField]
+    private bool isTeleportEnabled = true;
+    /// <summary>
+    /// 
+    /// </summary>
+    [SerializeField]
+    private float teleportIfDistanceGreaterThan = 1.0f;
     #endregion SerializeField
 
     #region Protected Variables
@@ -46,14 +65,21 @@ public class SynchronizationScript : MonoBehaviour, IPunObservable
     /// </summary>
     private PhotonView photonView;
     /// <summary>
-    /// 
+    /// Networked Position
     /// </summary>
     private Vector3 networkedPosition;
     /// <summary>
-    /// 
+    /// Networked Rotation
     /// </summary>
     private Quaternion networkedRotation;
-
+    /// <summary>
+    /// Distance
+    /// </summary>
+    private float distance;
+    /// <summary>
+    /// Angle
+    /// </summary>
+    private float angle;
     #region Private Const Variables
 
     #endregion Private Const Variables
@@ -91,8 +117,8 @@ public class SynchronizationScript : MonoBehaviour, IPunObservable
         if (!photonView.IsMine)
         {
             // Change the remote player's position and rotation
-            rb.position = Vector3.MoveTowards(rb.position, networkedPosition, Time.fixedDeltaTime);
-            rb.rotation = Quaternion.RotateTowards(rb.rotation, networkedRotation, Time.fixedDeltaTime * 100);
+            rb.position = Vector3.MoveTowards(rb.position, networkedPosition, distance * (1.0f / PhotonNetwork.SerializationRate));
+            rb.rotation = Quaternion.RotateTowards(rb.rotation, networkedRotation, angle * (1.0f / PhotonNetwork.SerializationRate));
         }
     }
     #endregion Unity Methods
@@ -113,12 +139,37 @@ public class SynchronizationScript : MonoBehaviour, IPunObservable
             // should send position, velocity etc. data to the other players
             stream.SendNext(rb.position);
             stream.SendNext(rb.rotation);
+            if (synchronizeVelocity) stream.SendNext(rb.velocity);
+            if (synchronizeAngularVelocity) stream.SendNext(rb.angularVelocity);
         }
         else
         {
             // Called on my player GameObject hat exists in remote player's GameObject
             networkedPosition = (Vector3)stream.ReceiveNext();
             networkedRotation = (Quaternion)stream.ReceiveNext();
+            if (isTeleportEnabled)
+            {
+                if (Vector3.Distance(rb.position, networkedPosition) > teleportIfDistanceGreaterThan)
+                    rb.position = networkedPosition;
+            }
+            if (synchronizeVelocity || synchronizeAngularVelocity)
+            {
+                // PhotonNetwork.Time: Used to synchronize time of all players in a room.
+                // Actually, it's the server time.
+                float lag = Mathf.Abs((float)(PhotonNetwork.Time - info.SentServerTime));
+                if (synchronizeVelocity)
+                {
+                    rb.velocity = (Vector3)stream.ReceiveNext();
+                    networkedPosition += rb.velocity * lag;
+                    distance = Vector3.Distance(rb.position, networkedPosition);
+                }
+                if (synchronizeAngularVelocity)
+                {
+                    rb.angularVelocity = (Vector3)stream.ReceiveNext();
+                    networkedRotation = Quaternion.Euler(rb.angularVelocity * lag) * networkedRotation;
+                    angle = Quaternion.Angle(rb.rotation, networkedRotation);
+                }
+            }
         }
     }
     #endregion Public Methods
