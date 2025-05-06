@@ -27,7 +27,7 @@ public class Spinner : MonoBehaviour
     /// Spinner Speed
     /// </summary>
     [SerializeField]
-    private float spinnerSpeed = 3600.0f;
+    public float spinnerSpeed = 3600.0f;
     /// <summary>
     /// Spin flag
     /// </summary>
