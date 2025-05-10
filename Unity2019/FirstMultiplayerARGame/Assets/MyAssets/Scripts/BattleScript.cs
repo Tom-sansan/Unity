@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using System.Collections;
+using Photon.Pun;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -6,7 +7,7 @@ using UnityEngine.UI;
 /// <summary>
 /// BattleScript Class
 /// </summary>
-public class BattleScript : MonoBehaviour
+public class BattleScript : MonoBehaviourPun
 {
     #region Nested Class
 
@@ -24,6 +25,16 @@ public class BattleScript : MonoBehaviour
     /// </summary>
     [SerializeField]
     private Spinner spinnerScript;
+    /// <summary>
+    /// UI 3D Gameobject
+    /// </summary>
+    [SerializeField]
+    private GameObject uI_3DGameobject;
+    /// <summary>
+    /// Death Panel UI Prefab
+    /// </summary>
+    [SerializeField]
+    private GameObject deathPanelUIPrefab;
     /// <summary>
     /// Spin speed bar image
     /// </summary>
@@ -97,6 +108,14 @@ public class BattleScript : MonoBehaviour
 
     #region Private Variables
     /// <summary>
+    /// Death panel UI GameObject
+    /// </summary>
+    private GameObject deathPanelUIGameobject;
+    /// <summary>
+    /// Rigidbody
+    /// </summary>
+    private Rigidbody rb;
+    /// <summary>
     /// Start spin speed
     /// </summary>
     private float startSpinSpeed;
@@ -104,6 +123,10 @@ public class BattleScript : MonoBehaviour
     /// Current spin speed
     /// </summary>
     private float currentSpinSpeed;
+    /// <summary>
+    /// Flag for dead
+    /// </summary>
+    private bool isDead = false;
 
     #region Private Const Variables
 
@@ -177,6 +200,7 @@ public class BattleScript : MonoBehaviour
     {
         CheckPlayerType();
         AdjustSpinSpeedForDefender();
+        rb = GetComponent<Rigidbody>();
     }
     /// <summary>
     /// Do damage to the other player
@@ -184,12 +208,19 @@ public class BattleScript : MonoBehaviour
     [PunRPC]
     private void DoDamage(float _damageAmount)
     {
-        if (isAttacker) _damageAmount *= getDamageCoefficientAttacker;
+        if (isDead) return;
+        if (isAttacker)
+        {
+            _damageAmount *= getDamageCoefficientAttacker;
+            // Adjust damage amount
+            if (_damageAmount > 1000) _damageAmount = 400;
+        }
         else if (isDefender) _damageAmount *= getDamageCoefficientDefender;
         spinnerScript.spinnerSpeed -= _damageAmount;
         currentSpinSpeed = spinnerScript.spinnerSpeed;
         spinSpeedBarImage.fillAmount = currentSpinSpeed / startSpinSpeed;
-        spinSpeedRatioText.text = GetSpinSpeedRatioText(currentSpinSpeed, startSpinSpeed);
+        SetSpinSpeedRatioText(currentSpinSpeed, startSpinSpeed);
+        if (currentSpinSpeed < 100) Die();
     }
     /// <summary>
     /// Check player type, Attacker or Defender
@@ -219,17 +250,69 @@ public class BattleScript : MonoBehaviour
         spinnerScript.spinnerSpeed = 4400;
         startSpinSpeed = spinnerScript.spinnerSpeed;
         currentSpinSpeed = spinnerScript.spinnerSpeed;
-        spinSpeedRatioText.text = GetSpinSpeedRatioText(currentSpinSpeed, startSpinSpeed);
+        SetSpinSpeedRatioText(currentSpinSpeed, startSpinSpeed);
     }
     /// <summary>
-    /// Get spin speed ratio text
+    /// Set spin speed ratio text
     /// </summary>
     /// <param name="currentSpinSpeed"></param>
     /// <param name="startSpinSpeed"></param>
-    /// <returns></returns>
-    private string GetSpinSpeedRatioText(float currentSpinSpeed, float startSpinSpeed) =>
-        $"{currentSpinSpeed.ToString("F0")}/{startSpinSpeed}";
+    private void SetSpinSpeedRatioText(float currentSpinSpeed, float startSpinSpeed) =>
+        spinSpeedRatioText.text = $"{currentSpinSpeed.ToString("F0")}/{startSpinSpeed}";
+    /// <summary>
+    /// Die
+    /// </summary>
+    private void Die()
+    {
+        isDead = true;
+        GetComponent<MovementController>().enabled = false;
+        rb.freezeRotation = false;
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        spinnerScript.spinnerSpeed = 0f;
+        uI_3DGameobject.SetActive(false);
+        // Countdown for respawn
+        if (photonView.IsMine) StartCoroutine(ReSpawn());
+    }
 
+    private IEnumerator ReSpawn()
+    {
+        var canvasGameObject = GameObject.Find("Canvas");
+        if (deathPanelUIGameobject == null)
+            deathPanelUIGameobject = Instantiate(deathPanelUIPrefab, canvasGameObject.transform);
+        else deathPanelUIGameobject.SetActive(true);
+        // Set timer for respawn
+        var respawnTimeText = deathPanelUIGameobject.transform.Find("RespawnTimeText").GetComponent<Text>(); ;
+        var respawnTime = 8.0f;
+        respawnTimeText.text = respawnTime.ToString(".00");
+        while (respawnTime > 0.0f)
+        {
+            yield return new WaitForSeconds(1.0f);
+            respawnTime--;
+            respawnTimeText.text = respawnTime.ToString(".00");
+            GetComponent<MovementController>().enabled = false;
+        }
+        deathPanelUIGameobject.SetActive(false);
+        GetComponent<MovementController>().enabled = true;
+        // ReBorn
+        photonView.RPC(nameof(ReBorn), RpcTarget.AllBuffered);
+
+    }
+    /// <summary>
+    /// ReBorn
+    /// </summary>
+    [PunRPC]
+    private void ReBorn()
+    {
+        spinnerScript.spinnerSpeed = startSpinSpeed;
+        currentSpinSpeed = spinnerScript.spinnerSpeed;
+        spinSpeedBarImage.fillAmount = currentSpinSpeed / startSpinSpeed;
+        SetSpinSpeedRatioText(currentSpinSpeed, startSpinSpeed);
+        rb.freezeRotation = true;
+        transform.rotation = Quaternion.Euler(Vector3.zero);
+        uI_3DGameobject.SetActive(true);
+        isDead = false;
+    }
     #endregion Private Methods
 
     #endregion Methods
