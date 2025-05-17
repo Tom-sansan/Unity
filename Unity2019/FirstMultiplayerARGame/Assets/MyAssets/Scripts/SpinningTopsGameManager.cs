@@ -172,7 +172,6 @@ public class SpinningTopsGameManager : MonoBehaviourPunCallbacks
     private void Init()
     {
         UIInformPanelGameObject.SetActive(true);
-        UIInformText.text = "Search For Games to BATTLE!";
     }
     /// <summary>
     /// Create and join room
