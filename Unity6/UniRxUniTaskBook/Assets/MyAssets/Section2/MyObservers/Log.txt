@@ -1,0 +1,112 @@
+CountDownEventProvider::Awake
+UnityEngine.Debug:Log (object)
+CountDownEventProvider:Awake () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:28)
+
+CountDownEventProvider::CountCoroutine
+UnityEngine.Debug:Log (object)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:40)
+UnityEngine.MonoBehaviour:StartCoroutine (System.Collections.IEnumerator)
+CountDownEventProvider:Awake () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:32)
+
+ObserveEventComponent::Start
+UnityEngine.Debug:Log (object)
+ObserveEventComponent:Start () (at Assets/MyAssets/Section2/ObserveEventComponent.cs:26)
+
+PrintLogObserver::OnNext
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:25)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+9
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+8
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+7
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+6
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+5
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+4
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+3
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+2
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+1
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:46)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+PrintLogObserver::OnNext
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:25)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:52)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+0
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnNext (int) (at Assets/MyAssets/Section2/PrintLogObserver.cs:26)
+UniRx.Subject`1<int>:OnNext (int) (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:62)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:52)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+PrintLogObserver::OnCompleted
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnCompleted () (at Assets/MyAssets/Section2/PrintLogObserver.cs:13)
+UniRx.Subject`1<int>:OnCompleted () (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:38)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:53)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
+OnCompleted!!
+UnityEngine.Debug:Log (object)
+PrintLogObserver`1<int>:OnCompleted () (at Assets/MyAssets/Section2/PrintLogObserver.cs:14)
+UniRx.Subject`1<int>:OnCompleted () (at Assets/Plugins/UniRx/Scripts/Subjects/Subject.cs:38)
+CountDownEventProvider/<CountCoroutine>d__5:MoveNext () (at Assets/MyAssets/Section2/CountDownEventProvider.cs:53)
+UnityEngine.SetupCoroutine:InvokeMoveNext (System.Collections.IEnumerator,intptr)
+
