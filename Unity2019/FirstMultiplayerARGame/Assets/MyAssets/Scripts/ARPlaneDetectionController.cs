@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using TMPro;
+﻿using TMPro;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 
@@ -62,8 +60,13 @@ public class ARPlaneDetectionController : MonoBehaviour
     #endregion Public Variables
 
     #region Private Variables
-
+    /// <summary>
+    /// ARPlaneManager Component
+    /// </summary>
     private ARPlaneManager aRPlaneManager;
+    /// <summary>
+    /// ARPlacementManager Component
+    /// </summary>
     private ARPlacementManager aRPlacementManager;
 
     #region Private Const Variables
@@ -135,9 +138,7 @@ public class ARPlaneDetectionController : MonoBehaviour
     private void SetAllPlanesActive(bool isActive)
     {
         foreach (ARPlane plane in aRPlaneManager.trackables)
-        {
             plane.gameObject.SetActive(isActive);
-        }
     }
     /// <summary>
     /// Set inform UI panel text

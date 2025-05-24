@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 
@@ -92,12 +90,15 @@ public class ARScaleController : MonoBehaviour
     {
         scaleSlider.onValueChanged.AddListener(OnScaleSliderValueChanged);
     }
-
+    /// <summary>
+    /// OnScaleSliderValueChanged callback method
+    /// </summary>
+    /// <param name="value"></param>
     private void OnScaleSliderValueChanged(float value)
     {
         if (scaleSlider != null)
         {
-            aRSessionOrigin.transform.localScale = Vector3.one * value;
+            aRSessionOrigin.transform.localScale = Vector3.one / value;
         }
     }
     #endregion Private Methods

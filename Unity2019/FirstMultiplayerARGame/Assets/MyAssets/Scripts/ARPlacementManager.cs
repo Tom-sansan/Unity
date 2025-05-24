@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+
 /// <summary>
 /// ARPlacementManager Class
 /// </summary>
@@ -49,15 +49,29 @@ public class ARPlacementManager : MonoBehaviour
     #endregion Public Variables
 
     #region Private Variables
-
+    /// <summary>
+    /// ARRaycastManager Component
+    /// </summary>
     private ARRaycastManager aRRaycastManager;
+    /// <summary>
+    /// Ray
+    /// </summary>
     private Ray ray;
-
+    /// <summary>
+    /// Hit Pose
+    /// </summary>
     private Pose hitPose;
+    /// <summary>
+    /// Vector3 of Center of Screen
+    /// </summary>
     private Vector3 centerOfScreen;
-
+    /// <summary>
+    /// Place Position
+    /// </summary>
     private Vector3 palcePosition;
-
+    /// <summary>
+    /// Raycast Hits
+    /// </summary>
     private static List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
 
     #region Private Const Variables

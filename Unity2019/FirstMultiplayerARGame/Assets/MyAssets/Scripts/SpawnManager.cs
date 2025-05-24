@@ -1,4 +1,6 @@
-﻿using Photon.Pun;
+﻿using ExitGames.Client.Photon;
+using Photon.Pun;
+using Photon.Realtime;
 using UnityEngine;
 
 /// <summary>
@@ -12,6 +14,10 @@ public class SpawnManager : MonoBehaviourPunCallbacks
 
     #region Enum
 
+    public enum RaiseEventCodes
+    {
+        PlayerSpawnEventCode = 0
+    }
     #endregion Enum
 
     #region Variables
@@ -27,6 +33,11 @@ public class SpawnManager : MonoBehaviourPunCallbacks
     /// </summary>
     [SerializeField]
     private Transform[] spawnPositions;
+    /// <summary>
+    /// Battle arena gameobject
+    /// </summary>
+    [SerializeField]
+    private GameObject battleArenaGameobject;
     #endregion SerializeField
 
     #region Protected Variables
@@ -73,20 +84,22 @@ public class SpawnManager : MonoBehaviourPunCallbacks
     #endregion Unity Methods
 
     #region Public Methods
-
+    /// <summary>
+    /// OnJoinedRoom Event
+    /// </summary>
     public override void OnJoinedRoom()
     {
         if (PhotonNetwork.IsConnectedAndReady)
         {
-            if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(MultiplayerARSpinnerTopGame.PLAYER_SELECTION_NUMBER, out var playerSelectionNumber))
-            {
-                Vector3 spawnPosition = spawnPositions[Random.Range(0, spawnPositions.Length - 1)].position;
-                var playerName = playerPrefabs[(int)playerSelectionNumber].name;
-                PhotonNetwork.Instantiate(playerName, spawnPosition, Quaternion.identity);
-                Debug.Log($"Player selection number: {playerSelectionNumber}, {playerName}");
-            }
+            //     if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(MultiplayerARSpinnerTopGame.PLAYER_SELECTION_NUMBER, out var playerSelectionNumber))
+            //     {
+            //         Vector3 spawnPosition = spawnPositions[Random.Range(0, spawnPositions.Length - 1)].position;
+            //         var playerName = playerPrefabs[(int)playerSelectionNumber].name;
+            //         PhotonNetwork.Instantiate(playerName, spawnPosition, Quaternion.identity);
+            //         Debug.Log($"Player selection number: {playerSelectionNumber}, {playerName}");
+            //     }
+            SpawnPlayer();
         }
-
     }
     #endregion Public Methods
 
@@ -99,8 +112,52 @@ public class SpawnManager : MonoBehaviourPunCallbacks
     {
 
     }
-
-
+    /// <summary>
+    /// Spawn player
+    /// </summary>
+    private void SpawnPlayer()
+    {
+        if (PhotonNetwork.LocalPlayer.CustomProperties.TryGetValue(MultiplayerARSpinnerTopGame.PLAYER_SELECTION_NUMBER, out var playerSelectionNumber))
+        {
+            Debug.Log($"Player selection number: {playerSelectionNumber}");
+            Vector3 instantiatePosition = spawnPositions[Random.Range(0, spawnPositions.Length - 1)].position;
+            GameObject playerGameObject = Instantiate(playerPrefabs[(int)playerSelectionNumber], instantiatePosition, Quaternion.identity);
+            PhotonView photonView = playerGameObject.GetComponent<PhotonView>();
+            if (PhotonNetwork.AllocateRoomViewID(photonView))
+            {
+                var data = new object[]
+                {
+                    playerGameObject.transform.position,
+                    battleArenaGameobject.transform.position,
+                    playerGameObject.transform.rotation,
+                    photonView,
+                    playerSelectionNumber
+                };
+                var raiseEventOptions = new RaiseEventOptions
+                {
+                    Receivers = ReceiverGroup.Others,
+                    CachingOption = EventCaching.AddToRoomCache
+                };
+                var sendOptions = new SendOptions
+                {
+                    Reliability = true
+                };
+                // Raise events
+                PhotonNetwork.RaiseEvent
+                (
+                    (byte)RaiseEventCodes.PlayerSpawnEventCode,
+                    data,
+                    raiseEventOptions,
+                    sendOptions
+                );
+            }
+            else
+            {
+                Debug.Log("Failed to allocate a viewID");
+                Destroy(playerGameObject);
+            }
+        }
+    }
 
     #endregion Private Methods
 
