@@ -57,7 +57,7 @@ public class ActorGroundSensor : MonoBehaviour
     #region Unity Methods
     void Start()
     {
-        Init();
+        InitStart();
     }
     void Update()
     {
@@ -74,7 +74,7 @@ public class ActorGroundSensor : MonoBehaviour
     /// <summary>
     /// Initialize this class
     /// </summary>
-    private void Init()
+    private void InitStart()
     {
         actorController = GetComponentInParent<ActorController>();
     }
