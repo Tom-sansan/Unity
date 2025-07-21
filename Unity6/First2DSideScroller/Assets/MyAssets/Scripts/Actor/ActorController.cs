@@ -105,7 +105,7 @@ public class ActorController : MonoBehaviour
     void Update()
     {
         UpdateInput();
-        // PreventSlippingOnSlopes();
+        PreventSlippingOnSlopes();
     }
     void FixedUpdate()
     {
@@ -203,7 +203,7 @@ public class ActorController : MonoBehaviour
     {
         // Rotation is frozen in Rigidbody
         _rigidbody2D.constraints = RigidbodyConstraints2D.FreezeRotation;
-        if (actorGroundSensor.IsGround && Input.GetKey(KeyCode.UpArrow))
+        if (actorGroundSensor.IsGround && !Input.GetKey(KeyCode.UpArrow))
         {
             // Prevent upward force from working when climbing a slope
             if (_rigidbody2D.linearVelocity.y > 0.0f)

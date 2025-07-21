@@ -108,6 +108,14 @@ public class CameraController : MonoBehaviour
     {
         basePos = targetPos;
     }
+    /// <summary>
+    /// Change camera moving limitter
+    /// </summary>
+    public void ChangeCameraMovingLimitter(CameraMovingLimitter targetCameraMovingLimitter)
+    {
+        // Set camera moving limitter
+        limitQuad = targetCameraMovingLimitter.GetSpriteRect();
+    }
     #endregion Public Methods
 
     #region Private Methods
