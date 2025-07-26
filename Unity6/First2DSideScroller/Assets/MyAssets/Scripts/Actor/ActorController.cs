@@ -36,6 +36,11 @@ public class ActorController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private float addedJumpPower = 30.0f;
+    /// <summary>
+    /// Weapon bullet prefab
+    /// </summary>
+    [SerializeField]
+    private GameObject weaponBulletPrefab;
     #endregion SerializeField
 
     #region Protected Variables
@@ -49,6 +54,21 @@ public class ActorController : MonoBehaviour
     [HideInInspector]
     public bool rightFacing = true;
     /// <summary>
+    /// Enemy's current HP
+    /// </summary>
+    [HideInInspector]
+    public int nowHP;
+    /// <summary>
+    /// Enemy's max HP
+    /// </summary>
+    [HideInInspector]
+    public int maxHP;
+    /// <summary>
+    /// True: Defeat (Game Over)
+    /// </summary>
+    [HideInInspector]
+    public bool isDefeat;
+    /// <summary>
     /// Movement speed to X axis
     /// </summary>
     public float xSpeed;
@@ -59,6 +79,28 @@ public class ActorController : MonoBehaviour
     #endregion Public Variables
 
     #region Private Variables
+
+    #region Private Const Variables
+    /// <summary>
+    /// Initial HP
+    /// </summary>
+    private const int InitialHP = 20;
+    /// <summary>
+    /// Invincible time(Second) after damaged
+    /// 被ダメージ直後の無敵時間（秒）
+    /// </summary>
+    private const float InvincibleTime = 2.0f;
+    /// <summary>
+    /// Stuck time after damaged
+    /// 被ダメージ直後の硬直時間（秒）
+    /// </summary>
+    private const float StuckTime = 0.5f;
+    /// <summary>
+    /// Knock back power after damaged(x axis)
+    /// 被ダメージ時ノックバック力（x方向）
+    /// </summary>
+    private const float KnockBack_X = 2.5f;
+    #endregion Private Const Variables
     /// <summary>
     /// ActorGroundSensor class for Actor
     /// </summary>
@@ -87,6 +129,16 @@ public class ActorController : MonoBehaviour
     /// Remaining left time for jumping in the air
     /// </summary>
     private float remainJumpTime;
+    /// <summary>
+    /// Remain stuck time
+    /// 残り硬直時間（0以上だと行動できない）
+    /// </summary>
+    private float remainStuckTime;
+    /// <summary>
+    /// Remain invincible time
+    /// 残り無敵時間（秒）
+    /// </summary>
+    private float invincileTime;
     #region Private Properties
 
     #endregion Private Properties
@@ -104,6 +156,10 @@ public class ActorController : MonoBehaviour
     }
     void Update()
     {
+        // Game over if defeated
+        if (isDefeat) return;
+        UpdateInvincibleTime();
+        UpdateStuckTime();
         UpdateInput();
         PreventSlippingOnSlopes();
     }
@@ -116,7 +172,51 @@ public class ActorController : MonoBehaviour
     #endregion Unity Methods
 
     #region Public Methods
-
+    /// <summary>
+    /// Process attack button input
+    /// </summary>
+    public void StartShotAction()
+    {
+        // 攻撃ボタンが入力されていない場合終了
+        if (!Input.GetKeyDown(KeyCode.Z)) return;
+        // このメソッド内で選択別武器メソッドの呼び分けやエネルギー消費処理を行う
+        ShotAction_Normal();
+    }
+    /// <summary>
+    /// Called when actor is damaged
+    /// </summary>
+    /// <param name="damage"></param>
+    public void Damaged(int damage)
+    {
+        if (isDefeat) return;
+        // No damage if invincible
+        if (invincileTime > 0.0f) return;
+        nowHP -= damage;
+        // Game over if HP is 0
+        if (nowHP <= 0)
+        {
+            isDefeat = true;
+            // 被撃破演出開始
+            actorSprite.StartDefeatAnimation();
+            // 物理演算を停止
+            _rigidbody2D.linearVelocity = Vector2.zero;
+            _rigidbody2D.bodyType = RigidbodyType2D.Kinematic;
+            xSpeed = 0.0f;
+            return;
+        }
+        // Process stuck
+        remainStuckTime = StuckTime;
+        actorSprite.stuckMode = true;
+        // Process knock back
+        float knockBackPower = KnockBack_X;
+        if (rightFacing) knockBackPower *= -1.0f;
+        // Apply knockback
+        xSpeed = knockBackPower;
+        // Process invincible
+        invincileTime = InvincibleTime;
+        if (invincileTime > 0.0f)
+            actorSprite.StartBlinking();
+    }
     #endregion Public Methods
 
     #region Private Methods
@@ -133,6 +233,8 @@ public class ActorController : MonoBehaviour
         actorSprite.Init(this);
         // Initialize camera position
         cameraController.SetPosition(transform.position);
+        // Initial HP
+        nowHP = maxHP = InitialHP;
     }
     /// <summary>
     /// Update Input
@@ -142,6 +244,7 @@ public class ActorController : MonoBehaviour
         UpdateMove();
         UpdateJump();
         UpdateCameraPosition();
+        StartShotAction();
     }
     /// <summary>
     /// Input Key
@@ -221,6 +324,55 @@ public class ActorController : MonoBehaviour
     /// </summary>
     private void UpdateCameraPosition() =>
         cameraController.SetPosition(transform.position);
+    /// <summary>
+    /// Shot action (Normal)
+    /// </summary>
+    private void ShotAction_Normal()
+    {
+        // Get bullet direction
+        float bulletAngle = 0.0f; // Facing right
+        // If the actor is facing left, the bullet will also move to the left
+        if (!rightFacing) bulletAngle = 180.0f;
+        // Create bullet object
+        GameObject bullet = Instantiate(    // Create bullet object
+            weaponBulletPrefab,             // Bullet prefab
+            transform.position,             // Bullet init position
+            Quaternion.identity);           // Bullet init rotation
+        // Set bullet
+        bullet.GetComponent<ActorNormalShot>().Init
+        (
+            12.0f,      // Bullet velocity
+            bulletAngle,// Bullet angle
+            5.0f,       // Bullet life time
+            1           // Bullet damage
+        );
+    }
+    /// <summary>
+    /// Update Invincible(無敵) Time
+    /// </summary>
+    private void UpdateInvincibleTime()
+    {
+        if (invincileTime > 0.0f)
+        {
+            invincileTime -= Time.deltaTime;
+            if (invincileTime <= 0.0f)
+                // Process end of invincible time
+                actorSprite.EndBlinking();
+        }
+    }
+    /// <summary>
+    /// Update Stuck Time
+    /// </summary>
+    private void UpdateStuckTime()
+    {
+        if (remainStuckTime > 0.0f)
+        {
+            remainStuckTime -= Time.deltaTime;
+            if (remainStuckTime <= 0.0f)
+                // Process end of stuck time
+                actorSprite.stuckMode = false;
+        }
+    }
     #endregion Private Methods
 
     #endregion Methods

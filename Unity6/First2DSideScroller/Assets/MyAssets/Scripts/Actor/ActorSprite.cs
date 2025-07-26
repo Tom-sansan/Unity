@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -22,6 +23,11 @@ public class ActorSprite : MonoBehaviour
     /// </summary>
     [SerializeField]
     private List<Sprite> walkAnimationList;
+    /// <summary>
+    /// Stuck sprite list
+    /// </summary>
+    [SerializeField]
+    private List<Sprite> stuckSpriteRes;
     #endregion SerializeField
 
     #region Protected Variables
@@ -33,7 +39,10 @@ public class ActorSprite : MonoBehaviour
     #region Public Properties
 
     #endregion Public Properties
-
+    /// <summary>
+    /// Stuck image display mode
+    /// </summary>
+    public bool stuckMode;
     #endregion Public Variables
 
     #region Private Variables
@@ -44,6 +53,7 @@ public class ActorSprite : MonoBehaviour
     /// </summary>
     private const float WalkAnimationSpan = 0.3f;
     #endregion Private Const Variables
+
     /// <summary>
     /// ActorController class
     /// </summary>
@@ -52,6 +62,10 @@ public class ActorSprite : MonoBehaviour
     /// SpriteRenderer class
     /// </summary>
     private SpriteRenderer spriteRenderer;
+    /// <summary>
+    /// Tween for blinking
+    /// </summary>
+    private Tween blinkTween;
     /// <summary>
     /// Current frame number of the walk animation
     /// </summary>
@@ -81,6 +95,14 @@ public class ActorSprite : MonoBehaviour
     }
     void Update()
     {
+        // 被撃破中なら終了
+        if (actorController.isDefeat) return;
+        // スタン画像表示モード中ならスタン画像を表示
+        if (stuckMode)
+        {
+            spriteRenderer.sprite = stuckSpriteRes[0];
+            return;
+        }
         ProcessWalkAnimation();
     }
     #endregion Unity Methods
@@ -94,6 +116,46 @@ public class ActorSprite : MonoBehaviour
     {
         this.actorController = actorController;
         this.spriteRenderer = this.actorController.GetComponent<SpriteRenderer>();
+    }
+    /// <summary>
+    /// Start blinking animation
+    /// </summary>
+    public void StartBlinking()
+    {
+        // Process blinking using DoTween
+        blinkTween = spriteRenderer.DOFade(0.0f, 0.15f) // 1回分の再生時間：0.15秒
+            .SetDelay(0.3f)                 // 遅延時間：0.3秒
+            .SetEase(Ease.Linear)           // Ease: 線形補間
+            .SetLoops(-1, LoopType.Yoyo);   // 無限ループ再生（偶数回は逆再生）
+    }
+    /// <summary>
+    /// Start defeat animation
+    /// </summary>
+    public void StartDefeatAnimation()
+    {
+        // 被撃破スプライト表示
+        spriteRenderer.sprite = stuckSpriteRes[0];
+        // 点滅演出終了
+        if (blinkTween != null) blinkTween.Kill();
+        // スプライト非表示化アニメーション
+        // 2.0秒かけてスプライトの非透明度を0.0fにする
+        spriteRenderer.DOFade(0.0f, 2.0f);
+    }
+    /// <summary>
+    /// End blinking animation
+    /// </summary>
+    public void EndBlinking()
+    {
+        // DoTweenの点滅処理を終了させる
+        if (blinkTween != null)
+        {
+            // DoTweenの終了
+            blinkTween.Kill();
+            // 色を元に戻す
+            spriteRenderer.color = Color.white;
+            // Tween情報を初期化
+            blinkTween = null;
+        }
     }
     #endregion Public Methods
 

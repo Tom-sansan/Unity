@@ -2,9 +2,10 @@ using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
-/// StageManager Class
+/// EnemyBodyAttack Class
+/// 全敵共通：エネミーとアクターが接触した時アクターにダメージを発生させる処理
 /// </summary>
-public class StageManager : MonoBehaviour
+public class EnemyBodyAttack : MonoBehaviour
 {
     #region Nested Class
 
@@ -17,12 +18,6 @@ public class StageManager : MonoBehaviour
     #region Variables
 
     #region SerializeField
-    /// <summary>
-    /// Initial area in stage
-    /// </summary>
-    [Header("AreaManager of Initial Area")]
-    [SerializeField]
-    private AreaManager initAreaManager;
 
     #endregion SerializeField
 
@@ -31,16 +26,7 @@ public class StageManager : MonoBehaviour
     #endregion Protected Variables
 
     #region Public Variables
-    /// <summary>
-    /// CameraController class
-    /// </summary>
-    [HideInInspector]
-    public CameraController cameraController;
-    /// <summary>
-    /// ActorController class
-    /// </summary>
-    [HideInInspector]
-    public ActorController actorController;
+
     #region Public Const Variables
 
     #endregion Public Const Variables
@@ -52,14 +38,14 @@ public class StageManager : MonoBehaviour
     #endregion Public Variables
 
     #region Private Variables
-    /// <summary>
-    /// Array of all areas in the stage
-    /// </summary>
-    private AreaManager[] inStageAreas;
+
     #region Private Const Variables
 
     #endregion Private Const Variables
-
+    /// <summary>
+    /// EnemyBase class
+    /// </summary>
+    private EnemyBase enemyBase;
     #region Private Properties
 
     #endregion Private Properties
@@ -83,17 +69,17 @@ public class StageManager : MonoBehaviour
     {
 
     }
+    private void OnTriggerStay2D(Collider2D collision)
+    {
+        string tag = collision.gameObject.tag;
+        if (tag == "Actor")
+            // アクターに接触ダメージを与える
+            enemyBase.AttackBody(collision.gameObject);
+    }
     #endregion Unity Methods
 
     #region Public Methods
-    /// <summary>
-    /// Deactivate all areas in stage
-    /// </summary>
-    public void DeactivateAllAreas()
-    {
-        foreach (var targetAreaManager in inStageAreas)
-            targetAreaManager.gameObject.SetActive(false);
-    }
+
     #endregion Public Methods
 
     #region Private Methods
@@ -109,14 +95,12 @@ public class StageManager : MonoBehaviour
     /// </summary>
     private void InitStart()
     {
-        actorController = GetComponentInChildren<ActorController>();
-        cameraController = GetComponentInChildren<CameraController>();
-        inStageAreas = GetComponentsInChildren<AreaManager>();
-        foreach (var targetAreaManager in inStageAreas)
-            targetAreaManager.Init(this);
-        // Activate initial area
-        initAreaManager.ActivateArea();
-
+        enemyBase = GetComponentInParent<EnemyBase>();
+        var Coll_TouchArea = GetComponent<BoxCollider2D>();
+        var Coll_Body = enemyBase.gameObject.GetComponent<BoxCollider2D>();
+        Coll_TouchArea.offset = Coll_Body.offset;
+        Coll_TouchArea.size = Coll_Body.size;
+        Coll_TouchArea.size *= 0.8f;
     }
 
     #endregion Private Methods

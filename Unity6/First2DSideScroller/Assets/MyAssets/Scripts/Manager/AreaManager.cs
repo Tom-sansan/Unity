@@ -30,21 +30,24 @@ public class AreaManager : MonoBehaviour
     #endregion Public Const Variables
 
     #region Public Properties
-
+    /// <summary>
+    /// StageManager class
+    /// </summary>
+    [HideInInspector]
+    public StageManager stageManager;
     #endregion Public Properties
 
     #endregion Public Variables
 
     #region Private Variables
     /// <summary>
-    /// StageManager class
-    /// </summary>
-    [HideInInspector]
-    private StageManager stageManager;
-    /// <summary>
     /// CameraMovingLimitter class
     /// </summary>
     private CameraMovingLimitter cameraMovingLimitter;
+    /// <summary>
+    /// Array of all enemies in this area
+    /// </summary>
+    private EnemyBase[] inAreaEnemies;
     #region Private Const Variables
 
     #endregion Private Const Variables
@@ -83,6 +86,10 @@ public class AreaManager : MonoBehaviour
     {
         this.stageManager = _stageManager;
         cameraMovingLimitter = GetComponentInChildren<CameraMovingLimitter>();
+        // Get all enemies in this area
+        inAreaEnemies = GetComponentsInChildren<EnemyBase>();
+        foreach (var targetEnemyBase in inAreaEnemies)
+            targetEnemyBase.Init(this);
         // Deactivate this area until when actor enters
         gameObject.SetActive(false);
     }
@@ -95,6 +102,9 @@ public class AreaManager : MonoBehaviour
         stageManager.DeactivateAllAreas();
         // Activate this area
         gameObject.SetActive(true);
+        // Activate all enemies in this area
+        foreach (var targetEnemyBase in inAreaEnemies)
+            targetEnemyBase.OnAreaActivated();
         // Change camera moving limitter
         stageManager.cameraController.ChangeCameraMovingLimitter(cameraMovingLimitter);
     }

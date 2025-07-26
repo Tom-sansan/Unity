@@ -1,10 +1,9 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
-/// StageManager Class
+/// AreaManager Class
 /// </summary>
-public class StageManager : MonoBehaviour
+public class EnemySnake : EnemyBase
 {
     #region Nested Class
 
@@ -17,12 +16,6 @@ public class StageManager : MonoBehaviour
     #region Variables
 
     #region SerializeField
-    /// <summary>
-    /// Initial area in stage
-    /// </summary>
-    [Header("AreaManager of Initial Area")]
-    [SerializeField]
-    private AreaManager initAreaManager;
 
     #endregion SerializeField
 
@@ -31,16 +24,7 @@ public class StageManager : MonoBehaviour
     #endregion Protected Variables
 
     #region Public Variables
-    /// <summary>
-    /// CameraController class
-    /// </summary>
-    [HideInInspector]
-    public CameraController cameraController;
-    /// <summary>
-    /// ActorController class
-    /// </summary>
-    [HideInInspector]
-    public ActorController actorController;
+
     #region Public Const Variables
 
     #endregion Public Const Variables
@@ -52,10 +36,7 @@ public class StageManager : MonoBehaviour
     #endregion Public Variables
 
     #region Private Variables
-    /// <summary>
-    /// Array of all areas in the stage
-    /// </summary>
-    private AreaManager[] inStageAreas;
+
     #region Private Const Variables
 
     #endregion Private Const Variables
@@ -86,13 +67,11 @@ public class StageManager : MonoBehaviour
     #endregion Unity Methods
 
     #region Public Methods
-    /// <summary>
-    /// Deactivate all areas in stage
-    /// </summary>
-    public void DeactivateAllAreas()
+
+    public override void OnAreaActivated()
     {
-        foreach (var targetAreaManager in inStageAreas)
-            targetAreaManager.gameObject.SetActive(false);
+        base.OnAreaActivated();
+        Debug.Log("OnAreaActivated()");
     }
     #endregion Public Methods
 
@@ -109,13 +88,6 @@ public class StageManager : MonoBehaviour
     /// </summary>
     private void InitStart()
     {
-        actorController = GetComponentInChildren<ActorController>();
-        cameraController = GetComponentInChildren<CameraController>();
-        inStageAreas = GetComponentsInChildren<AreaManager>();
-        foreach (var targetAreaManager in inStageAreas)
-            targetAreaManager.Init(this);
-        // Activate initial area
-        initAreaManager.ActivateArea();
 
     }
 
