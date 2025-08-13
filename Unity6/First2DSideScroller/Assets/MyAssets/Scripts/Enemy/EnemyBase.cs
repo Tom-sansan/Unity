@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -17,6 +18,31 @@ public class EnemyBase : MonoBehaviour
 
     #region SerializeField
     /// <summary>
+    /// Sprite list for animation
+    /// </summary>
+    [SerializeField]
+    protected Sprite[] spriteAnimation = null;
+    /// <summary>
+    /// Enemy's moving speed
+    /// </summary>
+    [SerializeField]
+    protected float movingSpeed;
+    /// <summary>
+    /// Enemy's max speed
+    /// </summary>
+    [SerializeField]
+    protected float maxSpeed;
+    /// <summary>
+    /// Enemy's sprite of defeat
+    /// </summary>
+    [SerializeField]
+    private Sprite spriteDefeat;
+    /// <summary>
+    /// Flag for boss
+    /// </summary>
+    [SerializeField]
+    private bool isBoss;
+    /// <summary>
     /// Enemy's max HP
     /// </summary>
     [SerializeField]
@@ -26,6 +52,7 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     [SerializeField]
     private int touchDamage;
+
     #endregion SerializeField
 
     #region Protected Variables
@@ -64,6 +91,11 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     [HideInInspector]
     public bool rightFacing;
+    /// <summary>
+    /// Flag for vanish
+    /// </summary>
+    [HideInInspector]
+    public bool isVanishing;
     #region Public Const Variables
 
     #endregion Public Const Variables
@@ -76,14 +108,43 @@ public class EnemyBase : MonoBehaviour
 
     #region Private Variables
 
-    #region Private Const Variables
-
-    #endregion Private Const Variables
-
+    #region Private Const/Readonly Variables
+    /// <summary>
+    /// Default color
+    /// </summary>
+    private readonly Color COL_DEFAUL = new Color(1.0f, 1.0f, 1.0f, 1.0f);
+    /// <summary>
+    /// Damaged color
+    /// </summary>
+    private readonly Color COL_DAMAGED = new Color(1.0f, 0.1f, 0.1f, 1.0f);
+    /// <summary>
+    /// Knockback value in X direction when damaged
+    /// </summary>
+    private const float KNOCKBACK_X = 1.8f;
+    /// <summary>
+    /// Knockback value in Y direction when damaged
+    /// </summary>
+    private const float KNOCKBACK_Y = 0.3f;
+    /// <summary>
+    /// Sprite change time of fly animation
+    /// </summary>
+    private const float MoveAnimationSpan = 0.3f;
+    #endregion Private Const/Readonly Variables
+    /// <summary>
+    /// Enemy's damage tween
+    /// </summary>
+    private Tween damageTween;
     #region Private Properties
 
     #endregion Private Properties
-
+    /// <summary>
+    /// Elapsed time of move animation
+    /// </summary>
+    private float moveAnimationTime;
+    /// <summary>
+    /// The current frame number of move animation
+    /// </summary>
+    private int moveAnimationFrame;
     #endregion Private Variables
 
     #endregion Variables
@@ -91,27 +152,65 @@ public class EnemyBase : MonoBehaviour
     #region Methods
 
     #region Unity Methods
-    void Awake()
+    public virtual void Awake()
     {
         InitAwake();
     }
-    void Start()
+    public virtual void Start()
     {
         InitStart();
     }
-    void Update()
+    public virtual void Update()
     {
-
+        UpdateMove();
+        UpdateAnimation();
+    }
+    public virtual void FixedUpdate()
+    {
+        FixedUpdateMove();
     }
     #endregion Unity Methods
 
     #region Public Methods
+    /// <summary>
+    /// Initialize Awake()
+    /// </summary>
+    public virtual void InitAwake() { }
+    /// <summary>
+    /// Initialize Start()
+    /// </summary>
+    public virtual void InitStart() { }
+    public virtual void UpdateMove() { }
+    public virtual void UpdateAnimation()
+    {
+        // Don't move while disappearing
+        if (isVanishing) return;
+        // Animation time elapsed
+        moveAnimationTime += Time.deltaTime;
+        // Calculate the number of animation frames
+        if (moveAnimationTime >= MoveAnimationSpan)
+        {
+            moveAnimationTime -= MoveAnimationSpan;
+            // Add flyAnimationFrame
+            moveAnimationFrame++;
+            // If the number of frames exceeds the number of animation frames, reset to 0
+            if (moveAnimationFrame >= spriteAnimation.Length) moveAnimationFrame = 0;
+        }
+        // Update animation
+        spriteRenderer.sprite = spriteAnimation[moveAnimationFrame];
+    }
+    public virtual void FixedUpdateMove() { }
+    public virtual void OnAreaActivated()
+    {
+        gameObject.SetActive(true);
+    }
     public void Init(AreaManager areaManager)
     {
         this.areaManager = areaManager;
         this.actorTransform = this.areaManager.stageManager.actorController.transform;
         this._rigidbody2D = GetComponent<Rigidbody2D>();
         this.spriteRenderer = GetComponent<SpriteRenderer>();
+        this._rigidbody2D.freezeRotation = true;
         this.nowHP = this.maxHP;
         if (transform.localScale.x > 0.0f) rightFacing = true;
         // エリアがアクティブになるまで何も処理せず待機
@@ -120,10 +219,6 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Activate this monster when actor enters the monster's area
     /// </summary>
-    public virtual void OnAreaActivated()
-    {
-        gameObject.SetActive(true);
-    }
     /// <summary>
     /// Damage to enemy
     /// </summary>
@@ -133,8 +228,38 @@ public class EnemyBase : MonoBehaviour
     {
         // Damage to enemy
         nowHP -= damage;
-        if (nowHP <= 0.0) Vanish();
-        else { }
+        // Initialize damagedTween
+        if (damageTween != null) damageTween.Kill();
+        damageTween = null;
+
+        if (nowHP <= 0)
+        {   // HP0
+            // Vanishing
+            isVanishing = true;
+            _rigidbody2D.linearVelocity = Vector2.zero;
+            _rigidbody2D.bodyType = RigidbodyType2D.Kinematic;
+            // 点滅後に消滅処理をCall
+            this.spriteRenderer
+                .DOFade(0.0f, 0.15f)        // 0.15秒ループ回数分の再生時間
+                .SetEase(Ease.Linear)       // 変化の仕方
+                .SetLoops(7, LoopType.Yoyo) // 7回ループ再生（偶数回は逆再生）
+                .OnComplete(Vanish);        // 再生終了後 Vanish() を実行
+            if (spriteDefeat != null)
+                spriteRenderer.sprite = spriteDefeat;
+            if (isBoss) { }
+            else { }
+        }
+        else
+        {   // HP > 0
+            // 被ダメージ演出処理（一瞬だけスプライトを赤色にする）
+            if (!isInvis)
+            {
+                // Change to Red
+                spriteRenderer.color = COL_DAMAGED;
+                // Return to default color gradually
+                damageTween = spriteRenderer.DOColor(COL_DEFAUL, 1.0f);
+            }
+        }
         return true;
     }
     /// <summary>
@@ -142,6 +267,8 @@ public class EnemyBase : MonoBehaviour
     /// </summary>
     public void AttackBody(GameObject actorObject)
     {
+        // 自身が消滅中なら無効
+        if (isVanishing) return;
         ActorController actorController = actorObject.GetComponent<ActorController>();
         if (actorController == null) return;
         // Damage to actor
@@ -173,20 +300,6 @@ public class EnemyBase : MonoBehaviour
     #endregion Public Methods
 
     #region Private Methods
-    /// <summary>
-    /// Initialize Awake()
-    /// </summary>
-    private void InitAwake()
-    {
-
-    }
-    /// <summary>
-    /// Initialize Start()
-    /// </summary>
-    private void InitStart()
-    {
-
-    }
     /// <summary>
     /// Called when enemy is beaten
     /// </summary>
