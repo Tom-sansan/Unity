@@ -24,6 +24,11 @@ public class ActorSprite : MonoBehaviour
     [SerializeField]
     private List<Sprite> walkAnimationList;
     /// <summary>
+    /// Swimming animation(number of frames)
+    /// </summary>
+    [SerializeField]
+    private List<Sprite> swimAnimationRes;
+    /// <summary>
     /// Stuck sprite list
     /// </summary>
     [SerializeField]
@@ -187,7 +192,12 @@ public class ActorSprite : MonoBehaviour
             if (walkAnimationFrame >= walkAnimationNumber) walkAnimationFrame = 0;
         }
         // Update walking animation
-        spriteRenderer.sprite = walkAnimationList[walkAnimationFrame];
+        if (actorController.isWaterMode)
+            // in water
+            spriteRenderer.sprite = swimAnimationRes[walkAnimationFrame];
+        else
+            // on ground
+            spriteRenderer.sprite = walkAnimationList[walkAnimationFrame];
     }
     #endregion Private Methods
 

@@ -5,14 +5,6 @@ using UnityEngine;
 /// </summary>
 public class ActorController : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -43,10 +35,6 @@ public class ActorController : MonoBehaviour
     private GameObject weaponBulletPrefab;
     #endregion SerializeField
 
-    #region Protected Variables
-
-    #endregion Protected Variables
-
     #region Public Variables
     /// <summary>
     /// Facing direction(true: right, false: left)
@@ -69,13 +57,14 @@ public class ActorController : MonoBehaviour
     [HideInInspector]
     public bool isDefeat;
     /// <summary>
+    /// True: Water mode
+    /// </summary>
+    [HideInInspector]
+    public bool isWaterMode;
+    /// <summary>
     /// Movement speed to X axis
     /// </summary>
     public float xSpeed;
-    #region Public Properties
-
-    #endregion Public Properties
-
     #endregion Public Variables
 
     #region Private Variables
@@ -100,6 +89,16 @@ public class ActorController : MonoBehaviour
     /// 被ダメージ時ノックバック力（x方向）
     /// </summary>
     private const float KnockBack_X = 2.5f;
+    /// <summary>
+    /// X-direction velocity multiplier in water
+    /// 水中でのX方向速度倍率
+    /// </summary>
+    private const float WaterModeDecelerate_X = 0.8f;
+    /// <summary>
+    /// Y-direction velocity multiplier in water
+    /// 水中でのY方向速度倍率
+    /// </summary>
+    private const float WaterModeDecelerate_Y = 0.92f;
     #endregion Private Const Variables
     /// <summary>
     /// ActorGroundSensor class for Actor
@@ -139,10 +138,6 @@ public class ActorController : MonoBehaviour
     /// 残り無敵時間（秒）
     /// </summary>
     private float invincileTime;
-    #region Private Properties
-
-    #endregion Private Properties
-
     #endregion Private Variables
 
     #endregion Variables
@@ -165,13 +160,24 @@ public class ActorController : MonoBehaviour
     }
     void FixedUpdate()
     {
-        velocity = _rigidbody2D.linearVelocity;
-        velocity.x = xSpeed;
-        _rigidbody2D.linearVelocity = velocity;
+        FixedUpdateCalculateActorVelocity();
     }
     #endregion Unity Methods
 
     #region Public Methods
+    /// <summary>
+    /// Set water mode
+    /// </summary>
+    /// <param name="waterMode">True: in water</param>
+    public void SetWaterMode(bool waterMode)
+    {
+        isWaterMode = waterMode;
+        // Gravity in water
+        if (isWaterMode) _rigidbody2D.gravityScale = 0.3f;
+        else _rigidbody2D.gravityScale = 1.0f;
+
+    }
+    /// <summary)
     /// <summary>
     /// Process attack button input
     /// </summary>
@@ -278,8 +284,10 @@ public class ActorController : MonoBehaviour
         // Reduce remaining jump time in the air
         if (remainJumpTime > 0.0f) remainJumpTime -= Time.deltaTime;
         // Jump
-        if (Input.GetKeyDown(KeyCode.UpArrow) && actorGroundSensor.IsGround)
+        if (Input.GetKeyDown(KeyCode.UpArrow))
         {
+            // If not grounded, stop (continue if in water)
+            if (!actorGroundSensor.IsGround && !isWaterMode) return;
             _rigidbody2D.linearVelocity = new Vector2(_rigidbody2D.linearVelocityX, basicJumpPower);
             // Set remain jump time in the air
             remainJumpTime = 0.25f;
@@ -318,6 +326,21 @@ public class ActorController : MonoBehaviour
                                         | RigidbodyConstraints2D.FreezePositionY
                                         | RigidbodyConstraints2D.FreezeRotation;
         }
+    }
+    /// <summary>
+    /// Calculate actor velocity in FixedUpdate
+    /// </summary>
+    private void FixedUpdateCalculateActorVelocity()
+    {
+        velocity = _rigidbody2D.linearVelocity;
+        velocity.x = xSpeed;
+        // Speed in water
+        if (isWaterMode)
+        {
+            velocity.x *= WaterModeDecelerate_X;
+            velocity.y *= WaterModeDecelerate_Y;
+        }
+        _rigidbody2D.linearVelocity = velocity;
     }
     /// <summary>
     /// Update camera position
@@ -376,12 +399,4 @@ public class ActorController : MonoBehaviour
     #endregion Private Methods
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }

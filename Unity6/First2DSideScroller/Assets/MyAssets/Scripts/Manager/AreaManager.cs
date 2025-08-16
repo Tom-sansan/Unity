@@ -5,14 +5,6 @@ using UnityEngine;
 /// </summary>
 public class AreaManager : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -24,10 +16,6 @@ public class AreaManager : MonoBehaviour
     #endregion Protected Variables
 
     #region Public Variables
-
-    #region Public Const Variables
-
-    #endregion Public Const Variables
 
     #region Public Properties
     /// <summary>
@@ -129,12 +117,4 @@ public class AreaManager : MonoBehaviour
     #endregion Private Methods
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }

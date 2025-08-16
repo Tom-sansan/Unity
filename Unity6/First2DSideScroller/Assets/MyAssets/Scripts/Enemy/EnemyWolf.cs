@@ -8,7 +8,7 @@ public class EnemyWolf : EnemyBase
 {
     #region Methods
 
-    #region Private Methods
+    #region Public Methods
     /// <summary>
     /// Fixupdate move
     /// </summary>
@@ -30,7 +30,7 @@ public class EnemyWolf : EnemyBase
         if (!rightFacing) xSpeed *= -1.0f;
         _rigidbody2D.linearVelocity = new Vector2(xSpeed, _rigidbody2D.linearVelocity.y);
     }
-    #endregion Private Methods
+    #endregion Public Methods
 
     #endregion Methods
 }

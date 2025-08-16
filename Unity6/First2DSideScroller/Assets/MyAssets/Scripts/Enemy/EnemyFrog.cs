@@ -45,10 +45,10 @@ public class EnemyFrog : EnemyBase
     {
         // Set sprite
         if (_rigidbody2D.linearVelocity.magnitude < 0.1f)
-            spriteRenderer.sprite = spriteAnimation[0];
+            spriteRenderer.sprite = spriteAnimationList[0];
         else
         {
-            spriteRenderer.sprite = spriteAnimation[1];
+            spriteRenderer.sprite = spriteAnimationList[1];
             return;
         }
         // 

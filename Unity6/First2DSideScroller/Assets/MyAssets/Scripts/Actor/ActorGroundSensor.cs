@@ -5,14 +5,6 @@ using UnityEngine;
 /// </summary>
 public class ActorGroundSensor : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -37,10 +29,6 @@ public class ActorGroundSensor : MonoBehaviour
 
     #region Private Variables
     /// <summary>
-    /// Ground Tag
-    /// </summary>
-    private const string GROUND_TAG = "Ground";
-    /// <summary>
     /// Actor Controller
     /// </summary>
     private ActorController actorController;
@@ -59,18 +47,9 @@ public class ActorGroundSensor : MonoBehaviour
     {
         InitStart();
     }
-    void Update()
-    {
-
-    }
     #endregion Unity Methods
 
-    #region Public Methods
-
-    #endregion Public Methods
-
     #region Private Methods
-
     /// <summary>
     /// Initialize this class
     /// </summary>
@@ -97,17 +76,9 @@ public class ActorGroundSensor : MonoBehaviour
     /// <param name="isOnGround"></param>
     private void CheckOnGround(Collider2D collision, bool isOnGround)
     {
-        if (collision.CompareTag(GROUND_TAG)) IsGround = isOnGround;
+        if (collision.CompareTag("Ground") || collision.CompareTag("Block")) IsGround = isOnGround;
     }
     #endregion Private Methods
 
     #endregion Methods
-
-    #region For Debug
-
-#if DEBUG
-
-#endif
-
-    #endregion For Debug
 }

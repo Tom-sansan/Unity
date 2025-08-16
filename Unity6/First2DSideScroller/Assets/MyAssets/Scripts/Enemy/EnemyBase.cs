@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 
@@ -6,14 +7,6 @@ using UnityEngine;
 /// </summary>
 public class EnemyBase : MonoBehaviour
 {
-    #region Nested Class
-
-    #endregion Nested Class
-
-    #region Enum
-
-    #endregion Enum
-
     #region Variables
 
     #region SerializeField
@@ -21,7 +14,7 @@ public class EnemyBase : MonoBehaviour
     /// Sprite list for animation
     /// </summary>
     [SerializeField]
-    protected Sprite[] spriteAnimation = null;
+    protected List<Sprite> spriteAnimationList = null;
     /// <summary>
     /// Enemy's moving speed
     /// </summary>
@@ -103,7 +96,11 @@ public class EnemyBase : MonoBehaviour
     #region Public Properties
 
     #endregion Public Properties
-
+    /// <summary>
+    /// The current frame number of move animation
+    /// </summary>
+    [HideInInspector]
+    public int moveAnimationFrame;
     #endregion Public Variables
 
     #region Private Variables
@@ -141,10 +138,6 @@ public class EnemyBase : MonoBehaviour
     /// Elapsed time of move animation
     /// </summary>
     private float moveAnimationTime;
-    /// <summary>
-    /// The current frame number of move animation
-    /// </summary>
-    private int moveAnimationFrame;
     #endregion Private Variables
 
     #endregion Variables
@@ -194,10 +187,10 @@ public class EnemyBase : MonoBehaviour
             // Add flyAnimationFrame
             moveAnimationFrame++;
             // If the number of frames exceeds the number of animation frames, reset to 0
-            if (moveAnimationFrame >= spriteAnimation.Length) moveAnimationFrame = 0;
+            if (moveAnimationFrame >= spriteAnimationList.Count) moveAnimationFrame = 0;
         }
         // Update animation
-        spriteRenderer.sprite = spriteAnimation[moveAnimationFrame];
+        spriteRenderer.sprite = spriteAnimationList[moveAnimationFrame];
     }
     public virtual void FixedUpdateMove() { }
     public virtual void OnAreaActivated()
