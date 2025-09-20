@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 
 /// <summary>
@@ -23,7 +22,11 @@ public class StageManager : MonoBehaviour
     [Header("AreaManager of Initial Area")]
     [SerializeField]
     private AreaManager initAreaManager;
-
+    /// <summary>
+    /// AudioClip for Boss Battle BGM
+    /// </summary>
+    [SerializeField]
+    private AudioClip bossBGMClip;
     #endregion SerializeField
 
     #region Protected Variables
@@ -93,6 +96,29 @@ public class StageManager : MonoBehaviour
     {
         foreach (var targetAreaManager in inStageAreas)
             targetAreaManager.gameObject.SetActive(false);
+    }
+    /// <summary>
+    /// Play boss battle BGM
+    /// </summary>
+    public void PlayBossBGM()
+    {
+        // Change BGM
+        GetComponent<AudioSource>().clip = bossBGMClip;
+        GetComponent<AudioSource>().Play();
+    }
+    /// <summary>
+    /// Stage clear
+    /// </summary>
+    public void StageClear()
+    {
+
+    }
+    /// <summary>
+    /// Game over
+    /// </summary>
+    public void GameOver()
+    {
+
     }
     #endregion Public Methods
 

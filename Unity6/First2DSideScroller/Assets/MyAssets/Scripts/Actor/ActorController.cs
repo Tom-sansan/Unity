@@ -33,6 +33,11 @@ public class ActorController : MonoBehaviour
     /// </summary>
     [SerializeField]
     private GameObject weaponBulletPrefab;
+    /// <summary>
+    /// Is icy ground mode
+    /// </summary>
+    [SerializeField]
+    private bool isIcyGroundMode;
     #endregion SerializeField
 
     #region Public Variables
@@ -320,7 +325,7 @@ public class ActorController : MonoBehaviour
             if (_rigidbody2D.linearVelocity.y > 0.0f)
                 _rigidbody2D.linearVelocity = new Vector2(_rigidbody2D.linearVelocity.x, 0.0f);
             // Avoid slipping and falling when standing on a slope
-            if (Mathf.Abs(xSpeed) < 0.1f)
+            if (Mathf.Abs(xSpeed) < 0.1f && !isIcyGroundMode)
                 // Stops movement and rotation among Rigidbody functions
                 _rigidbody2D.constraints = RigidbodyConstraints2D.FreezePositionX
                                         | RigidbodyConstraints2D.FreezePositionY
@@ -334,6 +339,9 @@ public class ActorController : MonoBehaviour
     {
         velocity = _rigidbody2D.linearVelocity;
         velocity.x = xSpeed;
+        // In case of icy ground mode, set xSpeed like slipping on ground
+        if (isIcyGroundMode && actorGroundSensor.IsGround)
+            velocity.x = Mathf.Lerp(xSpeed, _rigidbody2D.linearVelocityX, 0.99f);
         // Speed in water
         if (isWaterMode)
         {

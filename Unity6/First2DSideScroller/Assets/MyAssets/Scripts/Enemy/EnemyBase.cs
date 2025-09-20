@@ -31,6 +31,11 @@ public class EnemyBase : MonoBehaviour
     [SerializeField]
     private Sprite spriteDefeat;
     /// <summary>
+    /// Prefab for Boss Defeat Particle
+    /// </summary>
+    [SerializeField]
+    private GameObject bossDefeatParticlePrefab;
+    /// <summary>
     /// Flag for boss
     /// </summary>
     [SerializeField]
@@ -138,6 +143,10 @@ public class EnemyBase : MonoBehaviour
     /// Elapsed time of move animation
     /// </summary>
     private float moveAnimationTime;
+    /// <summary>
+    /// Enemy destroyed flag
+    /// </summary>
+    private bool isDestroyed = false;
     #endregion Private Variables
 
     #endregion Variables
@@ -195,7 +204,12 @@ public class EnemyBase : MonoBehaviour
     public virtual void FixedUpdateMove() { }
     public virtual void OnAreaActivated()
     {
-        gameObject.SetActive(true);
+        if (!isDestroyed)
+            gameObject.SetActive(true);
+        // For Boss
+        if (isBoss)
+            // Play Boss BGM
+            areaManager.stageManager.PlayBossBGM();
     }
     public void Init(AreaManager areaManager)
     {
@@ -239,7 +253,15 @@ public class EnemyBase : MonoBehaviour
                 .OnComplete(Vanish);        // 再生終了後 Vanish() を実行
             if (spriteDefeat != null)
                 spriteRenderer.sprite = spriteDefeat;
-            if (isBoss) { }
+            // When defeating the boss
+            if (isBoss)
+            {
+                // Generate boss defeat particles
+                var obj = Instantiate(bossDefeatParticlePrefab);
+                obj.transform.position = transform.position;
+                // Stage clear
+                areaManager.stageManager.StageClear();
+            }
             else { }
         }
         else
@@ -296,8 +318,11 @@ public class EnemyBase : MonoBehaviour
     /// <summary>
     /// Called when enemy is beaten
     /// </summary>
-    private void Vanish() =>
+    private void Vanish()
+    {
+        isDestroyed = true;
         Destroy(gameObject);
+    }
     #endregion Private Methods
 
     #endregion Methods
